@@ -1,12 +1,11 @@
-import { useState, useEffect, useRef, useLayoutEffect } from 'react'
-import { createPortal } from 'react-dom'
+import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Container } from '../../ui/Container'
-import { Button } from '../../ui/Button'
-import { LanguageSwitcher } from '../../LanguageSwitcher'
 import { useAuth } from '../../../context/AuthContext'
 import { setDocumentDirection } from '../../../i18n/config'
+import type { Locale } from '../../../i18n/config'
+import { LOGO_SRC, LOGO_WIDTH, LOGO_HEIGHT } from '../../design/logo'
+import { ThemeToggle } from './ThemeToggle'
 import styles from './Header.module.css'
 
 export function Header() {
@@ -14,11 +13,14 @@ export function Header() {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth()
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [userMenuOpen, setUserMenuOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const userButtonRef = useRef<HTMLButtonElement>(null)
-  const [menuPosition, setMenuPosition] = useState({ top: 0, right: 0, left: 0 })
+  // Menus remember the page they were opened on, so they close by themselves on navigation
+  const [menuOpenPath, setMenuOpenPath] = useState<string | null>(null)
+  const [userMenuOpenPath, setUserMenuOpenPath] = useState<string | null>(null)
+  const menuOpen = menuOpenPath === location.pathname
+  const userMenuOpen = userMenuOpenPath === location.pathname
+  const setMenuOpen = (open: boolean) => setMenuOpenPath(open ? location.pathname : null)
+  const setUserMenuOpen = (open: boolean) => setUserMenuOpenPath(open ? location.pathname : null)
+  const [overHero, setOverHero] = useState(false)
 
   const isActive = (path: string) => (path === '/' ? location.pathname === '/' : location.pathname.startsWith(path))
   const isHome = location.pathname === '/'
@@ -39,177 +41,161 @@ export function Header() {
     navigate('/')
   }
 
-  useLayoutEffect(() => {
-    if (!userMenuOpen || !userButtonRef.current) return
-    const rect = userButtonRef.current.getBoundingClientRect()
-    setMenuPosition({
-      top: rect.bottom + 4,
-      right: window.innerWidth - rect.right,
-      left: rect.left,
-    })
-  }, [userMenuOpen])
+  function changeLanguage(lng: Locale) {
+    setDocumentDirection(lng)
+    i18n.changeLanguage(lng)
+  }
 
   useEffect(() => {
     if (!userMenuOpen) return
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setUserMenuOpen(false)
     }
+    const onDocClick = () => setUserMenuOpenPath(null)
     window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
+    document.addEventListener('click', onDocClick)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      document.removeEventListener('click', onDocClick)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userMenuOpen])
 
+  // On the home page the header sits transparent over the dark hero and turns light after it
   useEffect(() => {
-    if (!isHome) {
-      setScrolled(false)
-      return
+    if (!isHome) return
+    const onScroll = () => {
+      const hero = document.querySelector('[data-hero]')
+      setOverHero(!!hero && hero.getBoundingClientRect().bottom >= 90)
     }
-    const onScroll = () => setScrolled(window.scrollY > 24)
-    onScroll()
+    const first = requestAnimationFrame(onScroll)
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    window.addEventListener('resize', onScroll)
+    return () => {
+      cancelAnimationFrame(first)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
   }, [isHome])
 
-  useEffect(() => {
-    setMenuOpen(false)
-  }, [location.pathname])
-
   const isRtl = (i18n.language || '').startsWith('ar')
-  const headerClass = [
-    styles.header,
-    isHome ? styles.headerOnHero : '',
-    isHome && scrolled ? styles.headerScrolled : '',
-  ]
-    .filter(Boolean)
-    .join(' ')
+  const otherLang: Locale = isRtl ? 'en' : 'ar'
+  const userLabel = (user?.name || user?.phone || t('nav.myDonations')) as string
+  const headerClass = [styles.header, isHome && overHero && !menuOpen ? styles.onHero : styles.light].join(' ')
 
   return (
     <header className={headerClass} role="banner">
-      <div className={styles.headerInner}>
-      <Container size="wide" className={styles.container}>
-        <Link to="/" className={styles.logo} aria-label={t('app.name')}>
-          <span className={styles.logoMark} aria-hidden="true" />
-          <span className={styles.logoText}>{t('app.name')}</span>
-        </Link>
-
-        <button
-          type="button"
-          className={`${styles.menuToggle} ${menuOpen ? styles.menuToggleOpen : ''}`}
-          aria-expanded={menuOpen}
-          aria-controls="main-nav"
-          onClick={() => setMenuOpen((o) => !o)}
-        >
-          <span className={styles.hamburger} />
-          <span className={styles.hamburger} />
-          <span className={styles.hamburger} />
-        </button>
-
-        <nav
-          id="main-nav"
-          className={`${styles.nav} ${menuOpen ? styles.navOpen : ''}`}
-          aria-label="Main navigation"
-        >
-          <ul className={styles.navList}>
+      <div className={`ds-wrap ${styles.inner}`}>
+        <div className={styles.start}>
+          <Link to="/" className={`ds-logo-chip ${styles.logo}`} aria-label={t('app.name')}>
+            <img src={LOGO_SRC} alt={t('app.name')} width={LOGO_WIDTH} height={LOGO_HEIGHT} />
+          </Link>
+          <nav className={styles.nav} aria-label="Main navigation">
             {navItems.map(({ to, label }) => (
-              <li key={to}>
-                <Link
-                  to={to}
-                  className={isActive(to) ? `${styles.navLink} ${styles.active}` : styles.navLink}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {label}
-                </Link>
-              </li>
+              <Link key={to} to={to} className={isActive(to) ? `${styles.navLink} ${styles.active}` : styles.navLink}>
+                {label}
+              </Link>
             ))}
-          </ul>
+          </nav>
+        </div>
 
-          <div className={styles.actions}>
-            <LanguageSwitcher
-              tone={isHome && !menuOpen ? 'onDark' : 'default'}
-              value={i18n.language}
-              onChange={(lng) => {
-                setDocumentDirection(lng)
-                i18n.changeLanguage(lng)
-              }}
-            />
-            {isAuthenticated && user ? (
-              <div className={styles.userWrap}>
-                <button
-                  ref={userButtonRef}
-                  type="button"
-                  className={styles.userButton}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    setUserMenuOpen((o) => !o)
-                  }}
-                  aria-expanded={userMenuOpen}
-                  aria-haspopup="menu"
-                  aria-controls="user-menu"
-                  id="user-menu-button"
-                >
-                  {user.name || user.phone || t('nav.myDonations')}
+        <div className={styles.acts}>
+          <ThemeToggle />
+          <button type="button" className={styles.lang} onClick={() => changeLanguage(otherLang)} lang={otherLang}>
+            {otherLang === 'en' ? t('common.english') : t('common.arabic')}
+          </button>
+
+          {isAuthenticated && user ? (
+            <span className={styles.userWrap}>
+              <button
+                type="button"
+                className={styles.userBtn}
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  setUserMenuOpen(!userMenuOpen)
+                }}
+                aria-expanded={userMenuOpen}
+                aria-haspopup="menu"
+                aria-controls="user-menu"
+                id="user-menu-button"
+              >
+                <span className={styles.userAvatar} aria-hidden="true">{userLabel.trim().charAt(0)}</span>
+                <span className={styles.userName}>{userLabel}</span>
+                <svg className={styles.chev} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </button>
+              <span
+                id="user-menu"
+                className={`${styles.userMenu} ${userMenuOpen ? styles.userMenuOpen : ''}`}
+                role="menu"
+                aria-labelledby="user-menu-button"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Link to="/my-donations" role="menuitem" tabIndex={userMenuOpen ? 0 : -1} onClick={() => { setMenuOpen(false); setUserMenuOpen(false) }}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z" />
+                  </svg>
+                  {t('nav.myDonations')}
+                </Link>
+                <hr />
+                <button type="button" role="menuitem" tabIndex={userMenuOpen ? 0 : -1} className={styles.logout} onClick={handleLogout} disabled={authLoading}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+                  </svg>
+                  {t('nav.logout')}
                 </button>
-                {userMenuOpen &&
-                  createPortal(
-                    <>
-                      <div
-                        className={styles.userMenuBackdrop}
-                        role="presentation"
-                        onClick={() => setUserMenuOpen(false)}
-                      />
-                      <div
-                        id="user-menu"
-                        className={styles.userMenu}
-                        role="menu"
-                        aria-labelledby="user-menu-button"
-                        dir={isRtl ? 'rtl' : 'ltr'}
-                        style={{
-                          position: 'fixed',
-                          top: menuPosition.top,
-                          ...(isRtl ? { left: menuPosition.left, right: 'auto' } : { right: menuPosition.right, left: 'auto' }),
-                          marginTop: 0,
-                        }}
-                      >
-                        <Link to="/my-donations" role="menuitem" onClick={() => { setMenuOpen(false); setUserMenuOpen(false); }}>
-                          {t('nav.myDonations')}
-                        </Link>
-                        <button type="button" role="menuitem" onClick={handleLogout} disabled={authLoading}>
-                          {t('nav.logout')}
-                        </button>
-                      </div>
-                    </>,
-                    document.body
-                  )}
-              </div>
-            ) : (
+              </span>
+            </span>
+          ) : (
+            <span className={styles.authLinks}>
+              <Link to="/login" className="ds-btn ds-btn-ghost">{t('nav.login')}</Link>
+              <Link to="/register" className="ds-btn ds-btn-ink">{t('nav.register')}</Link>
+            </span>
+          )}
+
+          <button
+            type="button"
+            className={`${styles.menuToggle} ${menuOpen ? styles.menuToggleOpen : ''}`}
+            aria-expanded={menuOpen}
+            aria-controls="main-nav-mobile"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+        </div>
+      </div>
+
+      {/* Small screens: the nav (and the actions that do not fit) open in a panel */}
+      <nav id="main-nav-mobile" className={`${styles.mobileNav} ${menuOpen ? styles.mobileNavOpen : ''}`} aria-label="Main navigation">
+        <div className="ds-wrap">
+          {navItems.map(({ to, label }) => (
+            <Link
+              key={to}
+              to={to}
+              className={isActive(to) ? `${styles.mobileLink} ${styles.active}` : styles.mobileLink}
+              onClick={() => setMenuOpen(false)}
+              tabIndex={menuOpen ? 0 : -1}
+            >
+              {label}
+            </Link>
+          ))}
+          <div className={styles.mobileActs}>
+            <button type="button" className={styles.mobileLang} onClick={() => changeLanguage(otherLang)} lang={otherLang} tabIndex={menuOpen ? 0 : -1}>
+              {otherLang === 'en' ? t('common.english') : t('common.arabic')}
+            </button>
+            {!(isAuthenticated && user) && (
               <>
-                <Link to="/login" onClick={() => setMenuOpen(false)} className={styles.authLink}>
-                  <Button variant="outline" size="sm">
-                    {t('nav.login')}
-                  </Button>
-                </Link>
-                <Link to="/register" onClick={() => setMenuOpen(false)} className={styles.authLinkPrimary}>
-                  <Button size="sm">{t('nav.register')}</Button>
-                </Link>
+                <Link to="/login" className="ds-btn ds-btn-ghost" onClick={() => setMenuOpen(false)} tabIndex={menuOpen ? 0 : -1}>{t('nav.login')}</Link>
+                <Link to="/register" className="ds-btn ds-btn-ink" onClick={() => setMenuOpen(false)} tabIndex={menuOpen ? 0 : -1}>{t('nav.register')}</Link>
               </>
             )}
           </div>
-        </nav>
-      </Container>
-      {!isHome && (
-        <div className={styles.waveWrap} aria-hidden>
-          <svg className={styles.wave} viewBox="0 0 320 24" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="headerWaveGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#A0207E" />
-                <stop offset="100%" stopColor="#2DAAE2" />
-              </linearGradient>
-            </defs>
-            <path d="M0 12C40 0 120 24 160 12C200 0 280 24 320 12V24H0V12Z" fill="url(#headerWaveGradient)" />
-          </svg>
         </div>
-      )}
-      </div>
+      </nav>
     </header>
   )
 }
