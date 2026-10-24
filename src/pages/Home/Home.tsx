@@ -1,10 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { setDocumentDirection } from '../../i18n/config'
 import { PageLayout } from '../../components/layout/PageLayout'
-import { Container } from '../../components/ui/Container'
-import { Button } from '../../components/ui/Button'
 import { useAuth } from '../../context/AuthContext'
 import { campaignService } from '../../services/campaignService'
 import { donationService } from '../../services/donationService'
@@ -15,8 +13,74 @@ import { fundNewsService } from '../../services/fundNewsService'
 import { fundPartnerService } from '../../services/fundPartnerService'
 import { resolveImageUrl } from '../../config/api'
 import type { CampaignOrProgram, RecentDonation, Banner, StudentRegistrationCard, FundNews, FundPartner } from '../../types/api'
-import { CampaignAmountGoal } from '../../components/CampaignAmountGoal'
+import { getCampaignProgressPercent } from '../../components/CampaignAmountGoal'
+import { Loader } from '../../components/design/Loader'
+import { SilkCanvas } from '../../components/design/SilkCanvas'
+import { HourglassCard } from '../../components/design/Hourglass'
+import { PartnersArc, type ArcPartner } from '../../components/design/PartnersArc'
+import { FeatBadge } from '../../components/design/FeatBadge'
+import { FxDot } from '../../components/design/FxDot'
+import { useInViewOnce } from '../../components/design/useInViewOnce'
 import styles from './Home.module.css'
+
+function ArrowIcon() {
+  return (
+    <svg className="ds-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M19 12H5M11 18l-6-6 6-6" />
+    </svg>
+  )
+}
+
+/** Section heading with the framed entrance: a rule draws, the title rises, the copy fades, buttons open. */
+function SectionHead({ children, className = '' }: { children: ReactNode; className?: string }) {
+  const [ref, inView] = useInViewOnce<HTMLDivElement>(0.3)
+  return (
+    <div ref={ref} className={`ds-vx ${inView ? 'ds-in' : ''} ${styles.head} ${className}`.trim()}>
+      <i className="ds-vx-rule" aria-hidden="true" />
+      {children}
+    </div>
+  )
+}
+
+/** A news box: equal boxes, the one under the pointer opens wider; rises and unveils on entry. */
+function NewsBox({ index, featured, featuredLabel, imageUrl, date, dateTime, title, excerpt }: {
+  index: number
+  featured: boolean
+  featuredLabel: string
+  imageUrl: string
+  date: string
+  dateTime: string
+  title: string
+  excerpt: string
+}) {
+  const [ref, inView] = useInViewOnce<HTMLElement>(0.25)
+  const gradients = [
+    'linear-gradient(150deg,#A2458C,#D47EC0 55%,#32A1BF)',
+    'linear-gradient(150deg,#32A1BF,#7FD0E6)',
+    'linear-gradient(150deg,#7E2F6C,#32A1BF)',
+  ]
+  const style = { '--i': index % 3, '--ring-delay': `${-(index % 3) * 2.3}s` } as CSSProperties
+  const imgStyle = { '--cv': gradients[index % 3], ...(imageUrl ? { backgroundImage: `url(${imageUrl})` } : {}) } as CSSProperties
+  return (
+    <article ref={ref} className={`ds-card ${styles.nw} ${featured ? styles.nwF : ''} ${inView ? styles.nwIn : ''}`} style={style}>
+      <div className={styles.nwImg} style={imgStyle} />
+      {featured && <FeatBadge label={featuredLabel} sparks className={styles.nwBadge} />}
+      <div className={styles.nwBody}>
+        <time dateTime={dateTime}>
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="3" y="5" width="18" height="16" rx="3" />
+            <path d="M8 3v4M16 3v4M3 10h18" />
+          </svg>
+          {date}
+        </time>
+        <h3>{title}</h3>
+        <p>{excerpt}</p>
+      </div>
+      <FxDot index={index} />
+    </article>
+  )
+}
+
 
 const FALLBACK_CARD_DESC_AR = 'سجّل طلبك للاستفادة من برامج الدعم الدراسي. استكمل بياناتك وارفع المستندات المطلوبة.'
 const FALLBACK_CARD_DESC_EN = 'Register your application for student support programs. Complete your details and upload required documents.'
@@ -219,350 +283,259 @@ export function Home() {
       ? resolveImageUrl(registrationCard.background_image_url || registrationCard.background_image)
       : undefined
 
-  return (
-    <PageLayout noPadding>
-      {/* Hero: بطاقة التسجيل دائماً أولاً؛ البانرات خلفها مع إمكانية التمرير */}
-      <section className={`${styles.hero} js-hero`} aria-label="Hero" dir={isRtl ? 'rtl' : 'ltr'} lang={i18n.language || 'ar'}>
-        <div className={styles.heroBg} />
-        <div className={styles.heroShine} aria-hidden="true" />
-        <div className={styles.heroShapes} aria-hidden="true">
-          <span className={styles.heroShape} data-shape="1" />
-          <span className={styles.heroShape} data-shape="2" />
-          <span className={styles.heroShape} data-shape="3" />
-        </div>
-        <div className={styles.heroNoise} aria-hidden="true" />
-        <div className={styles.heroCurve} aria-hidden="true" />
-        <Container size="wide" className={`${styles.heroContainer} js-hero-container`}>
-          <div className={`${styles.heroGrid} ${isRtl ? styles.heroGridRtl : ''} ${!hasBanners ? styles.heroGridNoBanners : ''} js-hero-grid`}>
-            {/* النص: العلامة، العنوان، الوصف */}
-            <div className={`${styles.heroBanner} js-hero-banner`} dir={isRtl ? 'rtl' : 'ltr'}>
-              <p className={`${styles.heroEyebrow} ${styles.heroReveal1} js-hero-badge`}>{t('app.tagline')}</p>
-              <h1 className={`${styles.heroTitle} ${styles.heroReveal2} js-hero-title`}>
-                <span className={styles.heroTitleLine}>{t('home.heroTitle')}</span>
-              </h1>
-              <p className={`${styles.heroSubtitle} ${styles.heroReveal3} js-hero-subtitle`}>{t('home.heroSubtitle')}</p>
-            </div>
 
-            {/* منطقة موحّدة: بطاقة التسجيل أماماً، البانرات خلفها */}
-            <div className={`${styles.heroUnified} ${!hasBanners ? styles.heroUnifiedNoBanners : ''}`}>
-              {/* طبقة البانرات (خلفية) — تظهر فقط عند وجود بانرات */}
-              {hasBanners && (
-                <div className={styles.heroBannersBack} aria-label={t('home.bannersLabel')} dir={isRtl ? 'rtl' : 'ltr'}>
-                  <div className={styles.heroBannersTrack}>
-                    {banners.map((banner, i) => (
-                      <div
-                        key={banner.id}
-                        className={`${styles.heroBannerSlide} ${i === bannerIndex ? styles.heroBannerSlideActive : ''}`}
-                        style={{
-                          backgroundImage: banner.image_url || banner.image
-                            ? `url(${resolveImageUrl(banner.image_url || banner.image)})`
-                            : undefined,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                          backgroundColor: 'var(--color-primary-dark, #1a5f7a)',
-                        }}
-                        aria-hidden={i !== bannerIndex}
-                      />
-                    ))}
-                  </div>
-                  <div className={styles.heroBannersDots} role="tablist" aria-label={t('home.bannersLabel')}>
-                    {banners.map((b, i) => (
-                      <button
-                        key={b.id}
-                        type="button"
-                        role="tab"
-                        aria-selected={i === bannerIndex}
-                        aria-label={t('home.bannerSlide', { number: i + 1 })}
-                        className={`${styles.heroBannersDot} ${i === bannerIndex ? styles.heroBannersDotActive : ''}`}
-                        onClick={() => setBannerIndex(i)}
-                      />
-                    ))}
-                  </div>
+  // ===== presentation only below: the data and logic above are unchanged =====
+  const [ready, setReady] = useState(false)
+  const [regRef, regInView] = useInViewOnce<HTMLDivElement>(0.3)
+  const heroWords = t('home.heroTitle').split(' ')
+  const gradFrom = Math.floor(heroWords.length / 2)
+  const percentSign = lang === 'ar' ? '٪' : '%'
+  const currency = t('donate.currencyShort')
+  const newsRows: FundNews[][] = []
+  for (let i = 0; i < newsList.length; i += 3) newsRows.push(newsList.slice(i, i + 3))
+  const arcPartners: ArcPartner[] = partnersList.map((p) => {
+    const nameKey = lang === 'ar' ? 'name_ar' : 'name_en'
+    const name = (p[nameKey as keyof FundPartner] as string) || p.name_ar || p.name_en || `Partner ${p.id}`
+    return { key: String(p.id), name, logoUrl: resolveImageUrl(p.logo_url ?? p.logo), link: p.link || undefined }
+  })
+
+  return (
+    <PageLayout noPadding design>
+      <Loader onDone={() => setReady(true)} />
+
+      {/* ================= Hero: dark silk band ================= */}
+      <section className={styles.hero} data-hero aria-label={t('app.name')} dir={isRtl ? 'rtl' : 'ltr'} lang={i18n.language || 'ar'}>
+        <SilkCanvas className={styles.heroCanvas} />
+        <div className={`ds-wrap ${styles.heroGrid}`}>
+          <div className={`ds-vx ${ready ? 'ds-in' : ''} ${styles.heroText}`}>
+            <i className="ds-vx-rule" aria-hidden="true" />
+            <span className={`ds-vx-copy ${styles.heroEyebrow}`}>{t('app.tagline')}</span>
+            <h1 className="ds-vx-title">
+              {heroWords.slice(0, gradFrom).join(' ')}{gradFrom > 0 ? ' ' : ''}
+              <span className={styles.grad}>{heroWords.slice(gradFrom).join(' ')}</span>
+            </h1>
+            <p className={`ds-vx-copy ${styles.heroSub}`}>{t('home.heroSubtitle')}</p>
+          </div>
+
+          {hasBanners ? (
+            <div className={`${styles.banners} ${ready ? styles.bannersOn : ''}`} aria-label={t('home.bannersLabel')}>
+              {banners.map((banner, i) => (
+                <div
+                  key={banner.id}
+                  className={`${styles.bannerSlide} ${i === bannerIndex ? styles.bannerSlideActive : ''}`}
+                  style={{
+                    backgroundImage: banner.image_url || banner.image
+                      ? `url(${resolveImageUrl(banner.image_url || banner.image)})`
+                      : undefined,
+                  }}
+                  aria-hidden={i !== bannerIndex}
+                />
+              ))}
+              {banners.length > 1 && (
+                <div className={styles.bannerDots} role="tablist" aria-label={t('home.bannersLabel')}>
+                  {banners.map((b, i) => (
+                    <button
+                      key={b.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={i === bannerIndex}
+                      aria-label={t('home.bannerSlide', { number: i + 1 })}
+                      className={`${styles.bannerDot} ${i === bannerIndex ? styles.bannerDotActive : ''}`}
+                      onClick={() => setBannerIndex(i)}
+                    />
+                  ))}
                 </div>
               )}
-
-              {/* بطاقة التسجيل — دائماً في المقدمة (محتواها من API أو افتراضي) */}
-              <div className={`${styles.heroCardForeground} ${styles.heroCardWrap} ${styles.heroReveal4} js-hero-card-wrap`}>
-                  <div
-                    className={`${styles.regCard} js-reg-card`}
-                    dir={isRtl ? 'rtl' : 'ltr'}
-                    style={
-                      cardBgImage
-                        ? {
-                            backgroundImage: `url(${cardBgImage})`,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center',
-                          }
-                        : undefined
-                    }
-                  >
-                    {cardBgImage && <span className={styles.regCardOverlay} aria-hidden="true" />}
-                    <span className={styles.regCardAccent} aria-hidden="true" />
-                    <div className={styles.regCardInner}>
-                      <div className={styles.regCardHeader}>
-                        <span className={styles.regCardIcon} aria-hidden="true">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                            <circle cx="9" cy="7" r="4" />
-                            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                          </svg>
-                        </span>
-                        <span className={styles.regCardTag}>{t('home.regCardTag')}</span>
-                      </div>
-                      <h3 className={`${styles.regCardTitle} js-reg-card-title`}>{cardHeadline}</h3>
-                      <p className={`${styles.regCardDesc} js-reg-card-desc`}>{cardSubtitle}</p>
-                      <Link
-                        to="/student-registration"
-                        className={`${styles.regCardButton} ${statusClass} js-reg-card-button`}
-                      >
-                        <span className={styles.regCardButtonText}>{statusLabel}</span>
-                        <span className={`${styles.regCardArrow} js-reg-card-arrow`} aria-hidden="true">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M5 12h14M13 6l6 6-6 6" />
-                          </svg>
-                        </span>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
             </div>
-          </div>
-        </Container>
+          ) : (
+            <div className={`${styles.climb} ${ready ? styles.climbOn : ''}`} aria-hidden="true">
+              <svg viewBox="0 0 320 320">
+                <defs>
+                  <linearGradient id="ds-climb-t" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#7FD0E6" /><stop offset="1" stopColor="#1F6E85" /></linearGradient>
+                  <linearGradient id="ds-climb-p" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#E7A6D8" /><stop offset="1" stopColor="#7E2F6C" /></linearGradient>
+                </defs>
+                <path d="M120 20h170a20 20 0 0 1 20 20v170z" fill="url(#ds-climb-p)" opacity=".85" />
+                <rect className={styles.st} style={{ '--s': 0 } as CSSProperties} x="20" y="250" width="70" height="60" rx="6" fill="url(#ds-climb-t)" />
+                <rect className={styles.st} style={{ '--s': 1 } as CSSProperties} x="90" y="188" width="70" height="122" rx="6" fill="url(#ds-climb-t)" />
+                <rect className={styles.st} style={{ '--s': 2 } as CSSProperties} x="160" y="126" width="70" height="184" rx="6" fill="url(#ds-climb-t)" />
+                <rect className={styles.st} style={{ '--s': 3 } as CSSProperties} x="230" y="64" width="70" height="246" rx="6" fill="url(#ds-climb-t)" />
+                <g className={styles.walker}><circle cx="55" cy="236" r="11" fill="#FFFFFF" /><circle cx="55" cy="236" r="18" fill="none" stroke="#FFFFFF" strokeOpacity=".4" strokeWidth="2" /></g>
+                <g className={styles.cap} transform="translate(245 22)"><path d="M20 10L0 0-20 10 0 20z" fill="#FFFFFF" /><path d="M-12 14v8c6 5 18 5 24 0v-8" fill="none" stroke="#FFFFFF" strokeWidth="3" /></g>
+              </svg>
+            </div>
+          )}
+        </div>
       </section>
 
-      {/* Featured campaigns + donations: same horizontal padding as other pages */}
-      <div className={styles.pageGutter}>
-      <section id="campaigns" className={styles.sectionCampaigns}>
-        <Container size="wide">
-          <div className={styles.sectionHead}>
-            <h2 className={styles.sectionTitle}>{t('home.campaignsSectionTitle')}</h2>
-            <p className={styles.sectionSubtitle}>{t('campaigns.subtitle')}</p>
+      {/* ================= Student registration card (overlaps the hero) ================= */}
+      <div className={`ds-wrap ${styles.regWrap}`} dir={isRtl ? 'rtl' : 'ltr'}>
+        <div ref={regRef} className={`ds-ringbox ds-reveal ds-vx ${regInView ? 'ds-in' : ''} ${styles.regcard}`}>
+          {cardBgImage && <span className={styles.regBg} style={{ backgroundImage: `url(${cardBgImage})` }} aria-hidden="true" />}
+          <span className={styles.regIcon} aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <g className={styles.capg}><path d="M22 10L12 5 2 10l10 5 10-5z" /></g>
+              <path d="M6 12v5c3 2 9 2 12 0v-5" />
+            </svg>
+          </span>
+          <div className={styles.regText}>
+            <span className={styles.eyebrow}>{t('home.regCardTag')}</span>
+            <h3>{cardHeadline}</h3>
+            <p>{cardSubtitle}</p>
+          </div>
+          <Link to="/student-registration" className={`ds-btn ds-btn-ink ${styles.regBtn} ${statusClass}`}>
+            {statusLabel}
+            <ArrowIcon />
+          </Link>
+          <FxDot index={0} />
+        </div>
+      </div>
+
+      <div className="ds-wrap" dir={isRtl ? 'rtl' : 'ltr'}>
+        {/* ================= Initiatives: one hourglass per campaign ================= */}
+        <section className={styles.block} id="campaigns" aria-labelledby="campaigns-heading">
+          <div className={styles.headRow}>
+            <SectionHead>
+              <h2 id="campaigns-heading" className="ds-vx-title">{t('home.campaignsSectionTitle')}</h2>
+              <p className="ds-vx-copy">{t('campaigns.subtitle')}</p>
+            </SectionHead>
+            {campaigns.length > 0 && (
+              <Link to="/campaigns" className={`ds-btn ds-btn-ghost ${styles.viewAll}`}>{t('home.viewAll')}</Link>
+            )}
           </div>
           {loadingCampaigns ? (
-            <div className={styles.loadingState}>
-              <div className={styles.loadingDots} aria-hidden="true">
-                <span /><span /><span />
-              </div>
-              <p className={styles.placeholderText}>{t('common.loading')}</p>
+            <div className={styles.grid3} aria-busy="true">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className={`ds-card ${styles.skeleton}`}>
+                  <span className={styles.skeletonStage} />
+                  <span className={styles.skeletonLine} />
+                  <span className={`${styles.skeletonLine} ${styles.skeletonShort}`} />
+                </div>
+              ))}
+              <span className={styles.srOnly}>{t('common.loading')}</span>
             </div>
           ) : campaigns.length === 0 ? (
-            <p className={styles.placeholderText}>{t('campaigns.noCampaigns')}</p>
+            <p className={`ds-card ${styles.empty}`}>{t('campaigns.noCampaigns')}</p>
           ) : (
-            <>
-              <div className={styles.cardGrid}>
-                {campaigns.map((item) => (
-                  <article key={item.id} className={styles.campaignCard}>
-                    <Link to={`/donate?campaign_id=${item.id}`} className={styles.campaignCardLink}>
-                      <div
-                        className={styles.campaignCardImage}
-                        style={{
-                          backgroundImage: item.image_url || item.image || item.banner_url || item.banner
-                            ? `url(${resolveImageUrl(item.image_url || item.image || item.banner_url || item.banner)})`
-                            : undefined,
-                        }}
-                      >
-                        <div className={styles.campaignCardOverlay} />
-                      </div>
-                      <div className={styles.campaignCardBody}>
-                        <h3 className={styles.campaignCardTitle}>{getTitle(item)}</h3>
-                        <CampaignAmountGoal
-                          raisedAmount={item.raised_amount}
-                          goalAmount={item.goal_amount}
-                        />
-                      </div>
-                      <div className={styles.campaignCardFooter}>
-                        <span className={styles.campaignCardCta}>{t('campaigns.donate')}</span>
-                      </div>
-                    </Link>
-                  </article>
-                ))}
-              </div>
-              <div className={styles.sectionFooter}>
-                <Link to="/campaigns">
-                  <Button variant="outline" size="lg">{t('home.viewAll')}</Button>
-                </Link>
-              </div>
-            </>
+            <div className={styles.grid3}>
+              {campaigns.map((item, i) => {
+                const raised = Number(item.raised_amount) || 0
+                const goal = Number(item.goal_amount) || 0
+                return (
+                  <HourglassCard
+                    key={item.id}
+                    index={i}
+                    percent={getCampaignProgressPercent(raised, goal > 0 ? goal : 1)}
+                    title={getTitle(item)}
+                    raisedLabel={t('campaigns.raised')}
+                    goalLabel={t('campaigns.goal')}
+                    raisedText={`${formatDonationAmount(raised)} ${currency}`}
+                    goalText={`${formatDonationAmount(goal)} ${currency}`}
+                    donateLabel={t('campaigns.donate')}
+                    donateTo={`/donate?campaign_id=${item.id}`}
+                    percentSign={percentSign}
+                  />
+                )
+              })}
+            </div>
           )}
-        </Container>
-      </section>
+        </section>
 
-      {/* News section — من الباكند /fund-news */}
-      <section id="news" className={styles.sectionNews} aria-labelledby="news-heading" dir={isRtl ? 'rtl' : 'ltr'}>
-        <Container size="wide">
-          <div className={styles.sectionHead}>
-            <span className={styles.sectionBadge}>{t('news.featured')}</span>
-            <h2 id="news-heading" className={styles.sectionTitle}>{t('nav.news')}</h2>
-            <p className={styles.sectionSubtitle}>{t('news.subtitle')}</p>
-          </div>
+        {/* ================= News: boxes that open wider under the pointer ================= */}
+        <section className={`${styles.block} ${styles.newsBlock}`} id="news" aria-labelledby="news-heading">
+          <SectionHead>
+            <span className="ds-vx-copy"><FeatBadge label={t('news.featured')} small /></span>
+            <h2 id="news-heading" className="ds-vx-title">{t('nav.news')}</h2>
+            <p className="ds-vx-copy">{t('news.subtitle')}</p>
+          </SectionHead>
           {loadingNews ? (
             <div className={styles.newsGrid} aria-busy="true">
-              {[1, 2, 3, 4].map((i) => (
-                <article key={i} className={styles.newsCardFeatured}>
-                  <div className={styles.newsCardImage} style={{ background: 'var(--gradient-dominant)' }} />
-                  <div className={styles.newsCardContent}>
-                    <span className={styles.newsDate} />
-                    <span className={styles.newsCardTitle} style={{ width: '80%', height: '1.5em', background: 'var(--color-muted)', borderRadius: 4 }} />
-                    <span className={styles.newsExcerpt} style={{ display: 'block', width: '100%', height: '3em', background: 'var(--color-muted)', borderRadius: 4, marginTop: 8 }} />
-                  </div>
-                </article>
-              ))}
+              {[0, 1, 2].map((i) => <div key={i} className={`ds-card ${styles.nwSkeleton}`} />)}
+              <span className={styles.srOnly}>{t('common.loading')}</span>
             </div>
           ) : newsList.length === 0 ? (
-            <p className={styles.sectionSubtitle} style={{ marginTop: '1rem' }}>{t('news.noNews')}</p>
+            <p className={`ds-card ${styles.empty}`}>{t('news.noNews')}</p>
           ) : (
-            <div className={styles.newsGrid}>
-              {newsList.map((item) => {
-                const titleKey = lang === 'ar' ? 'title_ar' : 'title_en'
-                const contentKey = lang === 'ar' ? 'content_ar' : 'content_en'
-                const title = (item[titleKey as keyof FundNews] as string) || `#${item.id}`
-                const content = (item[contentKey as keyof FundNews] as string) || ''
-                const excerpt = stripHtml(content).slice(0, 120) + (stripHtml(content).length > 120 ? '…' : '')
-                const imgUrl = resolveImageUrl(item.image_url ?? item.image)
-                return (
-                  <article key={item.id} className={styles.newsCardFeatured}>
-                    <div className={styles.newsCardImage} style={imgUrl ? { backgroundImage: `url(${imgUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: 'var(--gradient-dominant)' }}>
-                      {item.is_featured && (
-                        <span className={styles.newsCardBadgeFeatured}>{t('news.featured')}</span>
-                      )}
-                      {!imgUrl && (
-                        <span className={styles.newsCardIcon} aria-hidden="true">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2" /><path d="M18 14h-8" /><path d="M15 18h-5" /><path d="M10 6h8v4h-8V6Z" /></svg>
-                        </span>
-                      )}
-                    </div>
-                    <div className={styles.newsCardContent}>
-                      <time className={styles.newsDate} dateTime={item.published_at ?? ''}>{formatNewsDate(item.published_at, lang)}</time>
-                      <h3 className={styles.newsCardTitle}>{title}</h3>
-                      <p className={styles.newsExcerpt}>{excerpt}</p>
-                    </div>
-                  </article>
-                )
-              })}
-            </div>
-          )}
-        </Container>
-      </section>
-
-      {SHOW_RECENT_DONATIONS && (
-      <>
-      {/* Recent donations — شريط بعرض الصفحة مع تمرير مستمر، قبل الشركاء */}
-      <section className={styles.sectionDonations} aria-labelledby="recent-donations-heading" dir={isRtl ? 'rtl' : 'ltr'}>
-        <Container size="wide">
-          <div className={styles.sectionHead}>
-            <h2 id="recent-donations-heading" className={styles.sectionTitle}>{t('home.recentDonations')}</h2>
-            <p className={styles.sectionSubtitle}>{t('home.recentDonationsSubtitle')}</p>
-          </div>
-          {loadingDonations ? (
-            <div className={styles.donationStripLoading}>
-              <div className={styles.loadingDots} aria-hidden="true">
-                <span /><span /><span />
+            newsRows.map((row, r) => (
+              <div key={r} className={styles.newsGrid}>
+                {row.map((item, i) => {
+                  const titleKey = lang === 'ar' ? 'title_ar' : 'title_en'
+                  const contentKey = lang === 'ar' ? 'content_ar' : 'content_en'
+                  const title = (item[titleKey as keyof FundNews] as string) || `#${item.id}`
+                  const content = (item[contentKey as keyof FundNews] as string) || ''
+                  const excerpt = stripHtml(content).slice(0, 120) + (stripHtml(content).length > 120 ? '…' : '')
+                  return (
+                    <NewsBox
+                      key={item.id}
+                      index={r * 3 + i}
+                      featured={!!item.is_featured}
+                      featuredLabel={t('news.featured')}
+                      imageUrl={resolveImageUrl(item.image_url ?? item.image)}
+                      date={formatNewsDate(item.published_at, lang)}
+                      dateTime={item.published_at ?? ''}
+                      title={title}
+                      excerpt={excerpt}
+                    />
+                  )
+                })}
               </div>
-            </div>
-          ) : recentDonations.length === 0 ? (
-            <p className={styles.donationStripEmpty}>{t('home.recentDonationsSubtitle')}</p>
-          ) : null}
-        </Container>
-        {!loadingDonations && recentDonations.length > 0 && (
-          <div className={styles.donationStripTrack} aria-hidden="true">
-            <ul className={styles.donationStripRow} role="list">
-              {[...recentDonations, ...recentDonations].map((d, i) => {
-                const donation = d as RecentDonation
-                const timeAgo = getTimeAgoKey(donation.created_at)
-                return (
-                  <li key={`${donation.id ?? i}-${i}`} className={styles.donationStripItem}>
-                    <span className={styles.donationStripAvatar} aria-hidden="true">♥</span>
-                    <div className={styles.donationStripContent}>
-                      <span className={styles.donationStripAmount}>
-                        {formatDonationAmount(donation.amount)} {t('donate.currencyShort', 'OMR')}
-                      </span>
-                      <span className={styles.donationStripName}>{t('home.benefactorLabel')}</span>
-                      {timeAgo.key !== 'home.timeAgoJustNow' && (
-                        <span className={styles.donationStripTime}>
-                          {t(timeAgo.key, { count: timeAgo.count ?? 0 })}
-                        </span>
-                      )}
-                    </div>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
+            ))
+          )}
+        </section>
+
+        {SHOW_RECENT_DONATIONS && (
+          <section className={styles.block} aria-labelledby="recent-donations-heading">
+            <SectionHead>
+              <h2 id="recent-donations-heading" className="ds-vx-title">{t('home.recentDonations')}</h2>
+              <p className="ds-vx-copy">{t('home.recentDonationsSubtitle')}</p>
+            </SectionHead>
+            {loadingDonations ? (
+              <p className={styles.srOnly}>{t('common.loading')}</p>
+            ) : (
+              <ul className={styles.donationList}>
+                {recentDonations.map((d, i) => {
+                  const donation = d as RecentDonation
+                  const timeAgo = getTimeAgoKey(donation.created_at)
+                  return (
+                    <li key={`${donation.id ?? i}-${i}`} className="ds-card">
+                      <b>{formatDonationAmount(donation.amount)} {t('donate.currencyShort', 'OMR')}</b>
+                      <span>{t('home.benefactorLabel')}</span>
+                      {timeAgo.key !== 'home.timeAgoJustNow' && <span>{t(timeAgo.key, { count: timeAgo.count ?? 0 })}</span>}
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </section>
         )}
-      </section>
-      </>
-      )}
-
-      {/* Partners section — من الباكند /fund-partners */}
-      <section id="partners" className={styles.sectionPartners} aria-labelledby="partners-heading" dir={isRtl ? 'rtl' : 'ltr'}>
-        <div className={styles.partnersBg} aria-hidden="true" />
-        <Container size="wide">
-          <div className={styles.sectionHead}>
-            <span className={`${styles.sectionBadge} ${styles.sectionBadgeLight}`}>{t('partners.featured')}</span>
-            <h2 id="partners-heading" className={styles.sectionTitlePartners}>{t('nav.partners')}</h2>
-            <p className={styles.sectionSubtitlePartners}>{t('partners.subtitle')}</p>
-          </div>
-          {loadingPartners ? (
-            <div className={styles.partnersTrack}>
-              <div className={styles.partnersRow}>
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={`skeleton-${i}`} className={styles.partnerLogoWrap}>
-                    <div className={styles.partnerLogo} style={{ background: 'var(--color-muted)' }} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : partnersList.length === 0 ? (
-            <p className={styles.sectionSubtitlePartners} style={{ marginTop: '1rem' }}>{t('partners.noPartners')}</p>
-          ) : (
-            <div className={styles.partnersTrack}>
-              {/* صفان مكرران لحركة تمرير دائرية متصلة (بدون قفز) — الصف الثاني عكس الاتجاه */}
-              <div className={styles.partnersRow}>
-                {[...partnersList, ...partnersList].map((p, i) => {
-                  const nameKey = lang === 'ar' ? 'name_ar' : 'name_en'
-                  const name = (p[nameKey as keyof FundPartner] as string) || p.name_ar || p.name_en || `Partner ${p.id}`
-                  const logoUrl = resolveImageUrl(p.logo_url ?? p.logo)
-                  return (
-                    <div key={`row1-${p.id}-${i}`} className={styles.partnerLogoWrap}>
-                      {p.link ? (
-                        <a href={p.link} target="_blank" rel="noopener noreferrer" className={styles.partnerLogo} title={name}>
-                          {logoUrl ? <img src={logoUrl} alt={name} className={styles.partnerLogoImg} /> : <span className={styles.partnerLogoText}>{name}</span>}
-                        </a>
-                      ) : (
-                        <div className={styles.partnerLogo}>
-                          {logoUrl ? <img src={logoUrl} alt={name} className={styles.partnerLogoImg} /> : <span className={styles.partnerLogoText}>{name}</span>}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-              <div className={styles.partnersRow} aria-hidden="true">
-                {[...partnersList, ...partnersList].map((p, i) => {
-                  const nameKey = lang === 'ar' ? 'name_ar' : 'name_en'
-                  const name = (p[nameKey as keyof FundPartner] as string) || p.name_ar || p.name_en || `Partner ${p.id}`
-                  const logoUrl = resolveImageUrl(p.logo_url ?? p.logo)
-                  return (
-                    <div key={`row2-${p.id}-${i}`} className={styles.partnerLogoWrap}>
-                      {p.link ? (
-                        <a href={p.link} target="_blank" rel="noopener noreferrer" className={styles.partnerLogo} title={name}>
-                          {logoUrl ? <img src={logoUrl} alt={name} className={styles.partnerLogoImg} /> : <span className={styles.partnerLogoText}>{name}</span>}
-                        </a>
-                      ) : (
-                        <div className={styles.partnerLogo}>
-                          {logoUrl ? <img src={logoUrl} alt={name} className={styles.partnerLogoImg} /> : <span className={styles.partnerLogoText}>{name}</span>}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-        </Container>
-      </section>
       </div>
+
+      {/* ================= Partners: a turning half-circle of real logos ================= */}
+      <section className={styles.arcSec} id="partners" aria-labelledby="partners-heading" dir={isRtl ? 'rtl' : 'ltr'}>
+        <div className="ds-wrap">
+          {!loadingPartners && arcPartners.length > 0 ? (
+            <PartnersArc partners={arcPartners}>
+              <SectionHead className={styles.arcHead}>
+                <span className={`ds-vx-copy ${styles.eyebrow}`}>{t('partners.featured')}</span>
+                <h2 id="partners-heading" className={`ds-vx-title ${styles.arcTitle}`}>{t('nav.partners')}</h2>
+                <p className="ds-vx-copy">{t('partners.subtitle')}</p>
+              </SectionHead>
+            </PartnersArc>
+          ) : (
+            <>
+              <SectionHead className={styles.arcHeadStatic}>
+                <span className={`ds-vx-copy ${styles.eyebrow}`}>{t('partners.featured')}</span>
+                <h2 id="partners-heading" className={`ds-vx-title ${styles.arcTitle}`}>{t('nav.partners')}</h2>
+                <p className="ds-vx-copy">{t('partners.subtitle')}</p>
+              </SectionHead>
+              {loadingPartners ? (
+                <p className={styles.srOnly}>{t('common.loading')}</p>
+              ) : (
+                <p className={`ds-card ${styles.empty}`}>{t('partners.noPartners')}</p>
+              )}
+            </>
+          )}
+        </div>
+      </section>
     </PageLayout>
   )
 }
