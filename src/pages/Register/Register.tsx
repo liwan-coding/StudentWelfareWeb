@@ -218,7 +218,6 @@ export function Register() {
           icon={<PhoneIcon />}
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          placeholder={t('auth.phonePlaceholder')}
           disabled={loading}
         />
         <AuthField
