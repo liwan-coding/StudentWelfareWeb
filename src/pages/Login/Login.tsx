@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Button } from '../../components/ui/Button'
 import { useAuth } from '../../context/AuthContext'
 import { useErrorToast } from '../../context/ErrorContext'
 import { getApiErrorMessage } from '../../services/apiClient'
@@ -69,12 +68,12 @@ export function Login() {
           onChange={(e) => setPassword(e.target.value)}
           disabled={loading}
         />
-        <Button type="submit" fullWidth size="lg" disabled={loading} className={styles.submitBtn}>
+        <button type="submit" disabled={loading} className={`ds-btn ds-btn-ink ${styles.submit}`}>
           {loading ? t('common.loading') : t('auth.submitLogin')}
           {!loading && <ArrowIcon />}
-        </Button>
+        </button>
       </form>
-      <p className={styles.footer}>
+      <p className={styles.foot}>
         {t('auth.noAccount')} <Link to="/register">{t('auth.register')}</Link>
       </p>
     </AuthShell>
