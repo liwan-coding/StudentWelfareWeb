@@ -1,54 +1,30 @@
-import { Children, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { Children, type CSSProperties, type ReactNode } from 'react'
+import { useInViewOnce } from './useInViewOnce'
 import styles from './Train.module.css'
 
 interface TrainProps {
   /** layout of the grid (columns, gap) from the page's CSS module */
   className?: string
   children: ReactNode
-  /** extra class for every car wrapper (e.g. to stretch a card) */
+  /** extra class for every item wrapper (e.g. to stretch a card) */
   carClassName?: string
 }
 
 /**
- * The "train" entrance from design-reference/inner-pages.html: a glowing engine runs
- * along a rail under the grid and each card springs into place as the engine passes it.
- * Plays once, when the grid first comes into view. Each child becomes one car.
+ * Grid entrance: items fade up in a short stagger the first time the grid comes into view.
+ * Each child becomes one item.
  */
 export function Train({ className = '', children, carClassName = '' }: TrainProps) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [go, setGo] = useState(false)
-  const cars = Children.toArray(children)
-  const n = Math.max(1, cars.length)
-  const duration = Math.min(0.55 * n + 0.3, 4.2)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el || go) return
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setGo(true)
-          io.disconnect()
-        }
-      },
-      { threshold: 0.15 },
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [go])
-
-  const style = { '--n': n, '--D': `${duration}s` } as CSSProperties
+  const [ref, shown] = useInViewOnce<HTMLDivElement>(0.1)
+  const items = Children.toArray(children)
 
   return (
-    <div ref={ref} className={`${styles.train} ${go ? styles.go : styles.armed} ${className}`.trim()} style={style}>
-      {cars.map((car, i) => (
-        <div key={i} className={`${styles.car} ${carClassName}`.trim()} style={{ '--ti': i } as CSSProperties}>
-          {car}
-          <i className={styles.flash} aria-hidden="true" />
+    <div ref={ref} className={`${styles.grid} ${shown ? styles.in : ''} ${className}`.trim()}>
+      {items.map((item, i) => (
+        <div key={i} className={`${styles.item} ${carClassName}`.trim()} style={{ '--ti': Math.min(i, 8) } as CSSProperties}>
+          {item}
         </div>
       ))}
-      <i className={styles.fill} aria-hidden="true" />
-      <i className={styles.engine} aria-hidden="true" />
     </div>
   )
 }

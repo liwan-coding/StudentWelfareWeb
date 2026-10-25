@@ -1,73 +1,56 @@
-/* ---------- loading: silk, the logo pops in, a bar fills, then the screen fades open ---------- */
+/* Launch screen, iOS style: plain system background, centred mark, quick fade. */
 .loader {
   position: fixed;
   inset: 0;
-  z-index: 300;
+  z-index: 200;
   display: grid;
   place-items: center;
-  background: var(--hero);
+  background: var(--bg);
+  cursor: pointer;
+  transition: opacity 0.45s var(--ease-out), visibility 0.45s;
 }
 
 .out {
-  animation: ldFade 0.7s ease forwards;
-}
-
-@keyframes ldFade {
-  to { opacity: 0; visibility: hidden; }
-}
-
-.canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .inner {
-  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 22px;
-  padding-inline: 16px;
+  gap: 18px;
+  transition: transform 0.45s var(--ease-out);
+}
+
+.out .inner {
+  transform: scale(1.04);
 }
 
 .logo {
   background: #FFFFFF;
-  border-radius: 16px;
-  padding: 14px 20px;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
-  opacity: 0;
-  transform: scale(0.85);
-  animation: ldPop 0.8s cubic-bezier(0.2, 1.3, 0.4, 1) 0.25s forwards;
+  border-radius: 18px;
+  padding: 10px 16px;
+  box-shadow: var(--shadow-2);
+  animation: loaderIn 0.6s var(--ease-spring) both;
 }
 
 .logo img {
-  height: 84px;
+  height: 56px;
   width: auto;
   max-width: none;
-  display: block;
-}
-
-@media (max-width: 400px) {
-  .logo img {
-    height: 64px;
-  }
-}
-
-@keyframes ldPop {
-  to { opacity: 1; transform: none; }
 }
 
 .name {
-  color: var(--hero-fg);
-  font-family: var(--ds-font);
-  font-size: 20px;
+  font-family: var(--font-display);
+  font-size: var(--type-headline);
   font-weight: 600;
-  text-align: center;
+  letter-spacing: -0.02em;
+  color: var(--label);
   opacity: 0;
-  transform: translateY(26px);
-  transition: opacity 0.7s ease 0.2s, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s;
+  transform: translateY(6px);
+  transition: opacity 0.5s var(--ease-out), transform 0.6s var(--ease-spring);
 }
 
 .nameOn {
@@ -76,21 +59,36 @@
 }
 
 .bar {
-  width: 180px;
+  width: 120px;
   height: 3px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+  background: var(--fill-3);
   overflow: hidden;
 }
 
 .bar i {
   display: block;
   height: 100%;
-  width: 0;
-  background: linear-gradient(270deg, var(--teal), var(--pink));
-  animation: ldFill 1.6s cubic-bezier(0.6, 0, 0.3, 1) 0.3s forwards;
+  width: 100%;
+  border-radius: inherit;
+  background: var(--label-2);
+  transform-origin: left center;
+  animation: loaderFill 1s var(--ease-out) forwards;
 }
 
-@keyframes ldFill {
-  to { width: 100%; }
+:global(html[dir='rtl']) .bar i {
+  transform-origin: right center;
+}
+
+@keyframes loaderIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+
+@keyframes loaderFill {
+  from {
+    transform: scaleX(0);
+  }
 }

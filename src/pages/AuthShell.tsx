@@ -1,7 +1,7 @@
 import { useRef, useState, type InputHTMLAttributes, type ReactNode, type ClipboardEvent, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageLayout } from '../components/layout/PageLayout'
-import { SilkCanvas } from '../components/design/SilkCanvas'
+import { Backdrop } from '../components/design/Backdrop'
 import { LOGO_SRC, LOGO_WIDTH, LOGO_HEIGHT } from '../components/design/logo'
 import styles from './Auth.module.css'
 
@@ -20,7 +20,7 @@ export function AuthShell({ title, subtitle, top, children }: AuthShellProps) {
   return (
     <PageLayout noPadding design>
       <section className={styles.page} aria-labelledby="auth-title">
-        <SilkCanvas className={styles.silk} />
+        <Backdrop className={styles.silk} />
         <span className={styles.vignette} aria-hidden="true" />
         <div className={`ds-wrap ${styles.wrap}`}>
           <div className={styles.auth}>

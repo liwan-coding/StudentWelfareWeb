@@ -2,8 +2,7 @@ import type { CSSProperties, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { PageLayout } from '../../components/layout/PageLayout'
-import { SilkCanvas } from '../../components/design/SilkCanvas'
-import { FxDot } from '../../components/design/FxDot'
+import { Backdrop } from '../../components/design/Backdrop'
 import { useInViewOnce } from '../../components/design/useInViewOnce'
 import styles from './About.module.css'
 
@@ -104,7 +103,7 @@ export function About() {
       <span className={`${styles.pi} ${tone === 't' ? styles.piTeal : styles.piPlum}`}>{icon}</span>
       <h2 id={`about-${key}`}>{t(`about.${key}Title`)}</h2>
       <p>{t(`about.${key}Text`)}</p>
-      <FxDot index={i} />
+
     </Reveal>
   )
 
@@ -113,7 +112,7 @@ export function About() {
       <div className={styles.page}>
         {/* hero: silk band with the logo's stairs building up */}
         <section className={styles.hero} aria-labelledby="about-title">
-          <SilkCanvas className={styles.heroCanvas} />
+          <Backdrop className={styles.heroCanvas} />
           <div className={`ds-wrap ${styles.heroGrid}`}>
             <div>
               <span className={styles.heroRule} aria-hidden="true" />
@@ -180,7 +179,7 @@ export function About() {
                   <span className={styles.step} aria-hidden="true" />
                   <span className={styles.oi}>{objectiveIcons[k]}</span>
                   <p>{t(`about.${key}`)}</p>
-                  <FxDot index={k} />
+
                 </li>
               ))}
             </ul>

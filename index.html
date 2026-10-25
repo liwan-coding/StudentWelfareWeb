@@ -4,10 +4,12 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#A0207E" />
+    <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
     <title>صندوق رعاية الطالب الجامعي | Student Welfare Fund</title>
   </head>
   <body>
@@ -21,10 +23,11 @@
         el.setAttribute('lang', locale.startsWith('ar') ? 'ar' : 'en');
         el.classList.remove('dir-ltr', 'dir-rtl');
         el.classList.add(dir === 'rtl' ? 'dir-rtl' : 'dir-ltr');
-        // Dark / light theme chosen from the header toggle (applied before first paint)
-        try {
-          if (localStorage.getItem('swf_theme') === 'dark') el.setAttribute('data-theme', 'dark');
-        } catch (e) {}
+        // Theme follows the system unless the header toggle stored a choice (applied before first paint)
+        var theme = null;
+        try { theme = localStorage.getItem('swf_theme'); } catch (e) {}
+        if (!theme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) theme = 'dark';
+        if (theme === 'dark') el.setAttribute('data-theme', 'dark');
       })();
     </script>
     <script type="module" src="/src/main.tsx"></script>

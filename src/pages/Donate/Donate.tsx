@@ -12,7 +12,6 @@ import type { CampaignOrProgram } from '../../types/api'
 import { getCampaignProgressPercent } from '../../components/CampaignAmountGoal'
 import { PageHero } from '../../components/design/PageHero'
 import { Train } from '../../components/design/Train'
-import { FxDot } from '../../components/design/FxDot'
 import styles from './Donate.module.css'
 
 /** Same number format as CampaignAmountGoal */
@@ -377,7 +376,7 @@ export function Donate() {
                     </div>
                   </>
                 ) : null}
-                <FxDot index={0} />
+
               </article>
             )}
 
@@ -474,7 +473,7 @@ export function Donate() {
                   </svg>
                 )}
               </button>
-              <FxDot index={1} />
+
             </form>
           </Train>
         </div>

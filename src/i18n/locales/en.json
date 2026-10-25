@@ -65,8 +65,8 @@
     "subtitle": "Support our students by choosing a campaign or program and amount",
     "type": "Donation type",
     "amount": "Amount (OMR)",
-  "currencyShort": "OMR",
-  "quickAmounts": "Quick amounts",
+    "currencyShort": "OMR",
+    "quickAmounts": "Quick amounts",
     "phone": "Phone number (required)",
     "phonePlaceholder": "e.g. 91234567",
     "anonymous": "Donate anonymously",
@@ -253,6 +253,7 @@
     "contact": "Contact",
     "terms": "Terms",
     "privacy": "Privacy",
-    "rights": "All rights reserved"
+    "rights": "All rights reserved",
+    "explore": "Explore"
   }
 }

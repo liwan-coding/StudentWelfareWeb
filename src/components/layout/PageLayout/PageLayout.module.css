@@ -10,9 +10,9 @@
   top: -100%;
   z-index: 100;
   padding: var(--space-2) var(--space-4);
-  background: var(--gradient-dominant);
-  color: var(--color-text-inverse);
-  border-radius: var(--radius-md);
+  background: var(--tint);
+  color: #FFFFFF;
+  border-radius: var(--radius-full);
   font-weight: 600;
   transition: top var(--transition-fast);
 }

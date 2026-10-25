@@ -9,10 +9,10 @@
 }
 
 .spinner {
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 3px solid var(--color-border);
-  border-top-color: var(--color-primary);
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 2.5px solid var(--fill-2);
+  border-top-color: var(--label-2);
   border-radius: var(--radius-full);
   animation: protectedRouteSpin 0.7s linear infinite;
 }

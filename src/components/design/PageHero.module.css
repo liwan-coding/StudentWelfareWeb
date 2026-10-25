@@ -1,146 +1,34 @@
-/* page hero: a dark silk band with the title arriving word by word */
+/* Inner-page header: large title, centred, generous whitespace. */
 .ph {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  background: #150D19;
-  color: #FFFFFF;
-  border-radius: 0 0 36px 36px;
-}
-
-.canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -2;
-  display: block;
-}
-
-.ph::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(90deg, rgba(14, 8, 18, 0.1), rgba(14, 8, 18, 0.72));
-}
-
-:global(html[dir='ltr']) .ph::after {
-  background: linear-gradient(270deg, rgba(14, 8, 18, 0.1), rgba(14, 8, 18, 0.72));
+  padding-block: calc(var(--header-height) + clamp(48px, 6vw, 88px)) clamp(32px, 4vw, 56px);
+  text-align: center;
+  background: var(--bg);
 }
 
 .inner {
-  position: relative;
-  padding-block: clamp(48px, 7vw, 84px) clamp(56px, 8vw, 96px);
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 12px;
 }
 
-.rule {
-  display: block;
-  width: 80px;
-  height: 3px;
-  border-radius: 3px;
-  background: linear-gradient(90deg, #7FD0E6, #F3B4E4);
-  transform-origin: right;
-  animation: ruleIn 0.8s cubic-bezier(0.7, 0, 0.3, 1) 0.15s both;
+.eyebrow {
+  animation: phIn 0.7s var(--ease-out) both;
 }
 
-:global(html[dir='ltr']) .rule {
-  transform-origin: left;
+.title {
+  max-width: 18ch;
+  animation: phIn 0.8s var(--ease-spring) 0.05s both;
 }
 
-@keyframes ruleIn {
-  from { transform: scaleX(0); }
+.sub {
+  max-width: 40rem;
+  animation: phIn 0.8s var(--ease-spring) 0.12s both;
 }
 
-.ph h1 {
-  color: #FFFFFF;
-  font-size: clamp(38px, 5.6vw, 66px);
-  line-height: 1.2;
-  margin: 0;
-}
-
-.w {
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: bottom;
-  padding-bottom: 0.18em;
-  margin-bottom: -0.18em;
-}
-
-.w > span {
-  display: inline-block;
-  transform: translateY(105%);
-  animation: wUp 0.8s cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
-  animation-delay: calc(0.25s + var(--i) * 90ms);
-  background: linear-gradient(270deg, #9FE6F7, #F3B4E4);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-@keyframes wUp {
-  to { transform: none; }
-}
-
-.ph p {
-  margin: 0;
-  color: #DCD0E2;
-  font-size: clamp(17px, 1.7vw, 20px);
-  max-width: 620px;
-  opacity: 0;
-  transform: translateY(12px);
-  animation: pIn 0.7s ease 0.7s forwards;
-}
-
-@keyframes pIn {
-  to { opacity: 1; transform: none; }
-}
-
-/* the logo's stairs at the far end of the band (not mirrored, like the logo) */
-.stairs {
-  position: absolute;
-  left: clamp(16px, 6vw, 90px);
-  bottom: -6px;
-  width: clamp(140px, 18vw, 240px);
-  opacity: 0.9;
-}
-
-:global(html[dir='ltr']) .stairs {
-  left: auto;
-  right: clamp(16px, 6vw, 90px);
-}
-
-.st {
-  transform-box: fill-box;
-  transform-origin: bottom;
-  animation: stUp 0.9s cubic-bezier(0.3, 1.3, 0.5, 1) both;
-  animation-delay: calc(0.3s + var(--s) * 0.14s);
-}
-
-@keyframes stUp {
-  from { transform: scaleY(0); }
-}
-
-.walker {
-  opacity: 0;
-  animation: bWalk 4.8s cubic-bezier(0.5, 0, 0.5, 1) 1.4s infinite;
-}
-
-@keyframes bWalk {
-  0% { transform: translate(0, 0); opacity: 0; }
-  8% { opacity: 1; }
-  14% { transform: translate(0, 0); }
-  24%, 34% { transform: translate(34px, -30px); }
-  44%, 54% { transform: translate(68px, -60px); }
-  64%, 82% { transform: translate(102px, -90px); opacity: 1; }
-  94%, 100% { transform: translate(102px, -90px) scale(1.6); opacity: 0; }
-}
-
-@media (max-width: 620px) {
-  .stairs {
-    display: none;
+@keyframes phIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
   }
 }

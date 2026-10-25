@@ -1,165 +1,22 @@
-/* ===== the train: a glowing engine runs along a rail and each box springs into place as it passes ===== */
-.train {
-  position: relative;
-  perspective: 1200px;
-  padding-bottom: 34px;
+.grid {
+  display: grid;
 }
 
-/* the rail */
-.train::after {
-  content: '';
-  position: absolute;
-  inset-inline: 0;
-  bottom: 6px;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--line2);
-}
-
-.car {
-  position: relative;
+.item {
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  min-width: 0;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s var(--ease-out), transform 0.8s var(--ease-spring);
+  transition-delay: calc(var(--ti, 0) * 60ms);
 }
 
-.car > :first-child {
+.item > * {
   flex: 1;
 }
 
-.armed > .car {
-  opacity: 0;
-}
-
-.go > .car {
-  transform-origin: 50% 100%;
-  animation: carIn 0.9s cubic-bezier(0.34, 1.45, 0.5, 1) backwards;
-  animation-delay: calc(var(--D) * (var(--ti) + 0.5) / var(--n) - 0.2s);
-}
-
-@keyframes carIn {
-  from { opacity: 0; transform: translateX(-70px) rotateY(-18deg) scale(0.9); }
-}
-
-@keyframes carInLtr {
-  from { opacity: 0; transform: translateX(70px) rotateY(18deg) scale(0.9); }
-}
-
-:global(html[dir='ltr']) .go > .car {
-  animation-name: carInLtr;
-}
-
-/* the lit trail behind the engine */
-.fill {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 6px;
-  height: 2px;
-  border-radius: 2px;
-  z-index: 1;
-  background: linear-gradient(270deg, #32A1BF, #7FD0E6, #D47EC0, #A2458C);
-  transform: scaleX(0);
-  transform-origin: right;
-}
-
-:global(html[dir='ltr']) .fill {
-  transform-origin: left;
-  background: linear-gradient(90deg, #32A1BF, #7FD0E6, #D47EC0, #A2458C);
-}
-
-.go .fill {
-  animation: fillRail var(--D) cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
-}
-
-@keyframes fillRail {
-  to { transform: scaleX(1); }
-}
-
-/* the engine: a bright light with a short tail, running in the reading direction */
-.engine {
-  position: absolute;
-  bottom: 1px;
-  right: 0;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  z-index: 2;
-  opacity: 0;
-  background: #fff;
-  box-shadow: 0 0 0 3px #32A1BF, 0 0 18px 6px rgba(50, 161, 191, 0.55);
-}
-
-.engine::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 10px;
-  width: 90px;
-  height: 3px;
-  transform: translateY(-50%);
-  border-radius: 3px;
-  background: linear-gradient(270deg, transparent, #32A1BF);
-}
-
-.go .engine {
-  animation: engineRun var(--D) cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
-}
-
-@keyframes engineRun {
-  0% { opacity: 1; right: 0; }
-  90% { opacity: 1; }
-  100% { opacity: 0; right: calc(100% - 12px); }
-}
-
-:global(html[dir='ltr']) .engine {
-  right: auto;
-  left: 0;
-}
-
-:global(html[dir='ltr']) .engine::after {
-  left: auto;
-  right: 10px;
-  background: linear-gradient(90deg, transparent, #32A1BF);
-}
-
-:global(html[dir='ltr']) .go .engine {
-  animation-name: engineRunLtr;
-}
-
-@keyframes engineRunLtr {
-  0% { opacity: 1; left: 0; }
-  90% { opacity: 1; }
-  100% { opacity: 0; left: calc(100% - 12px); }
-}
-
-/* each car's corner light flashes as the engine passes */
-.flash {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  z-index: 6;
-  pointer-events: none;
-  background: #32A1BF;
-  opacity: 0;
-}
-
-.go .flash {
-  animation: dotLit 0.8s ease-out backwards;
-  animation-delay: calc(var(--D) * (var(--ti) + 0.5) / var(--n));
-}
-
-@keyframes dotLit {
-  from { opacity: 1; transform: scale(2.4); box-shadow: 0 0 22px 6px rgba(50, 161, 191, 0.8); }
-  to { opacity: 0; }
-}
-
-@media (max-width: 620px) {
-  .train::after,
-  .fill,
-  .engine {
-    display: none;
-  }
+.in .item {
+  opacity: 1;
+  transform: none;
 }

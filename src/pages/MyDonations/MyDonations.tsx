@@ -2,8 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PageLayout } from '../../components/layout/PageLayout'
-import { SilkCanvas } from '../../components/design/SilkCanvas'
-import { FxDot } from '../../components/design/FxDot'
+import { Backdrop } from '../../components/design/Backdrop'
 import { useAuth } from '../../context/AuthContext'
 import { donationService } from '../../services/donationService'
 import { campaignService } from '../../services/campaignService'
@@ -121,7 +120,7 @@ export function MyDonations() {
     <PageLayout design>
       <div className={styles.page}>
         <div className={styles.accHero}>
-          <SilkCanvas className={styles.accCanvas} />
+          <Backdrop className={styles.accCanvas} />
           <div className={styles.accTop}>
             <span className={styles.avatar} aria-hidden="true">{initial}</span>
             <div>
@@ -164,7 +163,7 @@ export function MyDonations() {
             <Link to="/campaigns" className={`ds-btn ds-btn-ink ${styles.emptyCta}`}>
               {t('myDonations.ctaDonate')}
             </Link>
-            <FxDot index={1} />
+
           </div>
         ) : (
           <>
@@ -180,7 +179,7 @@ export function MyDonations() {
                     </div>
                   </div>
                 </div>
-                <FxDot index={0} />
+
               </div>
               <div className="ds-card">
                 <div className={styles.sumCard}>
@@ -198,7 +197,7 @@ export function MyDonations() {
                     <div className={styles.val}><CountUp value={list.length} /></div>
                   </div>
                 </div>
-                <FxDot index={1} />
+
               </div>
             </section>
 

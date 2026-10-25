@@ -86,13 +86,18 @@ body {
   min-height: 100dvh;
   overflow-x: hidden;
   font-family: var(--font-sans);
-  font-size: var(--text-base);
+  font-size: var(--type-body);
   line-height: var(--line-height-normal);
-  color: var(--color-text);
-  background-color: var(--color-bg);
-  background-image: var(--gradient-page-bg);
+  letter-spacing: -0.011em;
+  color: var(--label);
+  background-color: var(--bg);
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: rgba(var(--tint-rgb), 0.24);
 }
 
 #root {
@@ -108,23 +113,29 @@ img {
 }
 
 a {
-  color: var(--color-primary);
+  color: var(--link);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--color-primary-hover);
+  color: var(--link);
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
 }
 
 button {
-  font-family: inherit;
   cursor: pointer;
 }
 
 /* Focus visible for accessibility */
 :focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 3px solid rgba(var(--tint-rgb), 0.6);
   outline-offset: 2px;
 }
 
@@ -135,9 +146,9 @@ button {
   top: -100%;
   z-index: 100;
   padding: var(--space-2) var(--space-4);
-  background: var(--gradient-dominant);
-  color: var(--color-text-inverse);
-  border-radius: var(--radius-md);
+  background: var(--tint);
+  color: #FFFFFF;
+  border-radius: var(--radius-full);
   font-weight: 600;
   transition: top var(--transition-fast);
 }

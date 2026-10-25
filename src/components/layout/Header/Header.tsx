@@ -20,10 +20,8 @@ export function Header() {
   const userMenuOpen = userMenuOpenPath === location.pathname
   const setMenuOpen = (open: boolean) => setMenuOpenPath(open ? location.pathname : null)
   const setUserMenuOpen = (open: boolean) => setUserMenuOpenPath(open ? location.pathname : null)
-  const [overHero, setOverHero] = useState(false)
 
   const isActive = (path: string) => (path === '/' ? location.pathname === '/' : location.pathname.startsWith(path))
-  const isHome = location.pathname === '/'
 
   const navItems = [
     { to: '/', label: t('nav.home') },
@@ -61,27 +59,20 @@ export function Header() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userMenuOpen])
 
-  // On the home page the header sits transparent over the dark hero and turns light after it
+  // the full-screen menu sheet keeps the page behind it still
   useEffect(() => {
-    if (!isHome) return
-    const onScroll = () => {
-      const hero = document.querySelector('[data-hero]')
-      setOverHero(!!hero && hero.getBoundingClientRect().bottom >= 90)
-    }
-    const first = requestAnimationFrame(onScroll)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
+    if (!menuOpen) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
     return () => {
-      cancelAnimationFrame(first)
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
+      document.body.style.overflow = prev
     }
-  }, [isHome])
+  }, [menuOpen])
 
-  const isRtl = (i18n.language || '').startsWith('ar')
+  const isRtl =(i18n.language || '').startsWith('ar')
   const otherLang: Locale = isRtl ? 'en' : 'ar'
   const userLabel = (user?.name || user?.phone || t('nav.myDonations')) as string
-  const headerClass = [styles.header, isHome && overHero && !menuOpen ? styles.onHero : styles.light].join(' ')
+  const headerClass = [styles.header, menuOpen ? styles.sheetOpen : ''].join(' ').trim()
 
   return (
     <header className={headerClass} role="banner">
@@ -150,8 +141,8 @@ export function Header() {
             </span>
           ) : (
             <span className={styles.authLinks}>
-              <Link to="/login" className="ds-btn ds-btn-ghost">{t('nav.login')}</Link>
-              <Link to="/register" className="ds-btn ds-btn-ink">{t('nav.register')}</Link>
+              <Link to="/login" className={styles.signIn}>{t('nav.login')}</Link>
+              <Link to="/register" className="ds-btn ds-btn-filled ds-btn-sm">{t('nav.register')}</Link>
             </span>
           )}
 
@@ -161,6 +152,7 @@ export function Header() {
             aria-expanded={menuOpen}
             aria-controls="main-nav-mobile"
             onClick={() => setMenuOpen(!menuOpen)}
+            aria-label={menuOpen ? 'Close menu' : 'Menu'}
           >
             <span />
             <span />
@@ -189,8 +181,8 @@ export function Header() {
             </button>
             {!(isAuthenticated && user) && (
               <>
-                <Link to="/login" className="ds-btn ds-btn-ghost" onClick={() => setMenuOpen(false)} tabIndex={menuOpen ? 0 : -1}>{t('nav.login')}</Link>
-                <Link to="/register" className="ds-btn ds-btn-ink" onClick={() => setMenuOpen(false)} tabIndex={menuOpen ? 0 : -1}>{t('nav.register')}</Link>
+                <Link to="/login" className="ds-btn ds-btn-gray ds-btn-lg" onClick={() => setMenuOpen(false)} tabIndex={menuOpen ? 0 : -1}>{t('nav.login')}</Link>
+                <Link to="/register" className="ds-btn ds-btn-filled ds-btn-lg" onClick={() => setMenuOpen(false)} tabIndex={menuOpen ? 0 : -1}>{t('nav.register')}</Link>
               </>
             )}
           </div>

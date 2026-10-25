@@ -15,11 +15,10 @@ import { resolveImageUrl } from '../../config/api'
 import type { CampaignOrProgram, RecentDonation, Banner, StudentRegistrationCard, FundNews, FundPartner } from '../../types/api'
 import { getCampaignProgressPercent } from '../../components/CampaignAmountGoal'
 import { Loader } from '../../components/design/Loader'
-import { SilkCanvas } from '../../components/design/SilkCanvas'
-import { HourglassCard } from '../../components/design/Hourglass'
-import { PartnersArc, type ArcPartner } from '../../components/design/PartnersArc'
+import { Backdrop } from '../../components/design/Backdrop'
+import { CampaignCard } from '../../components/design/CampaignCard'
+import { PartnersWall, type WallPartner } from '../../components/design/PartnersWall'
 import { FeatBadge } from '../../components/design/FeatBadge'
-import { FxDot } from '../../components/design/FxDot'
 import { useInViewOnce } from '../../components/design/useInViewOnce'
 import styles from './Home.module.css'
 
@@ -76,7 +75,7 @@ function NewsBox({ index, featured, featuredLabel, imageUrl, date, dateTime, tit
         <h3>{title}</h3>
         <p>{excerpt}</p>
       </div>
-      <FxDot index={index} />
+
     </article>
   )
 }
@@ -293,7 +292,7 @@ export function Home() {
   const currency = t('donate.currencyShort')
   const newsRows: FundNews[][] = []
   for (let i = 0; i < newsList.length; i += 3) newsRows.push(newsList.slice(i, i + 3))
-  const arcPartners: ArcPartner[] = partnersList.map((p) => {
+  const arcPartners: WallPartner[] = partnersList.map((p) => {
     const nameKey = lang === 'ar' ? 'name_ar' : 'name_en'
     const name = (p[nameKey as keyof FundPartner] as string) || p.name_ar || p.name_en || `Partner ${p.id}`
     return { key: String(p.id), name, logoUrl: resolveImageUrl(p.logo_url ?? p.logo), link: p.link || undefined }
@@ -305,7 +304,7 @@ export function Home() {
 
       {/* ================= Hero: dark silk band ================= */}
       <section className={styles.hero} data-hero aria-label={t('app.name')} dir={isRtl ? 'rtl' : 'ltr'} lang={i18n.language || 'ar'}>
-        <SilkCanvas className={styles.heroCanvas} />
+        <Backdrop className={styles.heroCanvas} />
         <div className={`ds-wrap ${styles.heroGrid}`}>
           <div className={`ds-vx ${ready ? 'ds-in' : ''} ${styles.heroText}`}>
             <i className="ds-vx-rule" aria-hidden="true" />
@@ -386,7 +385,7 @@ export function Home() {
             {statusLabel}
             <ArrowIcon />
           </Link>
-          <FxDot index={0} />
+
         </div>
       </div>
 
@@ -421,7 +420,7 @@ export function Home() {
                 const raised = Number(item.raised_amount) || 0
                 const goal = Number(item.goal_amount) || 0
                 return (
-                  <HourglassCard
+                  <CampaignCard
                     key={item.id}
                     index={i}
                     percent={getCampaignProgressPercent(raised, goal > 0 ? goal : 1)}
@@ -513,13 +512,13 @@ export function Home() {
       <section className={styles.arcSec} id="partners" aria-labelledby="partners-heading" dir={isRtl ? 'rtl' : 'ltr'}>
         <div className="ds-wrap">
           {!loadingPartners && arcPartners.length > 0 ? (
-            <PartnersArc partners={arcPartners}>
+            <PartnersWall partners={arcPartners}>
               <SectionHead className={styles.arcHead}>
                 <span className={`ds-vx-copy ${styles.eyebrow}`}>{t('partners.featured')}</span>
                 <h2 id="partners-heading" className={`ds-vx-title ${styles.arcTitle}`}>{t('nav.partners')}</h2>
                 <p className="ds-vx-copy">{t('partners.subtitle')}</p>
               </SectionHead>
-            </PartnersArc>
+            </PartnersWall>
           ) : (
             <>
               <SectionHead className={styles.arcHeadStatic}>

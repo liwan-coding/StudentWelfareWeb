@@ -5,7 +5,7 @@ import { campaignService } from '../../services/campaignService'
 import type { CampaignOrProgram } from '../../types/api'
 import { getCampaignProgressPercent } from '../../components/CampaignAmountGoal'
 import { PageHero } from '../../components/design/PageHero'
-import { HourglassCard } from '../../components/design/Hourglass'
+import { CampaignCard } from '../../components/design/CampaignCard'
 import { Train } from '../../components/design/Train'
 import styles from './Campaigns.module.css'
 
@@ -79,7 +79,7 @@ export function Campaigns() {
                 const raised = Number(item.raised_amount) || 0
                 const goal = Number(item.goal_amount) || 0
                 return (
-                  <HourglassCard
+                  <CampaignCard
                     key={item.id}
                     index={i}
                     reveal={false}

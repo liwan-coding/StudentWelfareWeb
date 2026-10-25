@@ -1,376 +1,486 @@
 /* =====================================================================
-   Design system for the redesigned pages (design-reference/home-design.html
-   and account-pages.html). Shared tokens + effect utilities only; every
-   class is prefixed `ds-` so pages that were not redesigned are unaffected.
+   Apple system design layer.
+   - Dark-mode token overrides (html[data-theme='dark'])
+   - `ds-` primitives every page builds on: buttons, cards, grouped lists,
+     form fields, segmented controls, badges, section headings and reveals.
+   Keep effects restrained: content first, clarity, deference, depth.
    ===================================================================== */
 
+/* ---------- legacy design tokens, mapped onto the system palette ---------- */
 :root {
-  --ink: #1C1320;
-  --text: #2A2130;
-  --muted: #625869;
-  --line: #ECE4EE;
-  --line2: #DDD1E0;
-  --paper: #FFFFFF;
-  --wash: #F7F3F8;
-  --purple: #A2458C;
-  --purple-ink: #86336F;
-  --teal: #32A1BF;
-  --teal-ink: #1D7690;
-  --pink: #D47EC0;
-  --hero: #150D19;
-  --hero-fg: #F6F0F8;
-  --hero-muted: #CDBFD4;
-  --ds-font: 'IBM Plex Sans Arabic', Tahoma, 'Segoe UI', sans-serif;
-  --ds-header-h: 72px;
+  --ink: var(--label);
+  --text: var(--label);
+  --muted: var(--label-2);
+  --line: var(--separator);
+  --line2: var(--separator-opaque);
+  --paper: var(--bg-3);
+  --wash: var(--bg-2);
+  --purple: var(--tint);
+  --purple-ink: var(--tint-pressed);
+  --teal: var(--tint);
+  --teal-ink: var(--tint);
+  --pink: var(--tint);
+  --hero: var(--bg-2);
+  --hero-fg: var(--label);
+  --hero-muted: var(--label-2);
+  --ds-font: var(--font-sans);
+  --ds-header-h: var(--header-height);
+  color-scheme: light;
 }
 
 html[data-theme='dark'] {
-  --ink: #FFFFFF;
-  --text: #E6DEEA;
-  --muted: #B3A8BA;
-  --line: rgba(255, 255, 255, 0.12);
-  --line2: rgba(255, 255, 255, 0.24);
-  --paper: #140C19;
-  --wash: rgba(255, 255, 255, 0.07);
-  --teal-ink: #8FD3E6;
+  color-scheme: dark;
+
+  --sys-blue: #0A84FF;
+  --sys-blue-hover: #409CFF;
+  --sys-blue-pressed: #0071E3;
+  --sys-link: #2997FF;
+  --sys-green: #30D158;
+  --sys-green-ink: #30D158;
+  --sys-orange: #FF9F0A;
+  --sys-red: #FF453A;
+  --sys-red-ink: #FF6961;
+  --tint-rgb: 10, 132, 255;
+
+  --label: #F5F5F7;
+  --label-2: #A1A1A6;
+  --label-3: #86868B;
+  --label-4: #636366;
+
+  --bg: #000000;
+  --bg-2: #000000;
+  --bg-3: #1C1C1E;
+  --bg-elevated: #2C2C2E;
+
+  --fill-1: rgba(120, 120, 128, 0.36);
+  --fill-2: rgba(120, 120, 128, 0.32);
+  --fill-3: rgba(118, 118, 128, 0.24);
+  --fill-4: rgba(116, 116, 128, 0.18);
+  --separator: rgba(255, 255, 255, 0.14);
+  --separator-opaque: #38383A;
+
+  --material-bar: rgba(22, 22, 23, 0.72);
+  --material-thick: rgba(28, 28, 30, 0.88);
+  --material-thin: rgba(28, 28, 30, 0.6);
+
+  --shadow-1: 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --shadow-2: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-3: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 24px 48px rgba(0, 0, 0, 0.55);
 }
 
-/* the orbiting light used by rings around buttons, boxes and icons */
-@property --fx-ang {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 0deg;
-}
-
-@keyframes ds-fx-spin {
-  to { --fx-ang: 360deg; }
-}
-
-@keyframes ds-roam1 {
-  to { transform: translate(-8vw, 10vh) scale(1.15); }
-}
-
-@keyframes ds-roam2 {
-  to { transform: translate(10vw, -8vh) scale(0.9); }
-}
-
-@keyframes ds-beat {
-  0%, 100% { transform: scale(1); }
-  15% { transform: scale(1.18); }
-  30% { transform: scale(1); }
-  45% { transform: scale(1.1); }
-}
-
-@keyframes ds-in {
-  to { opacity: 1; transform: none; }
-}
-
-/* theme switch: colours cross-fade for a moment */
+/* theme switch: colours cross-fade briefly */
 html.theme-anim,
 html.theme-anim * {
-  transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, fill 0.5s ease !important;
+  transition: background-color 0.35s var(--ease-out), color 0.35s var(--ease-out), border-color 0.35s var(--ease-out) !important;
 }
 
-/* desktop mouse only: the paper-plane cursor replaces the system cursor */
-@media (hover: hover) and (pointer: fine) {
-  html.fx-cursor,
-  html.fx-cursor * {
-    cursor: none !important;
-  }
-}
-
-/* ---------- page shell for redesigned pages ---------- */
+/* ---------- page shell ---------- */
 .ds-page {
-  font-family: var(--ds-font);
-  color: var(--text);
-  line-height: 1.6;
+  font-family: var(--font-sans);
+  color: var(--label);
+  line-height: var(--line-height-normal);
+  letter-spacing: -0.011em;
 }
 
 .ds-page h1,
 .ds-page h2,
 .ds-page h3 {
   margin: 0;
+  font-family: var(--font-display);
   font-weight: 600;
-  color: var(--ink);
+  color: var(--label);
   text-wrap: balance;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.022em;
 }
 
 .ds-page p {
   margin: 0;
+  text-wrap: pretty;
 }
 
 .ds-page :focus-visible {
-  outline: 2px solid var(--teal);
-  outline-offset: 3px;
-  border-radius: 4px;
+  outline: 3px solid rgba(var(--tint-rgb), 0.6);
+  outline-offset: 2px;
+  border-radius: 6px;
 }
 
 .ds-wrap {
   max-width: 1200px;
   margin: 0 auto;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-left: max(22px, env(safe-area-inset-left, 0px));
+  padding-right: max(22px, env(safe-area-inset-right, 0px));
 }
 
-/* dark page background only where the page itself was redesigned (other pages keep their light look) */
-html[data-theme='dark'] body:has(.ds-page) {
-  background: #0E0812;
-  color-scheme: dark;
+.ds-wrap-narrow {
+  max-width: 980px;
 }
 
-/* ---------- buttons with an orbiting glow ring ---------- */
+/* ---------- typography helpers ---------- */
+.ds-eyebrow {
+  display: block;
+  font-size: var(--type-subhead);
+  font-weight: 600;
+  color: var(--tint);
+  letter-spacing: -0.01em;
+}
+
+.ds-large-title {
+  font-size: var(--type-large);
+  line-height: 1.07;
+  font-weight: 700;
+  letter-spacing: -0.028em;
+}
+
+.ds-title-1 {
+  font-size: var(--type-title-1);
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.024em;
+}
+
+.ds-subhead {
+  font-size: clamp(1.0625rem, 0.95rem + 0.5vw, 1.3125rem);
+  line-height: 1.4;
+  color: var(--label-2);
+  font-weight: 400;
+  letter-spacing: -0.012em;
+}
+
+.ds-secondary {
+  color: var(--label-2);
+}
+
+/* ---------- buttons (capsule) ---------- */
 .ds-btn {
   position: relative;
-  isolation: isolate;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   min-height: 44px;
-  padding: 9px 18px;
-  border-radius: 6px;
-  font-family: var(--ds-font);
-  font-weight: 600;
-  font-size: 15px;
-  line-height: 1.3;
+  padding: 10px 22px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: var(--type-callout);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
   white-space: nowrap;
-  border: 1px solid transparent;
+  border: 0;
   text-decoration: none;
   cursor: pointer;
-  transition: transform 0.2s, background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--transition-fast), color var(--transition-fast), transform 0.12s var(--ease-out), opacity var(--transition-fast);
 }
 
-.ds-btn:hover {
-  transform: translateY(-1px);
-}
-
-.ds-btn::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: 8px;
-  padding: 2px;
-  pointer-events: none;
-  z-index: -1;
-  background: conic-gradient(from var(--fx-ang), transparent 0 58%, #7FD0E6 72%, #32A1BF 82%, #D47EC0 92%, transparent);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-  animation: ds-fx-spin 3.2s linear infinite;
-}
-
-.ds-btn:hover::before {
-  animation-duration: 1.3s;
+.ds-btn:active {
+  transform: scale(0.97);
 }
 
 .ds-btn svg {
-  transition: transform 0.25s;
-}
-
-.ds-btn:hover svg {
-  transform: translateX(-3px);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
 html[dir='ltr'] .ds-btn svg.ds-arrow {
   transform: scaleX(-1);
 }
 
-html[dir='ltr'] .ds-btn:hover svg.ds-arrow {
-  transform: scaleX(-1) translateX(-3px);
+/* filled — the primary action */
+.ds-btn-ink,
+.ds-btn-ink:hover,
+.ds-btn-ink:focus,
+.ds-btn-filled,
+.ds-btn-filled:hover {
+  color: #FFFFFF;
 }
 
 .ds-btn-ink,
+.ds-btn-filled {
+  background: var(--tint);
+}
+
 .ds-btn-ink:hover,
-.ds-btn-ink:focus {
-  color: #FFFFFF;
+.ds-btn-filled:hover {
+  background: var(--tint-hover);
 }
 
-.ds-btn-ink {
-  background: linear-gradient(135deg, #C266AE, #A2458C 50%, #86336F);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 8px 20px -12px rgba(162, 69, 140, 0.7);
+/* tinted — secondary action */
+.ds-btn-tinted,
+.ds-btn-tinted:hover {
+  color: var(--tint);
 }
 
-.ds-btn-ink:hover {
-  transform: translateY(-2px);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 14px 30px -10px rgba(162, 69, 140, 0.7);
+.ds-btn-tinted {
+  background: var(--tint-fill);
+}
+
+.ds-btn-tinted:hover {
+  background: rgba(var(--tint-rgb), 0.16);
+}
+
+/* gray — neutral action */
+.ds-btn-ghost,
+.ds-btn-ghost:hover,
+.ds-btn-gray,
+.ds-btn-gray:hover {
+  color: var(--label);
 }
 
 .ds-btn-ghost,
-.ds-btn-ghost:hover {
-  color: inherit;
+.ds-btn-gray {
+  background: var(--fill-3);
 }
 
-.ds-btn-ghost {
+.ds-btn-ghost:hover,
+.ds-btn-gray:hover {
+  background: var(--fill-2);
+}
+
+/* plain — text link with a chevron, apple.com style */
+.ds-btn-plain,
+.ds-btn-plain:hover {
+  color: var(--link);
+}
+
+.ds-btn-plain {
   background: transparent;
-  border-color: rgba(127, 110, 135, 0.35);
+  padding-inline: 4px;
+  min-height: 36px;
 }
 
-.ds-btn-ghost:hover {
-  background: rgba(127, 110, 135, 0.08);
+.ds-btn-plain:hover {
+  text-decoration: underline;
 }
 
-html[data-theme='dark'] .ds-btn-ghost {
-  color: #FFFFFF;
-  border-color: rgba(255, 255, 255, 0.2);
+.ds-btn-sm {
+  min-height: 32px;
+  padding: 6px 14px;
+  font-size: var(--type-subhead);
 }
 
-.ds-btn:disabled {
-  opacity: 0.65;
+.ds-btn-lg {
+  min-height: 52px;
+  padding: 14px 28px;
+  font-size: var(--type-body);
+}
+
+.ds-btn-block {
+  width: 100%;
+}
+
+.ds-btn:disabled,
+.ds-btn[aria-disabled='true'] {
+  opacity: 0.4;
   cursor: default;
   transform: none;
 }
 
-/* ---------- boxes: an iridescent line travels around; a light follows the pointer ---------- */
-.ds-card {
+/* ---------- cards (grouped surfaces) ---------- */
+.ds-card,
+.ds-ringbox {
   position: relative;
-  isolation: isolate;
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 16px;
+  background: var(--bg-3);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
   overflow: hidden;
-  transition: border-color 0.3s, box-shadow 0.3s, transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: box-shadow var(--transition-normal), transform 0.4s var(--ease-spring);
 }
 
-.ds-card:hover {
-  border-color: var(--line2);
-  box-shadow: 0 22px 44px -26px rgba(40, 20, 45, 0.3);
-  transform: translateY(-4px);
+/* on a white page, cards sit on the grouped gray */
+.ds-card {
+  border: 1px solid var(--separator);
 }
 
-.ds-card::before,
-.ds-ringbox::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1.5px;
-  pointer-events: none;
-  z-index: 4;
-  opacity: 0.75;
-  transition: opacity 0.35s;
-  background: conic-gradient(from var(--fx-ang), transparent 0 62%, #32A1BF 74%, #7FD0E6 80%, #D47EC0 88%, #A2458C 94%, transparent);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-  animation: ds-fx-spin 7s linear infinite;
-  animation-delay: var(--ring-delay, 0s);
-}
-
-.ds-card:hover::before,
-.ds-ringbox:hover::before {
-  opacity: 1;
-  animation-duration: 2.6s;
-  background: conic-gradient(from var(--fx-ang), #32A1BF, #7FD0E6, #D47EC0, #A2458C, #32A1BF);
-}
-
-.ds-card::after,
-.ds-ringbox::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: 3;
-  opacity: 0;
-  transition: opacity 0.35s;
-  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 0%), rgba(50, 161, 191, 0.12), rgba(162, 69, 140, 0.07) 45%, transparent 70%);
-}
-
-.ds-card:hover::after,
-.ds-ringbox:hover::after {
-  opacity: 1;
+a.ds-card:hover,
+.ds-card.ds-hover:hover,
+.ds-card:has(> a:hover) {
+  box-shadow: var(--shadow-2);
+  transform: translateY(-2px);
 }
 
 html[data-theme='dark'] .ds-card {
-  background: #170F1C;
+  border-color: transparent;
 }
 
-html[data-theme='dark'] .ds-card:hover {
-  box-shadow: 0 26px 50px -26px rgba(162, 69, 140, 0.55);
-}
-
-/* a small breathing light in the corner of each box */
+/* the old corner light is retired */
 .ds-fx-dot {
+  display: none;
+}
+
+/* ---------- grouped inset list (Settings style) ---------- */
+.ds-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--bg-3);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.ds-list > li,
+.ds-list > .ds-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 11px 16px;
+  position: relative;
+}
+
+.ds-list > li + li::before,
+.ds-list > .ds-row + .ds-row::before {
+  content: '';
   position: absolute;
-  top: 12px;
-  left: 12px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--dc, #32A1BF);
-  z-index: 5;
-  pointer-events: none;
-  animation: ds-dot-pulse 2.4s ease-out infinite;
-  animation-delay: var(--dd, 0s);
+  top: 0;
+  inset-inline: 16px 0;
+  height: 1px;
+  background: var(--separator);
 }
 
-@keyframes ds-dot-pulse {
-  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--dc, #32A1BF) 70%, transparent); }
-  80%, 100% { box-shadow: 0 0 0 10px transparent; }
+/* ---------- form fields ---------- */
+.ds-field {
+  display: grid;
+  gap: 6px;
 }
 
-/* ---------- section heading entrance: a rule draws, the title rises, the copy fades, buttons open ---------- */
-.ds-vx-rule {
+.ds-label {
+  font-size: var(--type-footnote);
+  font-weight: 500;
+  color: var(--label-2);
+  padding-inline: 4px;
+}
+
+.ds-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  font: inherit;
+  font-size: var(--type-body);
+  color: var(--label);
+  background: var(--bg-3);
+  border: 1px solid var(--separator-opaque);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.ds-input::placeholder {
+  color: var(--label-3);
+}
+
+.ds-input:focus {
+  outline: none;
+  border-color: var(--tint);
+  box-shadow: 0 0 0 4px rgba(var(--tint-rgb), 0.18);
+}
+
+/* ---------- segmented control ---------- */
+.ds-segmented {
+  display: inline-flex;
+  padding: 2px;
+  gap: 2px;
+  border-radius: 9px;
+  background: var(--fill-3);
+}
+
+.ds-segmented > button,
+.ds-segmented > a {
+  min-height: 32px;
+  padding: 6px 16px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--label);
+  font: inherit;
+  font-size: var(--type-footnote);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.ds-segmented > [aria-pressed='true'],
+.ds-segmented > [aria-selected='true'],
+.ds-segmented > .ds-on {
+  background: var(--bg-elevated);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04);
+}
+
+/* ---------- badge (capsule) ---------- */
+.ds-feat-badge,
+.ds-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: var(--type-caption);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0;
+  color: var(--tint);
+  background: var(--tint-fill);
+}
+
+.ds-feat-badge.ds-sm {
+  padding: 3px 9px;
+}
+
+.ds-fb-star {
+  width: 11px;
+  height: 11px;
+}
+
+/* ---------- progress bar ---------- */
+.ds-progress {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--fill-3);
+  overflow: hidden;
+}
+
+.ds-progress > i {
   display: block;
-  width: 72px;
-  height: 2px;
-  border-radius: 2px;
-  margin-bottom: 6px;
-  background: linear-gradient(90deg, #32A1BF, #D47EC0);
-  transform: scaleX(0);
-  transition: transform 0.55s cubic-bezier(0.7, 0, 0.3, 1);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--tint);
+  transition: width 1.2s var(--ease-spring);
 }
 
-html[data-theme='dark'] .ds-vx-rule {
-  background: linear-gradient(90deg, #7FD0E6, #F3B4E4);
+/* ---------- section heading entrance (subtle) ---------- */
+.ds-vx-rule {
+  display: none;
 }
 
-.ds-vx .ds-vx-title {
+.ds-vx .ds-vx-title,
+.ds-vx .ds-vx-copy,
+.ds-vx .ds-btn {
   opacity: 0;
-  transform: translateY(26px);
-  transition: opacity 0.7s ease 0.2s, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s;
+  transform: translateY(16px);
+  transition: opacity 0.8s var(--ease-out), transform 0.9s var(--ease-spring);
 }
 
 .ds-vx .ds-vx-copy {
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.7s ease 0.5s, transform 0.7s ease 0.5s;
+  transition-delay: 0.08s;
 }
 
 .ds-vx .ds-btn {
-  opacity: 0;
-  transform: scaleX(0.55);
-}
-
-.ds-vx.ds-in .ds-vx-rule {
-  transform: scaleX(1);
+  transition-delay: 0.16s;
 }
 
 .ds-vx.ds-in .ds-vx-title,
-.ds-vx.ds-in .ds-vx-copy {
+.ds-vx.ds-in .ds-vx-copy,
+.ds-vx.ds-in .ds-btn {
   opacity: 1;
   transform: none;
 }
 
-.ds-vx.ds-in .ds-btn {
-  animation: ds-vx-open 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.75s forwards, ds-vx-pop 0.32s ease-out 1.25s;
-}
-
-@keyframes ds-vx-open {
-  to { opacity: 1; transform: none; }
-}
-
-@keyframes ds-vx-pop {
-  50% { transform: scale(1.06); }
-}
-
-/* boxes rising into view */
+/* content rising into view */
 .ds-reveal {
   opacity: 0;
-  transform: translateY(26px);
-  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-  transition-delay: calc(var(--i, 0) * 110ms);
+  transform: translateY(24px);
+  transition: opacity 0.8s var(--ease-out), transform 0.9s var(--ease-spring);
+  transition-delay: calc(var(--i, 0) * 70ms);
 }
 
 .ds-reveal.ds-in {
@@ -378,119 +488,52 @@ html[data-theme='dark'] .ds-vx-rule {
   transform: none;
 }
 
-/* ---------- the “مميز” badge: moving gradient, twinkling star, pulse ring, shine, sparks ---------- */
-.ds-feat-badge {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 16px 7px 14px;
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.3;
-  color: #FFFFFF;
-  letter-spacing: 0.2px;
-  isolation: isolate;
-  overflow: visible;
-  background: linear-gradient(110deg, #A2458C, #D47EC0 30%, #32A1BF 60%, #A2458C 90%);
-  background-size: 250% 100%;
-  animation: ds-fb-flow 4s linear infinite;
-  box-shadow: 0 10px 26px -10px rgba(162, 69, 140, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.35);
-}
-
-.ds-feat-badge.ds-sm {
-  padding: 6px 15px 6px 13px;
-  font-size: 15.5px;
-}
-
-@keyframes ds-fb-flow {
-  to { background-position: -250% 0; }
-}
-
-.ds-feat-badge::before {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border-radius: inherit;
-  border: 2px solid rgba(212, 126, 192, 0.65);
-  z-index: -1;
-  animation: ds-fb-pulse 2s ease-out infinite;
-}
-
-@keyframes ds-fb-pulse {
-  0% { transform: scale(0.92); opacity: 0.9; }
-  100% { transform: scale(1.35, 1.6); opacity: 0; }
-}
-
-.ds-feat-badge::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.7) 50%, transparent 65%);
-  background-size: 250% 100%;
-  animation: ds-fb-shine 2.8s ease-in-out infinite;
-  pointer-events: none;
-}
-
-@keyframes ds-fb-shine {
-  0%, 55% { background-position: 150% 0; }
-  100% { background-position: -60% 0; }
-}
-
-.ds-fb-star {
-  width: 15px;
-  height: 15px;
-  color: #FFF3B0;
-  filter: drop-shadow(0 0 4px rgba(255, 243, 176, 0.9));
-  animation: ds-fb-star 2.4s ease-in-out infinite;
-}
-
-@keyframes ds-fb-star {
-  0%, 100% { transform: rotate(0) scale(1); }
-  50% { transform: rotate(72deg) scale(1.25); }
-}
-
-.ds-fb-spark {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #FFF3B0;
-  box-shadow: 0 0 8px 2px rgba(255, 243, 176, 0.8);
-  opacity: 0;
-  animation: ds-fb-spark 2.4s ease-out infinite;
-}
-
-.ds-fb-spark.ds-s1 { top: -8px; left: 12%; }
-.ds-fb-spark.ds-s2 { bottom: -8px; left: 58%; animation-delay: 0.8s; background: #7FD0E6; box-shadow: 0 0 8px 2px rgba(127, 208, 230, 0.8); }
-.ds-fb-spark.ds-s3 { top: 30%; left: -10px; animation-delay: 1.6s; background: #FFB3E8; box-shadow: 0 0 8px 2px rgba(255, 179, 232, 0.8); }
-
-@keyframes ds-fb-spark {
-  0% { opacity: 0; transform: scale(0.3); }
-  30% { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(0.2) translateY(-10px); }
-}
-
-/* ---------- white logo chip (the logo always shows whole, never cropped) ---------- */
+/* ---------- logo chip (logo always shown whole) ---------- */
 .ds-logo-chip {
   display: flex;
   align-items: center;
   background: #FFFFFF;
-  border-radius: 10px;
-  padding: 5px 9px;
+  border-radius: 8px;
+  padding: 3px 7px;
 }
 
 .ds-logo-chip img {
-  height: 38px;
+  height: 30px;
   width: auto;
   max-width: none;
   display: block;
 }
 
-@media (max-width: 560px) {
+@media (max-width: 833px) {
   .ds-logo-chip img {
-    height: 32px;
+    height: 26px;
+  }
+}
+
+/* soft mesh used where the old silk shader was */
+.ds-mesh {
+  background:
+    radial-gradient(60% 80% at 15% 20%, rgba(var(--tint-rgb), 0.12), transparent 70%),
+    radial-gradient(50% 70% at 85% 30%, rgba(175, 82, 222, 0.1), transparent 70%),
+    radial-gradient(60% 60% at 50% 100%, rgba(48, 176, 199, 0.1), transparent 70%);
+}
+
+/* ---------- accessibility: respect reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .ds-reveal,
+  .ds-vx .ds-vx-title,
+  .ds-vx .ds-vx-copy,
+  .ds-vx .ds-btn {
+    opacity: 1;
+    transform: none;
   }
 }

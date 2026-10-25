@@ -1,83 +1,97 @@
-/* Design tokens – لوحة الألوان (Primary بنفسجي، Secondary أزرق، Accent برتقالي/ذهبي)
-   ملاحظة: في manifest.json استخدم theme_color/background_color #A0207E (أو #2DAAE2 للتوافق مع أزرق الويب) */
+/* =====================================================================
+   Design tokens — Apple system design (Human Interface Guidelines).
+   Semantic colours follow the iOS / macOS system palette; one tint
+   colour drives every interactive element. Dark mode lives in
+   design.css under html[data-theme='dark'].
+   ===================================================================== */
 :root {
-  /* الألوان الأساسية (Primary – بنفسجي) */
-  --color-primary: #A0207E;
-  --color-primary-light: #B84A9A;
-  --color-primary-dark: #8A1A6A;
-  --color-primary-hover: #8A1A6A;
-  /* خلفية خفيفة للتركيز والأزرار الثانوية (مناسب للويب) */
-  --color-primary-tint: rgba(160, 32, 126, 0.12);
-  --color-primary-tint-hover: rgba(160, 32, 126, 0.2);
-  --color-primary-rgb: 160, 32, 126;
+  /* ---------- System colours ---------- */
+  --sys-blue: #0071E3;          /* apple.com action blue */
+  --sys-blue-hover: #0077ED;
+  --sys-blue-pressed: #006EDB;
+  --sys-link: #0066CC;
+  --sys-green: #34C759;
+  --sys-green-ink: #248A3D;
+  --sys-orange: #FF9500;
+  --sys-red: #FF3B30;
+  --sys-red-ink: #D70015;
+  --sys-indigo: #5856D6;
+  --sys-teal: #30B0C7;
+  --sys-pink: #FF2D55;
+  --sys-purple: #AF52DE;
 
-  /* الألوان الثانوية (Secondary – أزرق) */
-  --color-secondary: #2DAAE2;
-  --color-secondary-light: #4FB8E8;
-  --color-secondary-dark: #1E8BC4;
-  --color-secondary-hover: #1E8BC4;
+  /* the app tint — swap this single value to re-brand */
+  --tint: var(--sys-blue);
+  --tint-hover: var(--sys-blue-hover);
+  --tint-pressed: var(--sys-blue-pressed);
+  --tint-rgb: 0, 113, 227;
+  --tint-fill: rgba(var(--tint-rgb), 0.1);
+  --link: var(--sys-link);
 
-  /* لون التمييز (Accent – برتقالي/ذهبي) */
-  --color-accent: #F59E0B;
-  --color-accent-light: #FBBF24;
-  --color-accent-dark: #D97706;
-  --color-accent-hover: #D97706;
+  /* ---------- Labels ---------- */
+  --label: #1D1D1F;
+  --label-2: #6E6E73;
+  --label-3: #86868B;
+  --label-4: #AEAEB2;
 
-  /* ألوان الخلفية */
-  --color-bg: #F2F5FA;
-  --color-bg-elevated: #FFFFFF;
-  --color-surface: #FFFFFF;
-  --color-surface-variant: #F1F5F9;
+  /* ---------- Backgrounds ---------- */
+  --bg: #FFFFFF;
+  --bg-2: #F5F5F7;              /* grouped / secondary background */
+  --bg-3: #FFFFFF;              /* cells on grouped background */
+  --bg-elevated: #FFFFFF;
 
-  /* الحدود (مشتقة من الخلفية/النص) */
-  --color-border: #E2E8F0;
-  --color-border-strong: #CBD5E1;
+  /* ---------- Fills & separators ---------- */
+  --fill-1: rgba(120, 120, 128, 0.2);
+  --fill-2: rgba(120, 120, 128, 0.16);
+  --fill-3: rgba(118, 118, 128, 0.12);
+  --fill-4: rgba(116, 116, 128, 0.08);
+  --separator: rgba(0, 0, 0, 0.1);
+  --separator-opaque: #D2D2D7;
 
-  /* ألوان النص */
-  --color-text: #1E293B;
-  --color-text-muted: #64748B;
-  --color-text-tertiary: #94A3B8;
-  --color-text-inverse: #FFFFFF;
+  /* ---------- Materials (vibrancy) ---------- */
+  --material-bar: rgba(255, 255, 255, 0.72);
+  --material-thick: rgba(255, 255, 255, 0.86);
+  --material-thin: rgba(255, 255, 255, 0.6);
+  --material-blur: saturate(180%) blur(20px);
 
-  /* ألوان الحالة (Status) */
-  --color-success: #10B981;
-  --color-success-dark: #047857;
-  --color-warning: #F59E0B;
-  --color-error: #EF4444;
-  --color-error-tint: rgba(239, 68, 68, 0.1);
-  --color-info: #3B82F6;
+  /* ---------- Elevation ---------- */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 1px rgba(0, 0, 0, 0.02);
+  --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-3: 0 4px 12px rgba(0, 0, 0, 0.06), 0 24px 48px rgba(0, 0, 0, 0.1);
 
-  /* التدرجات (Gradients) – التدرج السائد بين اللونين الأساسيين */
-  --gradient-dominant: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
-  --gradient-primary: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
-  --gradient-secondary: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary-light) 100%);
-  --gradient-accent: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-light) 100%);
-  --gradient-modern: var(--gradient-dominant);
-  --gradient-reverse: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
-  --gradient-soft: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-secondary-light) 100%);
-  /* تدرج خفيف لخلفية الصفحات (نفس المعتمد بدرجة شفافة أعلى قليلاً) */
-  --gradient-page-bg: linear-gradient(135deg, rgba(160, 32, 126, 0.07) 0%, rgba(45, 170, 226, 0.09) 100%);
-  /* تدرج غامق للفوتر (بين اللونين الأساسيين) */
-  --gradient-dark: linear-gradient(180deg, var(--color-primary-dark) 0%, var(--color-secondary-dark) 100%);
+  /* ---------- Typography (SF Pro / SF Arabic, Inter + IBM Plex Sans Arabic elsewhere) ---------- */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Arabic', 'Inter', 'IBM Plex Sans Arabic', 'Helvetica Neue', 'Segoe UI', system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Arabic', 'Inter', 'IBM Plex Sans Arabic', 'Helvetica Neue', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
-  /* Typography */
-  --font-sans: 'IBM Plex Sans Arabic', 'Segoe UI', system-ui, sans-serif;
-  --font-display: 'IBM Plex Sans Arabic', 'Segoe UI', system-ui, sans-serif;
+  /* HIG text styles (web-scaled) */
+  --type-caption: 0.75rem;      /* 12 */
+  --type-footnote: 0.8125rem;   /* 13 */
+  --type-subhead: 0.9375rem;    /* 15 */
+  --type-callout: 1rem;         /* 16 */
+  --type-body: 1.0625rem;       /* 17 */
+  --type-headline: 1.0625rem;   /* 17 semibold */
+  --type-title-3: 1.25rem;      /* 20 */
+  --type-title-2: 1.5rem;       /* 24 */
+  --type-title-1: clamp(1.75rem, 1.4rem + 1.2vw, 2.5rem);
+  --type-large: clamp(2.25rem, 1.6rem + 2.6vw, 3.5rem);
+  --type-hero: clamp(2.75rem, 1.6rem + 4.6vw, 5rem);
 
-  --text-xs: clamp(0.8125rem, 0.78rem + 0.2vw, 0.9375rem);
-  --text-sm: clamp(0.9375rem, 0.88rem + 0.25vw, 1.0625rem);
-  --text-base: clamp(1.0625rem, 1rem + 0.3vw, 1.125rem);
-  --text-lg: clamp(1.125rem, 1.05rem + 0.4vw, 1.25rem);
-  --text-xl: clamp(1.25rem, 1.1rem + 0.6vw, 1.375rem);
-  --text-2xl: clamp(1.375rem, 1.25rem + 0.75vw, 1.625rem);
-  --text-3xl: clamp(1.625rem, 1.4rem + 1.1vw, 2.125rem);
-  --text-4xl: clamp(2rem, 1.6rem + 1.6vw, 2.75rem);
+  /* legacy scale names, mapped onto the HIG styles */
+  --text-xs: var(--type-footnote);
+  --text-sm: var(--type-subhead);
+  --text-base: var(--type-body);
+  --text-lg: var(--type-title-3);
+  --text-xl: var(--type-title-3);
+  --text-2xl: var(--type-title-2);
+  --text-3xl: var(--type-title-1);
+  --text-4xl: var(--type-large);
 
-  --line-height-tight: 1.25;
-  --line-height-normal: 1.5;
-  --line-height-relaxed: 1.65;
+  --line-height-tight: 1.1;
+  --line-height-normal: 1.47;
+  --line-height-relaxed: 1.6;
 
-  /* Spacing – use for margin/padding (RTL-safe with logical props) */
+  /* ---------- Spacing (8-pt grid) ---------- */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -90,35 +104,80 @@
   --space-14: 3.5rem;
   --space-16: 4rem;
   --space-20: 5rem;
+  --space-section: clamp(4rem, 3rem + 4vw, 7.5rem);
 
-  /* Layout */
+  /* ---------- Layout ---------- */
   --container-narrow: min(100% - 2rem, 640px);
-  --container-content: min(100% - 2rem, 960px);
-  --container-wide: min(100% - 2rem, 1280px);
+  --container-content: min(100% - 2rem, 980px);
+  --container-wide: min(100% - 2rem, 1200px);
 
-  --header-height: 5rem;
-  /* Minimum space between fixed header and first page content (titles) */
-  --content-offset-top: calc(var(--header-height) + 5rem);
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-full: 9999px;
+  --header-height: 52px;
+  --content-offset-top: calc(var(--header-height) + 3rem);
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  /* continuous-corner radii */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+  --radius-full: 980px;
 
-  /* Transitions */
-  --transition-fast: 150ms ease;
-  --transition-normal: 250ms ease;
+  /* ---------- Motion ---------- */
+  --ease-out: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --transition-fast: 160ms var(--ease-out);
+  --transition-normal: 280ms var(--ease-out);
+
+  /* ---------- Legacy aliases (older modules keep working) ---------- */
+  --color-primary: var(--tint);
+  --color-primary-light: var(--tint-hover);
+  --color-primary-dark: var(--tint-pressed);
+  --color-primary-hover: var(--tint-hover);
+  --color-primary-tint: var(--tint-fill);
+  --color-primary-tint-hover: rgba(var(--tint-rgb), 0.16);
+  --color-primary-rgb: var(--tint-rgb);
+  --color-secondary: var(--tint);
+  --color-secondary-light: var(--tint-hover);
+  --color-secondary-dark: var(--tint-pressed);
+  --color-secondary-hover: var(--tint-hover);
+  --color-accent: var(--sys-orange);
+  --color-accent-light: var(--sys-orange);
+  --color-accent-dark: var(--sys-orange);
+  --color-accent-hover: var(--sys-orange);
+  --color-bg: var(--bg-2);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-surface: var(--bg-3);
+  --color-surface-variant: var(--bg-2);
+  --color-border: var(--separator);
+  --color-border-strong: var(--separator-opaque);
+  --color-text: var(--label);
+  --color-text-muted: var(--label-2);
+  --color-text-tertiary: var(--label-3);
+  --color-text-inverse: #FFFFFF;
+  --color-success: var(--sys-green);
+  --color-success-dark: var(--sys-green-ink);
+  --color-warning: var(--sys-orange);
+  --color-error: var(--sys-red);
+  --color-error-tint: rgba(255, 59, 48, 0.1);
+  --color-info: var(--tint);
+  --gradient-dominant: var(--tint);
+  --gradient-primary: var(--tint);
+  --gradient-secondary: var(--tint);
+  --gradient-accent: var(--sys-orange);
+  --gradient-modern: var(--tint);
+  --gradient-reverse: var(--tint);
+  --gradient-soft: var(--bg-2);
+  --gradient-page-bg: none;
+  --gradient-dark: var(--bg-2);
+  --shadow-sm: var(--shadow-1);
+  --shadow-md: var(--shadow-2);
+  --shadow-lg: var(--shadow-3);
+  --radius-pill: var(--radius-full);
 }
 
-/* هيدر أصغر على الشاشات الصغيرة والهواتف */
-@media (max-width: 767px) {
+@media (max-width: 833px) {
   :root {
-    --header-height: 3.75rem;
+    --header-height: 48px;
   }
 }
-
-/* RTL: no color change; direction handled by dir attribute and logical CSS */
