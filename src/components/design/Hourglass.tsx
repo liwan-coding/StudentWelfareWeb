@@ -17,6 +17,8 @@ interface HourglassCardProps {
   donateTo: string
   percentSign: string
   index: number
+  /** false when a parent already animates the entrance (e.g. the Train) */
+  reveal?: boolean
 }
 
 /* level geometry from the design */
@@ -108,7 +110,7 @@ function burst(stage: HTMLElement) {
  * lifting a student who studies at a desk; at 100% the student cheers and tosses the cap.
  */
 export function HourglassCard(props: HourglassCardProps) {
-  const { percent, title, raisedLabel, goalLabel, raisedText, goalText, donateLabel, donateTo, percentSign, index } = props
+  const { percent, title, raisedLabel, goalLabel, raisedText, goalText, donateLabel, donateTo, percentSign, index, reveal = true } = props
   const rawId = useId()
   const id = rawId.replace(/[^a-zA-Z0-9]/g, '')
   const [cardRef, shown] = useInViewOnce<HTMLElement>(0.25)
@@ -243,7 +245,7 @@ export function HourglassCard(props: HourglassCardProps) {
   const style = { '--i': index % 3, '--ring-delay': `${-(index % 3) * 2.3}s` } as CSSProperties
 
   return (
-    <article ref={cardRef} className={`ds-card ds-reveal ${shown ? 'ds-in' : ''} ${styles.card}`} style={style}>
+    <article ref={cardRef} className={`ds-card ${reveal ? `ds-reveal ${shown ? 'ds-in' : ''}` : ''} ${styles.card}`} style={style}>
       <div ref={stageRef} className={styles.stage}>
         <span className={styles.pct}>
           <span ref={numRef}>0</span>
