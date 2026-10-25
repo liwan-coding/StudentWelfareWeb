@@ -60,7 +60,8 @@ async function request(
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[API] Network error:', url.toString(), msg)
-    throw new ApiError(0, { message: `اتصال الشبكة فشل: ${msg}` })
+    // status 0 = network failure; pages show a localized message via getApiErrorMessage
+    throw new ApiError(0, {})
   }
   if (!res.ok) {
     const clone = res.clone()
@@ -195,12 +196,32 @@ export class ApiError extends Error {
   }
 }
 
-/** Extract user-facing message from ApiError or Error. Use with useErrorToast().showError(). */
-export function getApiErrorMessage(err: unknown, fallback?: string): string {
-  const msg = fallback ?? 'حدث خطأ'
-  if (err instanceof ApiError && err.data && typeof err.data === 'object' && (err.data as { message?: string }).message) {
-    return (err.data as { message: string }).message
+/** i18n key for a failure the server did not explain: network, 5xx or anything unexpected. */
+export function apiErrorKey(err: unknown): string {
+  if (err instanceof ApiError) {
+    if (err.status === 0) return 'errors.network'
+    if (err.status >= 500) return 'errors.server'
   }
-  if (err instanceof Error && err.message) return err.message
-  return msg
+  return 'errors.generic'
+}
+
+/** Message the server wrote for a 4xx response: the first validation error, else `message`. */
+function serverMessage(err: unknown): string | undefined {
+  if (!(err instanceof ApiError) || err.status < 400 || err.status >= 500) return undefined
+  if (!err.data || typeof err.data !== 'object') return undefined
+  const d = err.data as { message?: unknown; errors?: unknown }
+  if (d.errors && typeof d.errors === 'object') {
+    const first = Object.values(d.errors as Record<string, unknown>).flat().find((v) => typeof v === 'string' && v)
+    if (typeof first === 'string') return first
+  }
+  return typeof d.message === 'string' && d.message ? d.message : undefined
+}
+
+/**
+ * User-facing message for any thrown error. Never returns technical text such as "API error 500":
+ * 4xx responses show the server's own message, everything else a localized one.
+ * Use with useErrorToast().showError().
+ */
+export function getApiErrorMessage(err: unknown, t: (key: string) => string): string {
+  return serverMessage(err) ?? t(apiErrorKey(err))
 }

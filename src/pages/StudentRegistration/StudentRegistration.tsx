@@ -7,7 +7,7 @@ import { Container } from '../../components/ui/Container'
 import { Button } from '../../components/ui/Button'
 import { useAuth } from '../../context/AuthContext'
 import { studentRegistrationService } from '../../services/studentRegistrationService'
-import { ApiError } from '../../services/apiClient'
+import { getApiErrorMessage } from '../../services/apiClient'
 import type { CampaignOrProgram } from '../../types/api'
 import type { StudentRegistrationResponse } from '../../services/studentRegistrationService'
 import styles from './StudentRegistration.module.css'
@@ -209,12 +209,7 @@ export function StudentRegistration() {
       await studentRegistrationService.createRegistration(buildFormData())
       setSubmitted(true)
     } catch (err) {
-      const msg = err instanceof ApiError && err.data && typeof err.data === 'object'
-        ? ((err.data as { message?: string }).message ?? (err.data as { errors?: Record<string, string[]> }).errors
-          ? Object.values((err.data as { errors: Record<string, string[]> }).errors).flat().join(' ')
-          : t('common.error'))
-        : err instanceof Error ? err.message : t('common.error')
-      setError(msg)
+      setError(getApiErrorMessage(err, t))
     } finally {
       setSubmitting(false)
     }

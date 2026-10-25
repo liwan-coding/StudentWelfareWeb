@@ -19,6 +19,7 @@ import { About } from './pages/About'
 import { MyDonations } from './pages/MyDonations'
 import { PaymentReturn } from './pages/PaymentReturn'
 import { StudentRegistration } from './pages/StudentRegistration'
+import { NotFound } from './pages/NotFound'
 
 function DirSync() {
   const { i18n } = useTranslation()
@@ -50,6 +51,7 @@ function App() {
               <Route path="/partners" element={<Partners />} />
               <Route path="/about" element={<About />} />
               <Route path="/my-donations" element={<ProtectedRoute><MyDonations /></ProtectedRoute>} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthCheckedGate>
         </ErrorProvider>

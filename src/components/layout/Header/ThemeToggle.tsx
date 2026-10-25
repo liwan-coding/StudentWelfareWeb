@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import styles from './Header.module.css'
 
 const STORAGE_KEY = 'swf_theme'
@@ -9,6 +10,7 @@ function isDark() {
 
 /** Dark / light switch; the choice is remembered in localStorage (applied early in index.html). */
 export function ThemeToggle() {
+  const { t } = useTranslation('common')
   const [dark, setDark] = useState(isDark)
 
   function toggle() {
@@ -27,7 +29,7 @@ export function ThemeToggle() {
   }
 
   return (
-    <button type="button" className={styles.themeBtn} onClick={toggle} aria-pressed={dark}>
+    <button type="button" className={styles.themeBtn} onClick={toggle} aria-pressed={dark} aria-label={t('common.darkMode')}>
       <svg className={styles.tbSun} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
         <circle cx="12" cy="12" r="4.2" />
         <path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" />

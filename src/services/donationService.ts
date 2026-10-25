@@ -92,16 +92,17 @@ export const donationService = {
     }
   },
 
+  /** Throws when both endpoints fail, so the page can show an error instead of "no donations yet". */
   async getMyDonations(params?: { page?: number; limit?: number }): Promise<RecentDonation[]> {
     try {
       const data = await api.get<unknown>('/me/donations', params as Record<string, number>)
       return unwrapList<RecentDonation>(data)
-    } catch {
+    } catch (firstErr) {
       try {
         const data = await api.get<unknown>('/donations', params as Record<string, number>)
         return unwrapList<RecentDonation>(data)
       } catch {
-        return []
+        throw firstErr
       }
     }
   },

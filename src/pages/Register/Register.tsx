@@ -70,7 +70,7 @@ export function Register() {
       setStep('otp')
       if (isDev) setResendCooldown(60)
     } catch (err) {
-      const msg = getApiErrorMessage(err, t('common.error'))
+      const msg = getApiErrorMessage(err, t)
       setError(msg)
       showError(msg, 'error')
     }
@@ -87,7 +87,7 @@ export function Register() {
       await verifyOtp(verifyId, otpCode.trim())
       navigate('/', { replace: true })
     } catch (err) {
-      const msg = getApiErrorMessage(err, t('common.error'))
+      const msg = getApiErrorMessage(err, t)
       setOtpError(msg)
       showError(msg, 'error')
     }
@@ -109,7 +109,7 @@ export function Register() {
         })
       }, 1000)
     } catch (err) {
-      const msg = getApiErrorMessage(err, t('common.error'))
+      const msg = getApiErrorMessage(err, t)
       setOtpError(msg)
       showError(msg, 'error')
     }

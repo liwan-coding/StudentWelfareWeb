@@ -37,7 +37,7 @@ export function Login() {
       await login(phone.trim(), password)
       navigate(returnUrl, { replace: true })
     } catch (err) {
-      const msg = getApiErrorMessage(err, t('common.error'))
+      const msg = getApiErrorMessage(err, t)
       setError(msg)
       showError(msg, 'error')
     }

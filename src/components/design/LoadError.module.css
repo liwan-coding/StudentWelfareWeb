@@ -1,0 +1,33 @@
+/* Error twin of the pages' quiet centred empty states. Token colours only. */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: 28rem;
+  margin-inline: auto;
+  padding-block: clamp(40px, 8vw, 88px);
+  text-align: center;
+}
+
+.icon {
+  width: 56px;
+  height: 56px;
+  margin-block-end: 8px;
+  color: var(--label-3);
+}
+
+.title {
+  font-size: var(--type-title-3);
+  line-height: 1.25;
+}
+
+.description {
+  font-size: var(--type-subhead);
+  line-height: 1.5;
+  color: var(--label-2);
+}
+
+.retry {
+  margin-block-start: 16px;
+}

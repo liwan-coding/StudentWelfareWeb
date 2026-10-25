@@ -7,6 +7,7 @@ import { getCampaignProgressPercent } from '../../components/CampaignAmountGoal'
 import { PageHero } from '../../components/design/PageHero'
 import { CampaignCard } from '../../components/design/CampaignCard'
 import { Train } from '../../components/design/Train'
+import { LoadError } from '../../components/design/LoadError'
 import styles from './Campaigns.module.css'
 
 /** Same number format as CampaignAmountGoal */
@@ -21,6 +22,8 @@ export function Campaigns() {
   const { t, i18n } = useTranslation('common')
   const [campaigns, setCampaigns] = useState<CampaignOrProgram[]>([])
   const [loading, setLoading] = useState(true)
+  const [failed, setFailed] = useState(false)
+  const [attempt, setAttempt] = useState(0)
 
   const lang = i18n.language === 'ar' ? 'ar' : 'en'
   const titleKey = lang === 'ar' ? 'title_ar' : 'title_en'
@@ -34,11 +37,20 @@ export function Campaigns() {
       .then((list) => {
         if (!cancelled) setCampaigns(list)
       })
+      .catch(() => {
+        if (!cancelled) setFailed(true)
+      })
       .finally(() => {
         if (!cancelled) setLoading(false)
       })
     return () => { cancelled = true }
-  }, [])
+  }, [attempt])
+
+  function retry() {
+    setFailed(false)
+    setLoading(true)
+    setAttempt((n) => n + 1)
+  }
 
   const currency = t('donate.currencyShort')
   const percentSign = lang === 'ar' ? '٪' : '%'
@@ -61,6 +73,8 @@ export function Campaigns() {
                   </div>
                 ))}
               </div>
+            ) : failed ? (
+              <LoadError onRetry={retry} />
             ) : campaigns.length === 0 ? (
               <div className={styles.empty} role="status">
                 <svg className={styles.emptyIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

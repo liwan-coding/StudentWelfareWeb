@@ -81,7 +81,7 @@ export function Header() {
           <Link to="/" className={`ds-logo-chip ${styles.logo}`} aria-label={t('app.name')}>
             <img src={LOGO_SRC} alt={t('app.name')} width={LOGO_WIDTH} height={LOGO_HEIGHT} />
           </Link>
-          <nav className={styles.nav} aria-label="Main navigation">
+          <nav className={styles.nav} aria-label={t('nav.main')}>
             {navItems.map(({ to, label }) => (
               <Link key={to} to={to} className={isActive(to) ? `${styles.navLink} ${styles.active}` : styles.navLink}>
                 {label}
@@ -152,7 +152,7 @@ export function Header() {
             aria-expanded={menuOpen}
             aria-controls="main-nav-mobile"
             onClick={() => setMenuOpen(!menuOpen)}
-            aria-label={menuOpen ? 'Close menu' : 'Menu'}
+            aria-label={menuOpen ? t('nav.closeMenu') : t('nav.openMenu')}
           >
             <span />
             <span />
@@ -162,7 +162,7 @@ export function Header() {
       </div>
 
       {/* Small screens: the nav (and the actions that do not fit) open in a panel */}
-      <nav id="main-nav-mobile" className={`${styles.mobileNav} ${menuOpen ? styles.mobileNavOpen : ''}`} aria-label="Main navigation">
+      <nav id="main-nav-mobile" className={`${styles.mobileNav} ${menuOpen ? styles.mobileNavOpen : ''}`} aria-label={t('nav.main')}>
         <div className="ds-wrap">
           {navItems.map(({ to, label }) => (
             <Link

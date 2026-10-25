@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PageLayout } from '../../components/layout/PageLayout'
 import { paymentService } from '../../services/paymentService'
+import { getApiErrorMessage } from '../../services/apiClient'
 import styles from './PaymentReturn.module.css'
 
 /* SF Symbols–style glyphs drawn inside a filled circle */
@@ -55,9 +56,9 @@ export function PaymentReturn() {
       .then(() => setConfirmStatus('success'))
       .catch((err) => {
         setConfirmStatus('error')
-        setErrorMessage(err instanceof Error ? err.message : 'Payment confirm failed')
+        setErrorMessage(getApiErrorMessage(err, t))
       })
-  }, [needsConfirm, sessionId, donationId])
+  }, [needsConfirm, sessionId, donationId, t])
 
   return (
     <PageLayout noPadding design>
@@ -102,7 +103,8 @@ export function PaymentReturn() {
               <div className={`${styles.badge} ${styles.badgeError}`}>
                 <IconError />
               </div>
-              <h1 className={styles.title}>{errorMessage || t('donate.error')}</h1>
+              <h1 className={styles.title}>{t('donate.paymentFailed')}</h1>
+              <p className={styles.subtext}>{errorMessage || t('donate.paymentFailedDetail')}</p>
               <div className={styles.actions}>
                 <Link to="/campaigns" className="ds-btn ds-btn-gray ds-btn-lg">{t('common.retry')}</Link>
               </div>

@@ -16,7 +16,10 @@
     "profile": "My Account",
     "myDonations": "My Donations",
     "studentRegistration": "Student Registration",
-    "logout": "Logout"
+    "logout": "Logout",
+    "main": "Main navigation",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "home": {
     "heroTitle": "Student Welfare Fund",
@@ -79,7 +82,11 @@
     "shareCampaign": "Share campaign",
     "shareVia": "Share via",
     "copyLink": "Copy link",
-    "copied": "Copied"
+    "copied": "Copied",
+    "amountRequired": "Please enter the amount you would like to donate",
+    "phoneRequired": "Please enter your phone number",
+    "paymentFailed": "We couldn’t confirm your payment",
+    "paymentFailedDetail": "Before trying again, check My Donations so you aren’t charged twice."
   },
   "myDonations": {
     "title": "My Donations",
@@ -245,7 +252,11 @@
     "search": "Search",
     "language": "Language",
     "arabic": "العربية",
-    "english": "English"
+    "english": "English",
+    "darkMode": "Dark mode",
+    "skipToContent": "Skip to main content",
+    "loadErrorTitle": "Couldn’t load this content",
+    "loadErrorDescription": "Check your connection and try again."
   },
   "footer": {
     "about": "About",
@@ -255,5 +266,16 @@
     "privacy": "Privacy",
     "rights": "All rights reserved",
     "explore": "Explore"
+  },
+  "errors": {
+    "network": "Can’t reach the server. Check your connection and try again.",
+    "server": "Something went wrong on our side. Please try again in a moment.",
+    "generic": "Something went wrong. Please try again."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you’re looking for doesn’t exist or has moved.",
+    "home": "Go to home",
+    "campaigns": "Browse initiatives"
   }
 }

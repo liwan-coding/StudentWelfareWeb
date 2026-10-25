@@ -7,6 +7,7 @@ import type { FundPartner } from '../../types/api'
 import { PageHero } from '../../components/design/PageHero'
 import { Train } from '../../components/design/Train'
 import { FeatBadge } from '../../components/design/FeatBadge'
+import { LoadError } from '../../components/design/LoadError'
 import styles from './Partners.module.css'
 
 function getDisplayUrl(link: string | undefined): string {
@@ -23,6 +24,8 @@ export function Partners() {
   const { t, i18n } = useTranslation('common')
   const [list, setList] = useState<FundPartner[]>([])
   const [loading, setLoading] = useState(true)
+  const [failed, setFailed] = useState(false)
+  const [attempt, setAttempt] = useState(0)
 
   const lang = i18n.language === 'ar' ? 'ar' : 'en'
   const nameKey = lang === 'ar' ? 'name_ar' : 'name_en'
@@ -38,12 +41,20 @@ export function Partners() {
           setList(sorted)
         }
       })
-      .catch(() => {})
+      .catch(() => {
+        if (!cancelled) setFailed(true)
+      })
       .finally(() => {
         if (!cancelled) setLoading(false)
       })
     return () => { cancelled = true }
-  }, [])
+  }, [attempt])
+
+  function retry() {
+    setFailed(false)
+    setLoading(true)
+    setAttempt((n) => n + 1)
+  }
 
   return (
     <PageLayout noPadding design>
@@ -65,6 +76,8 @@ export function Partners() {
                   </div>
                 ))}
               </div>
+            ) : failed ? (
+              <LoadError onRetry={retry} />
             ) : list.length === 0 ? (
               <div className={styles.empty} role="status">
                 <svg className={styles.emptyIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

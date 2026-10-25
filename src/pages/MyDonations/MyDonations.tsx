@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext'
 import { donationService } from '../../services/donationService'
 import { campaignService } from '../../services/campaignService'
 import type { CampaignOrProgram, RecentDonation } from '../../types/api'
+import { LoadError } from '../../components/design/LoadError'
 import styles from './MyDonations.module.css'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -77,6 +78,8 @@ export function MyDonations() {
   const [campaigns, setCampaigns] = useState<CampaignOrProgram[]>([])
   const [programs, setPrograms] = useState<CampaignOrProgram[]>([])
   const [loading, setLoading] = useState(true)
+  const [failed, setFailed] = useState(false)
+  const [attempt, setAttempt] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -91,11 +94,20 @@ export function MyDonations() {
         setCampaigns(campList)
         setPrograms(progList)
       })
+      .catch(() => {
+        if (!cancelled) setFailed(true)
+      })
       .finally(() => {
         if (!cancelled) setLoading(false)
       })
     return () => { cancelled = true }
-  }, [])
+  }, [attempt])
+
+  function retry() {
+    setFailed(false)
+    setLoading(true)
+    setAttempt((n) => n + 1)
+  }
 
   const total = list.reduce((sum, d) => sum + (Number((d as RecentDonation).amount) || 0), 0)
   const locale = i18n.language || 'ar'
@@ -150,6 +162,8 @@ export function MyDonations() {
             <div className={`${styles.skeleton} ${styles.skeletonList}`} />
             <span className={styles.srOnly}>{t('common.loading')}</span>
           </div>
+        ) : failed ? (
+          <LoadError onRetry={retry} />
         ) : list.length === 0 ? (
           <div className={styles.empty}>
             <div className={styles.emptyIcon} aria-hidden="true">

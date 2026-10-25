@@ -6,6 +6,7 @@ import { resolveImageUrl } from '../../config/api'
 import type { FundNews } from '../../types/api'
 import { PageHero } from '../../components/design/PageHero'
 import { Train } from '../../components/design/Train'
+import { LoadError } from '../../components/design/LoadError'
 import styles from './News.module.css'
 
 function formatNewsDate(isoDate: string | undefined, locale: string): string {
@@ -33,6 +34,8 @@ export function News() {
   const { t, i18n } = useTranslation('common')
   const [list, setList] = useState<FundNews[]>([])
   const [loading, setLoading] = useState(true)
+  const [failed, setFailed] = useState(false)
+  const [attempt, setAttempt] = useState(0)
 
   const lang = i18n.language === 'ar' ? 'ar' : 'en'
   const titleKey = lang === 'ar' ? 'title_ar' : 'title_en'
@@ -45,12 +48,20 @@ export function News() {
       .then((data) => {
         if (!cancelled) setList(data)
       })
-      .catch(() => {})
+      .catch(() => {
+        if (!cancelled) setFailed(true)
+      })
       .finally(() => {
         if (!cancelled) setLoading(false)
       })
     return () => { cancelled = true }
-  }, [])
+  }, [attempt])
+
+  function retry() {
+    setFailed(false)
+    setLoading(true)
+    setAttempt((n) => n + 1)
+  }
 
   return (
     <PageLayout noPadding design>
@@ -72,6 +83,8 @@ export function News() {
                   </div>
                 ))}
               </div>
+            ) : failed ? (
+              <LoadError onRetry={retry} />
             ) : list.length === 0 ? (
               <div className={styles.empty} role="status">
                 <svg className={styles.emptyIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

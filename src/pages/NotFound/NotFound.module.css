@@ -1,0 +1,50 @@
+/* =====================================================================
+   404 — same centred, quiet layout as the payment result page.
+   Token colours only (light + dark).
+   ===================================================================== */
+
+.page {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--header-height) + clamp(40px, 8vw, 96px)) 22px clamp(56px, 10vw, 120px);
+  background: var(--bg);
+}
+
+.panel {
+  width: 100%;
+  max-width: 34rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.code {
+  font-size: var(--type-title-1);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--tint);
+  margin-block-end: 8px;
+}
+
+.title {
+  margin-block-end: 12px;
+}
+
+.subtext {
+  max-width: 36ch;
+  font-size: var(--type-subhead);
+  line-height: 1.5;
+  color: var(--label-2);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-block-start: 32px;
+}

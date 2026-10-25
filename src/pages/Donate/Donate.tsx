@@ -7,7 +7,7 @@ import { resolveImageUrl } from '../../config/api'
 import { campaignService } from '../../services/campaignService'
 import { donationService } from '../../services/donationService'
 import { paymentService } from '../../services/paymentService'
-import { ApiError, clearToken } from '../../services/apiClient'
+import { ApiError, clearToken, getApiErrorMessage } from '../../services/apiClient'
 import type { CampaignOrProgram } from '../../types/api'
 import { getCampaignProgressPercent } from '../../components/CampaignAmountGoal'
 import { PageHero } from '../../components/design/PageHero'
@@ -176,11 +176,11 @@ export function Donate() {
     setRetryDonationId(null)
     const numAmount = parseFloat(amount)
     if (!Number.isFinite(numAmount) || numAmount < 0.001) {
-      setError(t('donate.amount') + ' required')
+      setError(t('donate.amountRequired'))
       return
     }
     if (!isAuthenticated && !donorPhone.trim()) {
-      setError(`${t('donate.phone')} ${t('common.required')}`)
+      setError(t('donate.phoneRequired'))
       return
     }
     const id = selectedId ? parseInt(selectedId, 10) : undefined
@@ -225,17 +225,7 @@ export function Donate() {
       }
       setError(t('donate.error'))
     } catch (err) {
-      let msg = err instanceof Error ? err.message : t('donate.error')
-      if (err instanceof ApiError && err.status === 422 && err.data && typeof err.data === 'object') {
-        const d = err.data as { message?: string; errors?: Record<string, string[]> }
-        if (d.errors && typeof d.errors === 'object') {
-          const first = Object.values(d.errors).flat().find(Boolean)
-          if (first) msg = first
-        } else if (typeof d.message === 'string' && d.message) {
-          msg = d.message
-        }
-      }
-      setError(msg)
+      setError(getApiErrorMessage(err, t))
     } finally {
       setSubmitting(false)
     }
