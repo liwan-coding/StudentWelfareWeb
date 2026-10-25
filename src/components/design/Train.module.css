@@ -20,3 +20,11 @@
   opacity: 1;
   transform: none;
 }
+
+/* reduced motion: never leave content waiting on the viewport observer */
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    opacity: 1;
+    transform: none;
+  }
+}

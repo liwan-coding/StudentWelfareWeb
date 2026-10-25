@@ -1,4 +1,4 @@
-import { useEffect, useRef, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { useInViewOnce } from './useInViewOnce'
 import styles from './CampaignCard.module.css'
@@ -25,7 +25,10 @@ const CIRC = 2 * Math.PI * R
 /** Campaign card: an Activity-style ring closes to the funded share once the card is in view. */
 export function CampaignCard(props: CampaignCardProps) {
   const { percent, title, raisedLabel, goalLabel, raisedText, goalText, donateLabel, donateTo, percentSign, index, reveal = true } = props
-  const [cardRef, shown] = useInViewOnce<HTMLElement>(0.3)
+  const [cardRef, inView] = useInViewOnce<HTMLElement>(0.3)
+  // with reduced motion the ring shows its level straight away instead of waiting for the viewport
+  const [reduceMotion] = useState(() => !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
+  const shown = inView || reduceMotion
   const numRef = useRef<HTMLSpanElement>(null)
   const target = Math.max(0, Math.min(100, Math.round(percent)))
   const done = target >= 100
@@ -35,7 +38,7 @@ export function CampaignCard(props: CampaignCardProps) {
     if (!shown) return
     const el = numRef.current
     if (!el) return
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+    if (reduceMotion) {
       el.textContent = String(target)
       return
     }
@@ -50,7 +53,7 @@ export function CampaignCard(props: CampaignCardProps) {
     }
     raf = requestAnimationFrame(step)
     return () => cancelAnimationFrame(raf)
-  }, [shown, target])
+  }, [shown, target, reduceMotion])
 
   const offset = shown ? CIRC * (1 - target / 100) : CIRC
   const style = { '--i': index % 3 } as CSSProperties

@@ -58,3 +58,11 @@ a.tile:hover {
   color: #1D1D1F;
   text-align: center;
 }
+
+/* reduced motion: never leave content waiting on the viewport observer */
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    opacity: 1;
+    transform: none;
+  }
+}
