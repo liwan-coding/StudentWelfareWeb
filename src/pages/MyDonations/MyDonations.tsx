@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PageLayout } from '../../components/layout/PageLayout'
-import { Backdrop } from '../../components/design/Backdrop'
 import { useAuth } from '../../context/AuthContext'
 import { donationService } from '../../services/donationService'
 import { campaignService } from '../../services/campaignService'
@@ -119,111 +118,93 @@ export function MyDonations() {
   return (
     <PageLayout design>
       <div className={styles.page}>
-        <div className={styles.accHero}>
-          <Backdrop className={styles.accCanvas} />
-          <div className={styles.accTop}>
-            <span className={styles.avatar} aria-hidden="true">{initial}</span>
-            <div>
-              <h1>{t('myDonations.title')}</h1>
-              <p>{t('myDonations.subtitle')}</p>
-            </div>
+        <header className={styles.head}>
+          <span className={styles.avatar} aria-hidden="true">{initial}</span>
+          <div className={styles.headText}>
+            <h1>{t('myDonations.title')}</h1>
+            <p>{t('myDonations.subtitle')}</p>
           </div>
-          <div className={styles.accInfo}>
-            <span className={styles.chip}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-              <b>{t('auth.name')}</b> {user?.name ?? '—'}
-            </span>
-            <span className={styles.chip}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="3" /><path d="M11 18h2" /></svg>
-              <b>{t('auth.phone')}</b> <span dir="ltr">{user?.phone ?? '—'}</span>
-            </span>
-            <span className={styles.chip}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
-              <b>{t('auth.email')}</b> {user?.email ?? '—'}
-            </span>
-          </div>
-        </div>
+        </header>
+
+        <ul className={`ds-list ${styles.account}`}>
+          <li>
+            <span className={styles.rowLabel}>{t('auth.name')}</span>
+            <span className={styles.rowValue}>{user?.name ?? '—'}</span>
+          </li>
+          <li>
+            <span className={styles.rowLabel}>{t('auth.phone')}</span>
+            <span className={styles.rowValue} dir="ltr">{user?.phone ?? '—'}</span>
+          </li>
+          <li>
+            <span className={styles.rowLabel}>{t('auth.email')}</span>
+            <span className={styles.rowValue}>{user?.email ?? '—'}</span>
+          </li>
+        </ul>
 
         {loading ? (
           <div className={styles.loadingWrap} aria-busy="true">
             <div className={styles.sum}>
-              <div className={`ds-card ${styles.skeleton}`} />
-              <div className={`ds-card ${styles.skeleton}`} />
+              <div className={styles.skeleton} />
+              <div className={styles.skeleton} />
             </div>
-            <div className={`ds-card ${styles.skeleton} ${styles.skeletonList}`} />
+            <div className={`${styles.skeleton} ${styles.skeletonList}`} />
             <span className={styles.srOnly}>{t('common.loading')}</span>
           </div>
         ) : list.length === 0 ? (
-          <div className={`ds-card ${styles.empty}`}>
+          <div className={styles.empty}>
             <div className={styles.emptyIcon} aria-hidden="true">
               <HeartIcon />
             </div>
             <h2>{t('myDonations.emptyTitle')}</h2>
             <p>{t('myDonations.emptyDescription')}</p>
-            <Link to="/campaigns" className={`ds-btn ds-btn-ink ${styles.emptyCta}`}>
+            <Link to="/campaigns" className="ds-btn ds-btn-filled ds-btn-lg">
               {t('myDonations.ctaDonate')}
             </Link>
-
           </div>
         ) : (
           <>
             <section className={styles.sum} aria-labelledby="my-donations-summary">
-              <div className="ds-card">
-                <div className={styles.sumCard}>
-                  <span className={`${styles.si} ${styles.siPlum}`} aria-hidden="true"><HeartIcon /></span>
-                  <div>
-                    <div className={styles.lbl} id="my-donations-summary">{t('myDonations.totalDonated')}</div>
-                    <div className={styles.val}>
-                      <CountUp value={total} format={formatAmount} />
-                      <small>{t('donate.currencyShort')}</small>
-                    </div>
-                  </div>
+              <div className={styles.stat}>
+                <div className={styles.lbl} id="my-donations-summary">{t('myDonations.totalDonated')}</div>
+                <div className={styles.val}>
+                  <CountUp value={total} format={formatAmount} />
+                  <small>{t('donate.currencyShort')}</small>
                 </div>
-
               </div>
-              <div className="ds-card">
-                <div className={styles.sumCard}>
-                  <span className={`${styles.si} ${styles.siTeal}`} aria-hidden="true">
-                    <svg viewBox="0 0 24 24">
-                      <g className={styles.bars} fill="#FFFFFF">
-                        <rect x="4" y="10" width="4" height="10" rx="1.5" style={{ '--d': '0s' } as CSSProperties} />
-                        <rect x="10" y="6" width="4" height="14" rx="1.5" style={{ '--d': '.3s' } as CSSProperties} />
-                        <rect x="16" y="3" width="4" height="17" rx="1.5" style={{ '--d': '.6s' } as CSSProperties} />
-                      </g>
-                    </svg>
-                  </span>
-                  <div>
-                    <div className={styles.lbl}>{t('myDonations.donationCount')}</div>
-                    <div className={styles.val}><CountUp value={list.length} /></div>
-                  </div>
-                </div>
-
+              <div className={styles.stat}>
+                <div className={styles.lbl}>{t('myDonations.donationCount')}</div>
+                <div className={styles.val}><CountUp value={list.length} /></div>
               </div>
             </section>
 
             <section aria-labelledby="donations-list-title">
-              <div className={styles.listHead}>
-                <h2 id="donations-list-title">{t('myDonations.donationsListTitle')}</h2>
+              <h2 id="donations-list-title" className={styles.listTitle}>{t('myDonations.donationsListTitle')}</h2>
+              <div className={styles.table}>
+                <div className={styles.thead} aria-hidden="true">
+                  <span>{t('myDonations.campaign')}</span>
+                  <span>{t('myDonations.donationDate')}</span>
+                  <span className={styles.endCol}>{t('myDonations.amount')}</span>
+                </div>
+                <ul className={styles.dlist}>
+                  {rows.map((row) => (
+                    <li key={row.key} className={styles.drow}>
+                      <span className={styles.dic} aria-hidden="true"><HeartIcon /></span>
+                      <span className={styles.dt}>
+                        <span className={styles.srOnly}>{t('myDonations.campaign')}: </span>
+                        {row.title}
+                      </span>
+                      <span className={styles.dd}>
+                        <span className={styles.srOnly}>{t('myDonations.donationDate')}: </span>
+                        {row.date}
+                      </span>
+                      <span className={styles.da}>
+                        <span className={styles.srOnly}>{t('myDonations.amount')}: </span>
+                        {row.amount} <small>{t('donate.currencyShort')}</small>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <ul className={styles.dlist}>
-                {rows.map((row, i) => (
-                  <li key={row.key} className={`ds-card ${styles.drow}`} style={{ '--i': i } as CSSProperties}>
-                    <span className={styles.dic} aria-hidden="true"><HeartIcon /></span>
-                    <span className={styles.dt}>
-                      <span className={styles.srOnly}>{t('myDonations.campaign')}: </span>
-                      {row.title}
-                    </span>
-                    <span className={styles.dd}>
-                      <span className={styles.srOnly}>{t('myDonations.donationDate')}: </span>
-                      {row.date}
-                    </span>
-                    <span className={styles.da}>
-                      <span className={styles.srOnly}>{t('myDonations.amount')}: </span>
-                      {row.amount} {t('donate.currencyShort')}
-                    </span>
-                  </li>
-                ))}
-              </ul>
             </section>
           </>
         )}

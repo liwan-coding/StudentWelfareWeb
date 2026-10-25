@@ -30,18 +30,26 @@ function ArrowIcon() {
   )
 }
 
-/** Section heading with the framed entrance: a rule draws, the title rises, the copy fades, buttons open. */
+/** apple.com style "Learn more" chevron: points left for RTL, flipped in LTR by .ds-arrow. */
+function Chevron() {
+  return (
+    <svg className={`ds-arrow ${styles.chev}`} width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M7 1L1 7l6 6" />
+    </svg>
+  )
+}
+
+/** Centred section header that fades up once when it scrolls into view. */
 function SectionHead({ children, className = '' }: { children: ReactNode; className?: string }) {
   const [ref, inView] = useInViewOnce<HTMLDivElement>(0.3)
   return (
     <div ref={ref} className={`ds-vx ${inView ? 'ds-in' : ''} ${styles.head} ${className}`.trim()}>
-      <i className="ds-vx-rule" aria-hidden="true" />
       {children}
     </div>
   )
 }
 
-/** A news box: equal boxes, the one under the pointer opens wider; rises and unveils on entry. */
+/** News card: image, date, title and a short excerpt; fades up on entry. */
 function NewsBox({ index, featured, featuredLabel, imageUrl, date, dateTime, title, excerpt }: {
   index: number
   featured: boolean
@@ -52,34 +60,34 @@ function NewsBox({ index, featured, featuredLabel, imageUrl, date, dateTime, tit
   title: string
   excerpt: string
 }) {
-  const [ref, inView] = useInViewOnce<HTMLElement>(0.25)
-  const gradients = [
-    'linear-gradient(150deg,#A2458C,#D47EC0 55%,#32A1BF)',
-    'linear-gradient(150deg,#32A1BF,#7FD0E6)',
-    'linear-gradient(150deg,#7E2F6C,#32A1BF)',
-  ]
-  const style = { '--i': index % 3, '--ring-delay': `${-(index % 3) * 2.3}s` } as CSSProperties
-  const imgStyle = { '--cv': gradients[index % 3], ...(imageUrl ? { backgroundImage: `url(${imageUrl})` } : {}) } as CSSProperties
+  const [ref, inView] = useInViewOnce<HTMLElement>(0.2)
   return (
-    <article ref={ref} className={`ds-card ${styles.nw} ${featured ? styles.nwF : ''} ${inView ? styles.nwIn : ''}`} style={style}>
-      <div className={styles.nwImg} style={imgStyle} />
-      {featured && <FeatBadge label={featuredLabel} sparks className={styles.nwBadge} />}
-      <div className={styles.nwBody}>
-        <time dateTime={dateTime}>
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <rect x="3" y="5" width="18" height="16" rx="3" />
-            <path d="M8 3v4M16 3v4M3 10h18" />
-          </svg>
-          {date}
-        </time>
-        <h3>{title}</h3>
-        <p>{excerpt}</p>
+    <article
+      ref={ref}
+      className={`ds-card ds-reveal ${inView ? 'ds-in' : ''} ${styles.nw}`}
+      style={{ '--i': index % 3 } as CSSProperties}
+    >
+      <div className={styles.nwMedia}>
+        {imageUrl ? (
+          <img src={imageUrl} alt="" loading="lazy" className={styles.nwImg} />
+        ) : (
+          <span className={styles.nwPlaceholder} aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="4" width="18" height="16" rx="3" />
+              <path d="M7 9h10M7 13h10M7 17h6" />
+            </svg>
+          </span>
+        )}
+        {featured && <FeatBadge label={featuredLabel} small className={styles.nwBadge} />}
       </div>
-
+      <div className={styles.nwBody}>
+        {date && <time dateTime={dateTime}>{date}</time>}
+        <h3>{title}</h3>
+        {excerpt && <p>{excerpt}</p>}
+      </div>
     </article>
   )
 }
-
 
 const FALLBACK_CARD_DESC_AR = 'سجّل طلبك للاستفادة من برامج الدعم الدراسي. استكمل بياناتك وارفع المستندات المطلوبة.'
 const FALLBACK_CARD_DESC_EN = 'Register your application for student support programs. Complete your details and upload required documents.'
@@ -127,11 +135,13 @@ export function Home() {
   const getTitle = (item: CampaignOrProgram) =>
     (item[titleKey as keyof CampaignOrProgram] as string) || item.title || `#${item.id}`
 
+  // "now" captured once at mount so render stays pure
+  const [nowMs] = useState(() => Date.now())
   const getTimeAgoKey = (iso?: string): { key: string; count?: number } => {
     if (!iso) return { key: 'home.timeAgoJustNow' }
     const d = new Date(iso)
     if (Number.isNaN(d.getTime())) return { key: 'home.timeAgoJustNow' }
-    const diffMs = Date.now() - d.getTime()
+    const diffMs = nowMs - d.getTime()
     const diffMins = Math.floor(diffMs / 60000)
     const diffHours = Math.floor(diffMs / 3600000)
     const diffDays = Math.floor(diffMs / 86400000)
@@ -242,10 +252,8 @@ export function Home() {
 
   // جلب حالة طلب المستخدم المسجّل
   useEffect(() => {
-    if (!isAuthenticated) {
-      setMyRegistration(undefined)
-      return
-    }
+    // signed out: the stale value is ignored below (see activeRegistration), no reset needed
+    if (!isAuthenticated) return
     let cancelled = false
     studentRegistrationService
       .getMyRegistration()
@@ -254,8 +262,9 @@ export function Home() {
     return () => { cancelled = true }
   }, [isAuthenticated])
 
-  const regStatus = myRegistration && typeof myRegistration.status === 'string' ? String(myRegistration.status).toLowerCase() : ''
-  const isRegisteredInFund = Boolean(isAuthenticated && myRegistration)
+  const activeRegistration = isAuthenticated ? myRegistration : undefined
+  const regStatus = activeRegistration && typeof activeRegistration.status === 'string' ? String(activeRegistration.status).toLowerCase() : ''
+  const isRegisteredInFund = Boolean(isAuthenticated && activeRegistration)
   const statusLabel =
     isRegisteredInFund && regStatus
       ? (t(`studentRegistration.status_${regStatus}`) !== `studentRegistration.status_${regStatus}` ? t(`studentRegistration.status_${regStatus}`) : t('studentRegistration.status_pending'))
@@ -283,53 +292,65 @@ export function Home() {
       : undefined
 
 
+
   // ===== presentation only below: the data and logic above are unchanged =====
   const [ready, setReady] = useState(false)
-  const [regRef, regInView] = useInViewOnce<HTMLDivElement>(0.3)
-  const heroWords = t('home.heroTitle').split(' ')
-  const gradFrom = Math.floor(heroWords.length / 2)
+  const [regRef, regInView] = useInViewOnce<HTMLDivElement>(0.25)
   const percentSign = lang === 'ar' ? '٪' : '%'
   const currency = t('donate.currencyShort')
-  const newsRows: FundNews[][] = []
-  for (let i = 0; i < newsList.length; i += 3) newsRows.push(newsList.slice(i, i + 3))
-  const arcPartners: WallPartner[] = partnersList.map((p) => {
+  const wallPartners: WallPartner[] = partnersList.map((p) => {
     const nameKey = lang === 'ar' ? 'name_ar' : 'name_en'
     const name = (p[nameKey as keyof FundPartner] as string) || p.name_ar || p.name_en || `Partner ${p.id}`
     return { key: String(p.id), name, logoUrl: resolveImageUrl(p.logo_url ?? p.logo), link: p.link || undefined }
   })
+  const dir = isRtl ? 'rtl' : 'ltr'
+
+  const partnersHead = (
+    <SectionHead>
+      <span className="ds-eyebrow ds-vx-copy">{t('partners.featured')}</span>
+      <h2 id="partners-heading" className="ds-title-1 ds-vx-title">{t('nav.partners')}</h2>
+      <p className="ds-subhead ds-vx-copy">{t('partners.subtitle')}</p>
+      <Link to="/partners" className="ds-btn ds-btn-plain">{t('home.viewAll')}<Chevron /></Link>
+    </SectionHead>
+  )
 
   return (
     <PageLayout noPadding design>
       <Loader onDone={() => setReady(true)} />
 
-      {/* ================= Hero: dark silk band ================= */}
-      <section className={styles.hero} data-hero aria-label={t('app.name')} dir={isRtl ? 'rtl' : 'ltr'} lang={i18n.language || 'ar'}>
-        <Backdrop className={styles.heroCanvas} />
-        <div className={`ds-wrap ${styles.heroGrid}`}>
+      {/* ================= Hero ================= */}
+      <section className={styles.hero} aria-label={t('app.name')} dir={dir} lang={i18n.language || 'ar'}>
+        <Backdrop className={styles.heroMesh} />
+        <div className={`ds-wrap ${styles.heroInner}`}>
           <div className={`ds-vx ${ready ? 'ds-in' : ''} ${styles.heroText}`}>
-            <i className="ds-vx-rule" aria-hidden="true" />
-            <span className={`ds-vx-copy ${styles.heroEyebrow}`}>{t('app.tagline')}</span>
-            <h1 className="ds-vx-title">
-              {heroWords.slice(0, gradFrom).join(' ')}{gradFrom > 0 ? ' ' : ''}
-              <span className={styles.grad}>{heroWords.slice(gradFrom).join(' ')}</span>
-            </h1>
+            <span className={`ds-eyebrow ds-vx-copy ${styles.heroEyebrow}`}>{t('app.tagline')}</span>
+            <h1 className={`ds-vx-title ${styles.heroTitle}`}>{t('home.heroTitle')}</h1>
             <p className={`ds-vx-copy ${styles.heroSub}`}>{t('home.heroSubtitle')}</p>
+            <div className={styles.heroCtas}>
+              <Link to="/donate" className="ds-btn ds-btn-filled ds-btn-lg">{t('home.ctaDonate')}</Link>
+              <a href="#campaigns" className="ds-btn ds-btn-plain ds-btn-lg">
+                {t('home.campaignsSectionTitle')}
+                <Chevron />
+              </a>
+            </div>
           </div>
 
-          {hasBanners ? (
+          {hasBanners && (
             <div className={`${styles.banners} ${ready ? styles.bannersOn : ''}`} aria-label={t('home.bannersLabel')}>
-              {banners.map((banner, i) => (
-                <div
-                  key={banner.id}
-                  className={`${styles.bannerSlide} ${i === bannerIndex ? styles.bannerSlideActive : ''}`}
-                  style={{
-                    backgroundImage: banner.image_url || banner.image
-                      ? `url(${resolveImageUrl(banner.image_url || banner.image)})`
-                      : undefined,
-                  }}
-                  aria-hidden={i !== bannerIndex}
-                />
-              ))}
+              <div className={styles.bannerFrame}>
+                {banners.map((banner, i) => (
+                  <div
+                    key={banner.id}
+                    className={`${styles.bannerSlide} ${i === bannerIndex ? styles.bannerSlideActive : ''}`}
+                    style={{
+                      backgroundImage: banner.image_url || banner.image
+                        ? `url(${resolveImageUrl(banner.image_url || banner.image)})`
+                        : undefined,
+                    }}
+                    aria-hidden={i !== bannerIndex}
+                  />
+                ))}
+              </div>
               {banners.length > 1 && (
                 <div className={styles.bannerDots} role="tablist" aria-label={t('home.bannersLabel')}>
                   {banners.map((b, i) => (
@@ -341,71 +362,63 @@ export function Home() {
                       aria-label={t('home.bannerSlide', { number: i + 1 })}
                       className={`${styles.bannerDot} ${i === bannerIndex ? styles.bannerDotActive : ''}`}
                       onClick={() => setBannerIndex(i)}
-                    />
+                    >
+                      <i aria-hidden="true" />
+                    </button>
                   ))}
                 </div>
               )}
-            </div>
-          ) : (
-            <div className={`${styles.climb} ${ready ? styles.climbOn : ''}`} aria-hidden="true">
-              <svg viewBox="0 0 320 320">
-                <defs>
-                  <linearGradient id="ds-climb-t" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#7FD0E6" /><stop offset="1" stopColor="#1F6E85" /></linearGradient>
-                  <linearGradient id="ds-climb-p" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#E7A6D8" /><stop offset="1" stopColor="#7E2F6C" /></linearGradient>
-                </defs>
-                <path d="M120 20h170a20 20 0 0 1 20 20v170z" fill="url(#ds-climb-p)" opacity=".85" />
-                <rect className={styles.st} style={{ '--s': 0 } as CSSProperties} x="20" y="250" width="70" height="60" rx="6" fill="url(#ds-climb-t)" />
-                <rect className={styles.st} style={{ '--s': 1 } as CSSProperties} x="90" y="188" width="70" height="122" rx="6" fill="url(#ds-climb-t)" />
-                <rect className={styles.st} style={{ '--s': 2 } as CSSProperties} x="160" y="126" width="70" height="184" rx="6" fill="url(#ds-climb-t)" />
-                <rect className={styles.st} style={{ '--s': 3 } as CSSProperties} x="230" y="64" width="70" height="246" rx="6" fill="url(#ds-climb-t)" />
-                <g className={styles.walker}><circle cx="55" cy="236" r="11" fill="#FFFFFF" /><circle cx="55" cy="236" r="18" fill="none" stroke="#FFFFFF" strokeOpacity=".4" strokeWidth="2" /></g>
-                <g className={styles.cap} transform="translate(245 22)"><path d="M20 10L0 0-20 10 0 20z" fill="#FFFFFF" /><path d="M-12 14v8c6 5 18 5 24 0v-8" fill="none" stroke="#FFFFFF" strokeWidth="3" /></g>
-              </svg>
             </div>
           )}
         </div>
       </section>
 
-      {/* ================= Student registration card (overlaps the hero) ================= */}
-      <div className={`ds-wrap ${styles.regWrap}`} dir={isRtl ? 'rtl' : 'ltr'}>
-        <div ref={regRef} className={`ds-ringbox ds-reveal ds-vx ${regInView ? 'ds-in' : ''} ${styles.regcard}`}>
-          {cardBgImage && <span className={styles.regBg} style={{ backgroundImage: `url(${cardBgImage})` }} aria-hidden="true" />}
-          <span className={styles.regIcon} aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <g className={styles.capg}><path d="M22 10L12 5 2 10l10 5 10-5z" /></g>
-              <path d="M6 12v5c3 2 9 2 12 0v-5" />
-            </svg>
-          </span>
-          <div className={styles.regText}>
-            <span className={styles.eyebrow}>{t('home.regCardTag')}</span>
-            <h3>{cardHeadline}</h3>
-            <p>{cardSubtitle}</p>
-          </div>
-          <Link to="/student-registration" className={`ds-btn ds-btn-ink ${styles.regBtn} ${statusClass}`}>
-            {statusLabel}
-            <ArrowIcon />
-          </Link>
-
-        </div>
-      </div>
-
-      <div className="ds-wrap" dir={isRtl ? 'rtl' : 'ltr'}>
-        {/* ================= Initiatives: one hourglass per campaign ================= */}
-        <section className={styles.block} id="campaigns" aria-labelledby="campaigns-heading">
-          <div className={styles.headRow}>
-            <SectionHead>
-              <h2 id="campaigns-heading" className="ds-vx-title">{t('home.campaignsSectionTitle')}</h2>
-              <p className="ds-vx-copy">{t('campaigns.subtitle')}</p>
-            </SectionHead>
-            {campaigns.length > 0 && (
-              <Link to="/campaigns" className={`ds-btn ds-btn-ghost ${styles.viewAll}`}>{t('home.viewAll')}</Link>
+      {/* ================= Student registration ================= */}
+      <section className={`${styles.section} ${styles.alt}`} aria-label={t('home.regCardTag')} dir={dir}>
+        <div className="ds-wrap">
+          <div
+            ref={regRef}
+            className={`ds-card ds-reveal ${regInView ? 'ds-in' : ''} ${styles.reg} ${cardBgImage ? styles.regHasMedia : ''}`}
+          >
+            <div className={styles.regText}>
+              <span className={styles.regIcon} aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 10L12 5 2 10l10 5 10-5z" />
+                  <path d="M6 12v5c3 2 9 2 12 0v-5" />
+                </svg>
+              </span>
+              <span className="ds-eyebrow">{t('home.regCardTag')}</span>
+              <h2 className={styles.regTitle}>{cardHeadline}</h2>
+              <p className={styles.regSub}>{cardSubtitle}</p>
+              <Link to="/student-registration" className={`ds-btn ds-btn-filled ds-btn-lg ${styles.regBtn} ${statusClass}`}>
+                {statusLabel}
+                <ArrowIcon />
+              </Link>
+            </div>
+            {cardBgImage && (
+              <div className={styles.regMedia} aria-hidden="true">
+                <img src={cardBgImage} alt="" loading="lazy" />
+              </div>
             )}
           </div>
+        </div>
+      </section>
+
+      {/* ================= Initiatives ================= */}
+      <section className={styles.section} id="campaigns" aria-labelledby="campaigns-heading" dir={dir}>
+        <div className="ds-wrap">
+          <SectionHead>
+            <h2 id="campaigns-heading" className="ds-title-1 ds-vx-title">{t('home.campaignsSectionTitle')}</h2>
+            <p className="ds-subhead ds-vx-copy">{t('campaigns.subtitle')}</p>
+            {campaigns.length > 0 && (
+              <Link to="/campaigns" className="ds-btn ds-btn-plain">{t('home.viewAll')}<Chevron /></Link>
+            )}
+          </SectionHead>
           {loadingCampaigns ? (
             <div className={styles.grid3} aria-busy="true">
               {[0, 1, 2].map((i) => (
                 <div key={i} className={`ds-card ${styles.skeleton}`}>
-                  <span className={styles.skeletonStage} />
+                  <span className={styles.skeletonRing} />
                   <span className={styles.skeletonLine} />
                   <span className={`${styles.skeletonLine} ${styles.skeletonShort}`} />
                 </div>
@@ -413,7 +426,7 @@ export function Home() {
               <span className={styles.srOnly}>{t('common.loading')}</span>
             </div>
           ) : campaigns.length === 0 ? (
-            <p className={`ds-card ${styles.empty}`}>{t('campaigns.noCampaigns')}</p>
+            <p className={styles.empty}>{t('campaigns.noCampaigns')}</p>
           ) : (
             <div className={styles.grid3}>
               {campaigns.map((item, i) => {
@@ -437,99 +450,103 @@ export function Home() {
               })}
             </div>
           )}
-        </section>
+        </div>
+      </section>
 
-        {/* ================= News: boxes that open wider under the pointer ================= */}
-        <section className={`${styles.block} ${styles.newsBlock}`} id="news" aria-labelledby="news-heading">
+      {/* ================= News ================= */}
+      <section className={`${styles.section} ${styles.alt}`} id="news" aria-labelledby="news-heading" dir={dir}>
+        <div className="ds-wrap">
           <SectionHead>
-            <span className="ds-vx-copy"><FeatBadge label={t('news.featured')} small /></span>
-            <h2 id="news-heading" className="ds-vx-title">{t('nav.news')}</h2>
-            <p className="ds-vx-copy">{t('news.subtitle')}</p>
+            <span className="ds-eyebrow ds-vx-copy">{t('news.featured')}</span>
+            <h2 id="news-heading" className="ds-title-1 ds-vx-title">{t('nav.news')}</h2>
+            <p className="ds-subhead ds-vx-copy">{t('news.subtitle')}</p>
+            {newsList.length > 0 && (
+              <Link to="/news" className="ds-btn ds-btn-plain">{t('home.viewAll')}<Chevron /></Link>
+            )}
           </SectionHead>
           {loadingNews ? (
-            <div className={styles.newsGrid} aria-busy="true">
-              {[0, 1, 2].map((i) => <div key={i} className={`ds-card ${styles.nwSkeleton}`} />)}
+            <div className={styles.grid3} aria-busy="true">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className={`ds-card ${styles.nwSkeleton}`}>
+                  <span className={styles.nwSkeletonMedia} />
+                  <span className={styles.skeletonLine} />
+                  <span className={`${styles.skeletonLine} ${styles.skeletonShort}`} />
+                </div>
+              ))}
               <span className={styles.srOnly}>{t('common.loading')}</span>
             </div>
           ) : newsList.length === 0 ? (
-            <p className={`ds-card ${styles.empty}`}>{t('news.noNews')}</p>
+            <p className={styles.empty}>{t('news.noNews')}</p>
           ) : (
-            newsRows.map((row, r) => (
-              <div key={r} className={styles.newsGrid}>
-                {row.map((item, i) => {
-                  const titleKey = lang === 'ar' ? 'title_ar' : 'title_en'
-                  const contentKey = lang === 'ar' ? 'content_ar' : 'content_en'
-                  const title = (item[titleKey as keyof FundNews] as string) || `#${item.id}`
-                  const content = (item[contentKey as keyof FundNews] as string) || ''
-                  const excerpt = stripHtml(content).slice(0, 120) + (stripHtml(content).length > 120 ? '…' : '')
-                  return (
-                    <NewsBox
-                      key={item.id}
-                      index={r * 3 + i}
-                      featured={!!item.is_featured}
-                      featuredLabel={t('news.featured')}
-                      imageUrl={resolveImageUrl(item.image_url ?? item.image)}
-                      date={formatNewsDate(item.published_at, lang)}
-                      dateTime={item.published_at ?? ''}
-                      title={title}
-                      excerpt={excerpt}
-                    />
-                  )
-                })}
-              </div>
-            ))
+            <div className={styles.grid3}>
+              {newsList.map((item, i) => {
+                const titleKey = lang === 'ar' ? 'title_ar' : 'title_en'
+                const contentKey = lang === 'ar' ? 'content_ar' : 'content_en'
+                const title = (item[titleKey as keyof FundNews] as string) || `#${item.id}`
+                const content = (item[contentKey as keyof FundNews] as string) || ''
+                const plain = stripHtml(content)
+                const excerpt = plain.slice(0, 120) + (plain.length > 120 ? '…' : '')
+                return (
+                  <NewsBox
+                    key={item.id}
+                    index={i}
+                    featured={!!item.is_featured}
+                    featuredLabel={t('news.featured')}
+                    imageUrl={resolveImageUrl(item.image_url ?? item.image)}
+                    date={formatNewsDate(item.published_at, lang)}
+                    dateTime={item.published_at ?? ''}
+                    title={title}
+                    excerpt={excerpt}
+                  />
+                )
+              })}
+            </div>
           )}
-        </section>
+        </div>
+      </section>
 
-        {SHOW_RECENT_DONATIONS && (
-          <section className={styles.block} aria-labelledby="recent-donations-heading">
+      {SHOW_RECENT_DONATIONS && (
+        <section className={styles.section} aria-labelledby="recent-donations-heading" dir={dir}>
+          <div className="ds-wrap ds-wrap-narrow">
             <SectionHead>
-              <h2 id="recent-donations-heading" className="ds-vx-title">{t('home.recentDonations')}</h2>
-              <p className="ds-vx-copy">{t('home.recentDonationsSubtitle')}</p>
+              <h2 id="recent-donations-heading" className="ds-title-1 ds-vx-title">{t('home.recentDonations')}</h2>
+              <p className="ds-subhead ds-vx-copy">{t('home.recentDonationsSubtitle')}</p>
             </SectionHead>
             {loadingDonations ? (
               <p className={styles.srOnly}>{t('common.loading')}</p>
             ) : (
-              <ul className={styles.donationList}>
+              <ul className={`ds-list ${styles.donationList}`}>
                 {recentDonations.map((d, i) => {
                   const donation = d as RecentDonation
                   const timeAgo = getTimeAgoKey(donation.created_at)
                   return (
-                    <li key={`${donation.id ?? i}-${i}`} className="ds-card">
-                      <b>{formatDonationAmount(donation.amount)} {t('donate.currencyShort', 'OMR')}</b>
-                      <span>{t('home.benefactorLabel')}</span>
-                      {timeAgo.key !== 'home.timeAgoJustNow' && <span>{t(timeAgo.key, { count: timeAgo.count ?? 0 })}</span>}
+                    <li key={`${donation.id ?? i}-${i}`}>
+                      <span className={styles.donor}>{t('home.benefactorLabel')}</span>
+                      {timeAgo.key !== 'home.timeAgoJustNow' && (
+                        <span className={styles.donTime}>{t(timeAgo.key, { count: timeAgo.count ?? 0 })}</span>
+                      )}
+                      <b className={styles.donAmount}>{formatDonationAmount(donation.amount)} {t('donate.currencyShort', 'OMR')}</b>
                     </li>
                   )
                 })}
               </ul>
             )}
-          </section>
-        )}
-      </div>
+          </div>
+        </section>
+      )}
 
-      {/* ================= Partners: a turning half-circle of real logos ================= */}
-      <section className={styles.arcSec} id="partners" aria-labelledby="partners-heading" dir={isRtl ? 'rtl' : 'ltr'}>
+      {/* ================= Partners ================= */}
+      <section className={`${styles.section} ${SHOW_RECENT_DONATIONS ? styles.alt : ''}`} id="partners" aria-labelledby="partners-heading" dir={dir}>
         <div className="ds-wrap">
-          {!loadingPartners && arcPartners.length > 0 ? (
-            <PartnersWall partners={arcPartners}>
-              <SectionHead className={styles.arcHead}>
-                <span className={`ds-vx-copy ${styles.eyebrow}`}>{t('partners.featured')}</span>
-                <h2 id="partners-heading" className={`ds-vx-title ${styles.arcTitle}`}>{t('nav.partners')}</h2>
-                <p className="ds-vx-copy">{t('partners.subtitle')}</p>
-              </SectionHead>
-            </PartnersWall>
+          {!loadingPartners && wallPartners.length > 0 ? (
+            <PartnersWall partners={wallPartners}>{partnersHead}</PartnersWall>
           ) : (
             <>
-              <SectionHead className={styles.arcHeadStatic}>
-                <span className={`ds-vx-copy ${styles.eyebrow}`}>{t('partners.featured')}</span>
-                <h2 id="partners-heading" className={`ds-vx-title ${styles.arcTitle}`}>{t('nav.partners')}</h2>
-                <p className="ds-vx-copy">{t('partners.subtitle')}</p>
-              </SectionHead>
+              {partnersHead}
               {loadingPartners ? (
                 <p className={styles.srOnly}>{t('common.loading')}</p>
               ) : (
-                <p className={`ds-card ${styles.empty}`}>{t('partners.noPartners')}</p>
+                <p className={styles.empty}>{t('partners.noPartners')}</p>
               )}
             </>
           )}

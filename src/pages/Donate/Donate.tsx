@@ -11,7 +11,6 @@ import { ApiError, clearToken } from '../../services/apiClient'
 import type { CampaignOrProgram } from '../../types/api'
 import { getCampaignProgressPercent } from '../../components/CampaignAmountGoal'
 import { PageHero } from '../../components/design/PageHero'
-import { Train } from '../../components/design/Train'
 import styles from './Donate.module.css'
 
 /** Same number format as CampaignAmountGoal */
@@ -251,8 +250,13 @@ export function Donate() {
       <PageLayout noPadding design>
         <div className={styles.page}>
           <PageHero title={t('donate.title')} subtitle={t('donate.subtitle')} />
-          <div className={`ds-wrap ${styles.main}`}>
-            <p className={styles.placeholder}>{t('common.loading')}</p>
+          <div className={styles.main}>
+            <div className="ds-wrap">
+              <p className={styles.placeholder} role="status">
+                <span className={styles.spinner} aria-hidden="true" />
+                <span>{t('common.loading')}</span>
+              </p>
+            </div>
           </div>
         </div>
       </PageLayout>
@@ -266,7 +270,7 @@ export function Donate() {
   const raised = Number(campaignDetails?.raised_amount) || 0
   const goal = Number(campaignDetails?.goal_amount) || 0
   const nowPercent = goal > 0 ? getCampaignProgressPercent(raised, goal) : 0
-  // striped preview of the typed amount on the bar (visual only; never sent anywhere)
+  // preview of the typed amount on the bar (visual only; never sent anywhere)
   const typedAmount = parseFloat(amount)
   const previewPercent = goal > 0 && Number.isFinite(typedAmount) && typedAmount > 0
     ? Math.min(100 - nowPercent, Math.max(1.5, (typedAmount / goal) * 100))
@@ -280,12 +284,12 @@ export function Donate() {
       <div className={styles.page}>
         <PageHero title={t('donate.title')} subtitle={t('donate.subtitle')} />
 
-        <div className={`ds-wrap ${styles.main}`}>
-          <Train className={`${styles.layout} ${showDetails ? '' : styles.layoutSingle}`}>
+        <div className={styles.main}>
+          <div className={`ds-wrap ${styles.layout} ${showDetails ? '' : styles.layoutSingle}`}>
             {showDetails && (
-              <article className={`ds-card ${styles.detail}`} aria-busy={detailsLoading} aria-labelledby={campaignDetails ? 'donate-campaign-title' : undefined}>
+              <article className={styles.summary} aria-busy={detailsLoading} aria-labelledby={campaignDetails ? 'donate-campaign-title' : undefined}>
                 {detailsLoading ? (
-                  <div className={styles.skeleton}>
+                  <div className={styles.skeleton} aria-hidden="true">
                     <div className={styles.skeletonImage} />
                     <div className={styles.skeletonBody}>
                       <div className={styles.skeletonLine} />
@@ -313,51 +317,51 @@ export function Donate() {
                           aria-expanded={shareMenuOpen}
                           aria-haspopup="true"
                         >
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                            <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" />
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <path d="M12 15V3M7.5 7.5 12 3l4.5 4.5" /><path d="M8 11H6.5A1.5 1.5 0 0 0 5 12.5v7A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-7a1.5 1.5 0 0 0-1.5-1.5H16" />
                           </svg>
                         </button>
                         <div className={`${styles.shareMenu} ${shareMenuOpen ? styles.shareMenuOpen : ''}`} role="menu" aria-hidden={!shareMenuOpen}>
                           <button type="button" role="menuitem" tabIndex={shareMenuOpen ? 0 : -1} onClick={() => { handleCopyLink(); setShareMenuOpen(false); }}>
-                            {copySuccess ? (
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
-                            ) : (
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
-                            )}
                             <span>{copySuccess ? t('donate.copied') : t('donate.copyLink')}</span>
+                            {copySuccess ? (
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+                            ) : (
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2.5" /><path d="M5 15H4.5A1.5 1.5 0 0 1 3 13.5v-9A1.5 1.5 0 0 1 4.5 3h9A1.5 1.5 0 0 1 15 4.5V5" /></svg>
+                            )}
                           </button>
                           <button type="button" role="menuitem" tabIndex={shareMenuOpen ? 0 : -1} onClick={() => { openShare('whatsapp'); setShareMenuOpen(false); }}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-11.8 7L4 20l1.1-4A8 8 0 1 1 20 12z" /></svg>
                             <span>WhatsApp</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-11.8 7L4 20l1.1-4A8 8 0 1 1 20 12z" /></svg>
                           </button>
                           <button type="button" role="menuitem" tabIndex={shareMenuOpen ? 0 : -1} onClick={() => { openShare('twitter'); setShareMenuOpen(false); }}>
-                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.2 2.3h3.3l-7.2 8.3 8.5 11.2h-6.7l-5.2-6.8-6 6.8H1.6l7.7-8.8L1.3 2.3H8l4.7 6.2 5.5-6.2Z" /></svg>
                             <span>X (Twitter)</span>
+                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.2 2.3h3.3l-7.2 8.3 8.5 11.2h-6.7l-5.2-6.8-6 6.8H1.6l7.7-8.8L1.3 2.3H8l4.7 6.2 5.5-6.2Z" /></svg>
                           </button>
                           <button type="button" role="menuitem" tabIndex={shareMenuOpen ? 0 : -1} onClick={() => { openShare('facebook'); setShareMenuOpen(false); }}>
-                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.95.93-1.95 1.88v2.26h3.33l-.53 3.5h-2.8V24C19.62 23.1 24 18.1 24 12.07z" /></svg>
                             <span>Facebook</span>
+                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.95.93-1.95 1.88v2.26h3.33l-.53 3.5h-2.8V24C19.62 23.1 24 18.1 24 12.07z" /></svg>
                           </button>
                         </div>
                       </div>
                     </div>
                     <div className={styles.body}>
-                      <h2 id="donate-campaign-title">{getTitle(campaignDetails)}</h2>
+                      <h2 id="donate-campaign-title" className={styles.title}>{getTitle(campaignDetails)}</h2>
                       {getDescription(campaignDetails) && (
                         <p className={styles.description}>{getDescription(campaignDetails)}</p>
                       )}
                       {getImpact(campaignDetails) && (
                         <p className={styles.impact}>
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20.8 8.6a5.5 5.5 0 0 0-7.8 0L12 9.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
+                          <span className={styles.impactIcon} aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.6 10.7 19.4C5.9 15.1 3 12.4 3 8.9 3 6.1 5.2 4 7.9 4c1.6 0 3.1.7 4.1 1.9C13 4.7 14.5 4 16.1 4 18.8 4 21 6.1 21 8.9c0 3.5-2.9 6.2-7.7 10.5L12 20.6Z" /></svg>
+                          </span>
                           <span>{getImpact(campaignDetails)}</span>
                         </p>
                       )}
                       {(campaignDetails.goal_amount != null && campaignDetails.goal_amount > 0) && (
                         <div className={styles.progress}>
-                          <div className={styles.progressRow}>
-                            <span>{t('campaigns.raised')} <b>{formatAmount(raised)} {currency}</b></span>
+                          <div className={styles.progressHead}>
                             <span className={styles.pct}>{nowPercent}{percentSign}</span>
-                            <span>{t('campaigns.goal')} <b>{formatAmount(goal)} {currency}</b></span>
                           </div>
                           <div
                             className={styles.bar}
@@ -371,111 +375,135 @@ export function Donate() {
                             <i className={styles.barNow} />
                             <i className={styles.barAdd} />
                           </div>
+                          <dl className={styles.stats}>
+                            <div>
+                              <dt>{t('campaigns.raised')}</dt>
+                              <dd>{formatAmount(raised)} <small>{currency}</small></dd>
+                            </div>
+                            <div>
+                              <dt>{t('campaigns.goal')}</dt>
+                              <dd>{formatAmount(goal)} <small>{currency}</small></dd>
+                            </div>
+                          </dl>
                         </div>
                       )}
                     </div>
                   </>
                 ) : null}
-
               </article>
             )}
 
-            <form onSubmit={handleSubmit} className={`ds-card ${styles.formCard}`}>
-              <h3 id="donate-amounts-heading">{t('donate.quickAmounts')}</h3>
-              <div className={styles.quickAmounts} role="group" aria-labelledby="donate-amounts-heading">
-                {quickAmounts.map((n) => (
-                  <button
-                    key={n}
-                    type="button"
-                    className={amount === String(n) ? `${styles.quickBtn} ${styles.active}` : styles.quickBtn}
-                    onClick={() => setAmount(String(n))}
-                  >
-                    {n} {t('donate.currencyShort')}
-                  </button>
-                ))}
-              </div>
-
-              <div className={styles.field}>
-                <label htmlFor="donate-amount-input">{t('donate.amount')}</label>
-                <div className={styles.control}>
-                  <input
-                    id="donate-amount-input"
-                    type="number"
-                    min={0.001}
-                    step="any"
-                    inputMode="decimal"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="0"
-                    disabled={submitting}
-                  />
-                  <span className={styles.unit} aria-hidden="true">{currency}</span>
-                </div>
-              </div>
-
-              {!isAuthenticated && (
-                <div className={`${styles.field} ${styles.tel}`}>
-                  <label htmlFor="donate-phone-input">{t('donate.phone')}</label>
-                  <div className={styles.control}>
-                    <input
-                      id="donate-phone-input"
-                      type="tel"
-                      inputMode="numeric"
-                      value={donorPhone}
-                      onChange={(e) => setDonorPhone(e.target.value)}
-                      placeholder={t('donate.phonePlaceholder')}
-                      disabled={submitting}
-                      required
-                    />
+            <div className={styles.checkoutCol}>
+              <form onSubmit={handleSubmit} className={styles.checkout}>
+                <section className={styles.group} aria-labelledby="donate-amounts-heading">
+                  <h2 id="donate-amounts-heading" className={styles.groupTitle}>{t('donate.quickAmounts')}</h2>
+                  <div className={styles.tiles} role="group" aria-labelledby="donate-amounts-heading">
+                    {quickAmounts.map((n) => {
+                      const selected = amount === String(n)
+                      return (
+                        <button
+                          key={n}
+                          type="button"
+                          className={selected ? `${styles.tile} ${styles.tileOn}` : styles.tile}
+                          aria-pressed={selected}
+                          onClick={() => setAmount(String(n))}
+                          disabled={submitting}
+                        >
+                          <span className={styles.tileValue}>{n}</span>{' '}
+                          <span className={styles.tileUnit}>{t('donate.currencyShort')}</span>
+                        </button>
+                      )
+                    })}
                   </div>
-                </div>
-              )}
 
-              {error && (
-                <div className={styles.errorWrap} role="alert" key={error}>
-                  <p className={styles.error}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
-                    <span>{error}</span>
-                  </p>
-                  {retryDonationId != null && (
-                    <button
-                      type="button"
-                      className={`ds-btn ds-btn-ghost ${styles.retry}`}
-                      disabled={submitting}
-                      onClick={async () => {
-                        setError(null)
-                        setSubmitting(true)
-                        try {
-                          const numAmount = parseFloat(amount)
-                          if (!Number.isFinite(numAmount)) return
-                          const origin = typeof window !== 'undefined' ? window.location.origin : ''
-                          const res = await paymentService.createWithDonation(retryDonationId, numAmount, origin)
-                          if (res.payment_url) window.location.href = res.payment_url
-                          else setError(t('donate.error'))
-                        } catch {
-                          setError(t('donate.error'))
-                        } finally {
-                          setSubmitting(false)
-                        }
-                      }}
-                    >
-                      {t('common.retry')}
-                    </button>
-                  )}
-                </div>
-              )}
+                  <div className={`ds-field ${styles.field}`}>
+                    <label htmlFor="donate-amount-input" className="ds-label">{t('donate.amount')}</label>
+                    <div className={styles.control}>
+                      <input
+                        id="donate-amount-input"
+                        className={`ds-input ${styles.amountInput}`}
+                        type="number"
+                        min={0.001}
+                        step="any"
+                        inputMode="decimal"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        placeholder="0"
+                        disabled={submitting}
+                      />
+                      <span className={styles.unit} aria-hidden="true">{currency}</span>
+                    </div>
+                  </div>
+                </section>
 
-              <button type="submit" className={`ds-btn ds-btn-ink ${styles.pay}`} disabled={submitting}>
-                {submitting ? t('common.loading') : t('donate.submit')}
-                {!submitting && (
-                  <svg className="ds-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M19 12H5M11 18l-6-6 6-6" />
-                  </svg>
+                {!isAuthenticated && (
+                  <section className={styles.group}>
+                    <div className="ds-field">
+                      <label htmlFor="donate-phone-input" className="ds-label">{t('donate.phone')}</label>
+                      <input
+                        id="donate-phone-input"
+                        className={`ds-input ${styles.telInput}`}
+                        type="tel"
+                        inputMode="numeric"
+                        value={donorPhone}
+                        onChange={(e) => setDonorPhone(e.target.value)}
+                        placeholder={t('donate.phonePlaceholder')}
+                        disabled={submitting}
+                        required
+                      />
+                    </div>
+                  </section>
                 )}
-              </button>
 
-            </form>
-          </Train>
+                {error && (
+                  <div className={styles.errorWrap} role="alert" key={error}>
+                    <p className={styles.error}>
+                      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1 5.5h2v7h-2v-7Zm1 11.2a1.3 1.3 0 1 1 0-2.6 1.3 1.3 0 0 1 0 2.6Z" /></svg>
+                      <span>{error}</span>
+                    </p>
+                    {retryDonationId != null && (
+                      <button
+                        type="button"
+                        className="ds-btn ds-btn-gray ds-btn-sm"
+                        disabled={submitting}
+                        onClick={async () => {
+                          setError(null)
+                          setSubmitting(true)
+                          try {
+                            const numAmount = parseFloat(amount)
+                            if (!Number.isFinite(numAmount)) return
+                            const origin = typeof window !== 'undefined' ? window.location.origin : ''
+                            const res = await paymentService.createWithDonation(retryDonationId, numAmount, origin)
+                            if (res.payment_url) window.location.href = res.payment_url
+                            else setError(t('donate.error'))
+                          } catch {
+                            setError(t('donate.error'))
+                          } finally {
+                            setSubmitting(false)
+                          }
+                        }}
+                      >
+                        {t('common.retry')}
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                <div className={styles.payBar}>
+                  <button type="submit" className={`ds-btn ds-btn-filled ds-btn-lg ds-btn-block ${styles.pay}`} disabled={submitting} aria-busy={submitting}>
+                    {submitting ? (
+                      <span className={`${styles.spinner} ${styles.spinnerOnTint}`} aria-hidden="true" />
+                    ) : (
+                      <svg className={styles.lock} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M12 2.5a4.75 4.75 0 0 0-4.75 4.75V10H7a2.5 2.5 0 0 0-2.5 2.5v6.5A2.5 2.5 0 0 0 7 21.5h10a2.5 2.5 0 0 0 2.5-2.5v-6.5A2.5 2.5 0 0 0 17 10h-.25V7.25A4.75 4.75 0 0 0 12 2.5Zm-2.75 4.75a2.75 2.75 0 0 1 5.5 0V10h-5.5V7.25Z" />
+                      </svg>
+                    )}
+                    <span>{submitting ? t('common.loading') : t('donate.submit')}</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
     </PageLayout>

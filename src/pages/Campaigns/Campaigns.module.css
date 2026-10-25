@@ -1,92 +1,112 @@
-/* Campaigns — design-reference/inner-pages.html (hourglass card per initiative) */
+/* Campaigns — Apple Store-style grid of campaign cards on the grouped background. */
 .page {
-  padding-top: var(--header-height);
+  background: var(--bg);
 }
 
-.main {
-  padding-block: clamp(44px, 6vw, 72px) clamp(56px, 8vw, 96px);
+.content {
+  background: var(--bg-2);
+  padding-block: clamp(32px, 5vw, 64px) var(--space-section);
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
 }
 
-/* ----- loading ----- */
-@keyframes shimmer {
-  to { background-position: -250% 0; }
-}
-
-.skeletonCard {
-  display: flex;
-  flex-direction: column;
-}
-
-.skeletonImage,
-.skeletonLine {
-  background: linear-gradient(110deg, var(--wash) 30%, var(--line) 50%, var(--wash) 70%);
-  background-size: 250% 100%;
-  animation: shimmer 1.4s linear infinite;
-}
-
-.skeletonImage {
-  height: clamp(300px, 30vw, 400px);
-}
-
-.skeletonContent {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 20px 22px 24px;
-}
-
-.skeletonLine {
-  height: 14px;
-  border-radius: 7px;
-}
-
-/* ----- empty ----- */
-.empty {
-  max-width: 560px;
-  margin: 0 auto;
-  padding: 48px 24px;
-  text-align: center;
-}
-
-.emptyIcon {
-  width: 96px;
-  height: 96px;
-  margin: 0 auto 18px;
-  border-radius: 30px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, rgba(212, 126, 192, 0.18), rgba(50, 161, 191, 0.18));
-  color: #A2458C;
-}
-
-.emptyIcon svg {
-  width: 46px;
-  height: 46px;
-}
-
-.emptyTitle {
-  font-size: 24px;
-  margin: 0 0 6px;
-}
-
-.emptyDescription {
-  color: var(--muted);
-}
-
-@media (max-width: 980px) {
+@media (min-width: 640px) {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 620px) {
+@media (min-width: 1024px) {
   .grid {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+  }
+}
+
+/* ----- loading: mirrors the CampaignCard silhouette ----- */
+@keyframes pulse {
+  50% { opacity: 0.55; }
+}
+
+.skeletonCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 28px 24px 24px;
+}
+
+.skeletonRing,
+.skeletonLine,
+.skeletonBlock,
+.skeletonButton {
+  background: var(--fill-3);
+  animation: pulse 1.6s var(--ease-out) infinite;
+}
+
+.skeletonRing {
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  margin-block-end: 4px;
+}
+
+.skeletonLine {
+  height: 18px;
+  border-radius: var(--radius-xs);
+}
+
+.skeletonBlock {
+  width: 100%;
+  height: 62px;
+  border-radius: var(--radius-md);
+}
+
+.skeletonButton {
+  width: 100%;
+  height: 44px;
+  border-radius: var(--radius-full);
+}
+
+/* ----- empty ----- */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: 28rem;
+  margin-inline: auto;
+  padding-block: clamp(40px, 8vw, 88px);
+  text-align: center;
+}
+
+.emptyIcon {
+  width: 56px;
+  height: 56px;
+  margin-block-end: 8px;
+  color: var(--label-3);
+}
+
+.emptyTitle {
+  font-size: var(--type-title-3);
+  line-height: 1.25;
+}
+
+.emptyDescription {
+  font-size: var(--type-subhead);
+  line-height: 1.5;
+  color: var(--label-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonRing,
+  .skeletonLine,
+  .skeletonBlock,
+  .skeletonButton {
+    animation: none;
   }
 }

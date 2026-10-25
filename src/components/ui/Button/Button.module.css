@@ -1,86 +1,108 @@
+/* Button — capsule variants matching the `.ds-btn-*` primitives:
+   primary = filled, secondary = tinted, outline = gray, ghost = plain. */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
-  font-weight: 500;
-  border: none;
-  border-radius: var(--radius-full);
-  transition: background-color var(--transition-fast), color var(--transition-fast),
-    box-shadow var(--transition-fast), transform var(--transition-fast);
+  gap: 6px;
   min-height: 44px;
+  border: 0;
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  transition: background-color var(--transition-fast), color var(--transition-fast), transform 0.12s var(--ease-out), opacity var(--transition-fast);
 }
 
 .btn:not(:disabled):active {
-  transform: scale(0.98);
+  transform: scale(0.97);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.btn:focus-visible {
+  outline: 3px solid rgba(var(--tint-rgb), 0.6);
+  outline-offset: 2px;
 }
 
 /* Sizes */
 .sm {
-  padding-inline: var(--space-3);
-  padding-block: var(--space-2);
-  font-size: var(--text-sm);
-  min-height: 44px;
+  padding: 8px 16px;
+  font-size: var(--type-subhead);
 }
 
 .md {
-  padding-inline: var(--space-5);
-  padding-block: var(--space-3);
-  font-size: var(--text-base);
-  min-height: 44px;
+  padding: 10px 22px;
+  font-size: var(--type-callout);
 }
 
 .lg {
-  padding-inline: var(--space-6);
-  padding-block: var(--space-4);
-  font-size: var(--text-lg);
-  min-height: 48px;
+  min-height: 52px;
+  padding: 14px 28px;
+  font-size: var(--type-body);
 }
 
 /* Variants */
+.primary,
+.primary:hover {
+  color: #FFFFFF;
+}
+
 .primary {
-  background: var(--gradient-dominant);
-  color: var(--color-text-inverse);
+  background: var(--tint);
 }
 
 .primary:hover:not(:disabled) {
-  opacity: 0.92;
-  filter: brightness(1.05);
+  background: var(--tint-hover);
+}
+
+.secondary,
+.secondary:hover {
+  color: var(--tint);
 }
 
 .secondary {
-  background-color: var(--color-primary-tint);
-  color: var(--color-primary-dark);
+  background: var(--tint-fill);
 }
 
 .secondary:hover:not(:disabled) {
-  background-color: var(--color-primary-tint-hover);
+  background: rgba(var(--tint-rgb), 0.16);
+}
+
+.outline,
+.outline:hover {
+  color: var(--label);
 }
 
 .outline {
-  background-color: transparent;
-  color: var(--color-primary);
-  border: 2px solid var(--color-primary);
+  background: var(--fill-3);
 }
 
 .outline:hover:not(:disabled) {
-  background-color: var(--color-primary-tint);
+  background: var(--fill-2);
+}
+
+.ghost,
+.ghost:hover {
+  color: var(--link);
 }
 
 .ghost {
-  background-color: transparent;
-  color: var(--color-text);
+  background: transparent;
+  padding-inline: 8px;
 }
 
 .ghost:hover:not(:disabled) {
-  background-color: var(--color-border);
+  text-decoration: underline;
 }
 
 .fullWidth {

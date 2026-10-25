@@ -2,38 +2,33 @@ import { useEffect, useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PageLayout } from '../../components/layout/PageLayout'
-import { Container } from '../../components/ui/Container'
-import { Button } from '../../components/ui/Button'
 import { paymentService } from '../../services/paymentService'
 import styles from './PaymentReturn.module.css'
 
+/* SF Symbols–style glyphs drawn inside a filled circle */
 const IconSuccess = () => (
-  <svg className={styles.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-    <polyline points="22 4 12 14.01 9 11.01" />
+  <svg className={styles.glyph} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <path className={styles.draw} d="M6.5 12.5 10.25 16 17.5 8.5" pathLength={1} />
   </svg>
 )
 
 const IconCancelled = () => (
-  <svg className={styles.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <circle cx="12" cy="12" r="10" />
-    <line x1="15" y1="9" x2="9" y2="15" />
-    <line x1="9" y1="9" x2="15" y2="15" />
+  <svg className={styles.glyph} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden>
+    <path d="M12 6.5v7" />
+    <path d="M12 17.5h.01" />
   </svg>
 )
 
 const IconError = () => (
-  <svg className={styles.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <circle cx="12" cy="12" r="10" />
-    <line x1="12" y1="8" x2="12" y2="12" />
-    <line x1="12" y1="16" x2="12.01" y2="16" />
+  <svg className={styles.glyph} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden>
+    <path d="M8 8l8 8M16 8l-8 8" />
   </svg>
 )
 
 export function PaymentReturn() {
   const { t } = useTranslation('common')
   const [searchParams] = useSearchParams()
-  const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'cancelled'>('loading')
+  const [confirmStatus, setConfirmStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const [errorMessage, setErrorMessage] = useState<string>('')
 
   const sessionId = searchParams.get('session_id') ?? searchParams.get('sessionId')
@@ -42,40 +37,33 @@ export function PaymentReturn() {
   const result = searchParams.get('result') ?? searchParams.get('status')
   const cancelled =
     result === 'cancelled' || result === 'cancel' || searchParams.get('cancel') !== null
+  const isSuccess = result === 'success'
+  // confirm with the server when there is a session, or a success result with a donation id
+  const needsConfirm = !cancelled && !!((isSuccess || sessionId) && (sessionId || donationId))
+  // cancelled / nothing to confirm are known from the URL alone
+  const status: 'loading' | 'success' | 'error' | 'cancelled' = cancelled
+    ? 'cancelled'
+    : needsConfirm
+      ? confirmStatus
+      : 'error'
 
   useEffect(() => {
-    if (cancelled) {
-      setStatus('cancelled')
-      return
-    }
-    const isSuccess = result === 'success'
+    if (!needsConfirm) return
     const confirmPayload = { session_id: sessionId ?? undefined, donation_id: donationId }
-    if ((isSuccess || sessionId) && (sessionId || donationId)) {
-      paymentService
-        .confirm(confirmPayload)
-        .then(() => setStatus('success'))
-        .catch((err) => {
-          setStatus('error')
-          setErrorMessage(err instanceof Error ? err.message : 'Payment confirm failed')
-        })
-      return
-    }
-    if (sessionId) {
-      paymentService
-        .confirm(confirmPayload)
-        .then(() => setStatus('success'))
-        .catch(() => setStatus('error'))
-      return
-    }
-    setStatus('error')
-  }, [sessionId, donationId, result, cancelled])
+    paymentService
+      .confirm(confirmPayload)
+      .then(() => setConfirmStatus('success'))
+      .catch((err) => {
+        setConfirmStatus('error')
+        setErrorMessage(err instanceof Error ? err.message : 'Payment confirm failed')
+      })
+  }, [needsConfirm, sessionId, donationId])
 
   return (
-    <PageLayout>
-      <Container size="narrow">
-        {status === 'success' && <div className={styles.successStrip} aria-hidden />}
+    <PageLayout noPadding design>
+      <div className={styles.page}>
         <section
-          className={styles.card}
+          className={styles.panel}
           data-status={status}
           aria-live="polite"
           aria-busy={status === 'loading'}
@@ -83,51 +71,45 @@ export function PaymentReturn() {
           {status === 'loading' && (
             <>
               <div className={styles.spinner} aria-hidden />
-              <p className={styles.message}>{t('common.loading')}</p>
+              <p className={styles.subtext}>{t('common.loading')}</p>
             </>
           )}
           {status === 'success' && (
             <>
-              <div className={styles.iconWrap}>
+              <div className={`${styles.badge} ${styles.badgeSuccess}`}>
                 <IconSuccess />
               </div>
-              <h2 className={styles.title}>{t('donate.success')}</h2>
+              <h1 className={styles.title}>{t('donate.success')}</h1>
               <p className={styles.subtext}>{t('donate.successSubtext')}</p>
               <div className={styles.actions}>
-                <Link to="/" className={styles.primaryLink}>
-                  <Button size="lg">{t('nav.home')}</Button>
-                </Link>
+                <Link to="/" className="ds-btn ds-btn-filled ds-btn-lg">{t('nav.home')}</Link>
               </div>
             </>
           )}
           {status === 'cancelled' && (
             <>
-              <div className={styles.iconWrap}>
+              <div className={`${styles.badge} ${styles.badgeCancelled}`}>
                 <IconCancelled />
               </div>
-              <h2 className={styles.title}>{t('donate.paymentCancelled')}</h2>
+              <h1 className={styles.title}>{t('donate.paymentCancelled')}</h1>
               <div className={styles.actions}>
-                <Link to="/campaigns">
-                  <Button size="lg">{t('donate.title')}</Button>
-                </Link>
+                <Link to="/campaigns" className="ds-btn ds-btn-filled ds-btn-lg">{t('donate.title')}</Link>
               </div>
             </>
           )}
           {status === 'error' && (
             <>
-              <div className={styles.iconWrap}>
+              <div className={`${styles.badge} ${styles.badgeError}`}>
                 <IconError />
               </div>
-              <h2 className={styles.title}>{errorMessage || t('donate.error')}</h2>
+              <h1 className={styles.title}>{errorMessage || t('donate.error')}</h1>
               <div className={styles.actions}>
-                <Link to="/campaigns">
-                  <Button variant="outline" size="lg">{t('common.retry')}</Button>
-                </Link>
+                <Link to="/campaigns" className="ds-btn ds-btn-gray ds-btn-lg">{t('common.retry')}</Link>
               </div>
             </>
           )}
         </section>
-      </Container>
+      </div>
     </PageLayout>
   )
 }

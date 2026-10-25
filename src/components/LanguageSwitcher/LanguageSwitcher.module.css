@@ -1,52 +1,58 @@
+/* Language switcher — a small segmented control (`.ds-segmented` look). */
 .wrapper {
   display: inline-flex;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  overflow: hidden;
+  padding: 2px;
+  gap: 2px;
+  border-radius: 9px;
+  background: var(--fill-3);
 }
 
 .btn {
-  padding: var(--space-2) var(--space-3);
-  font-size: var(--text-sm);
+  min-height: 36px;
+  min-width: 44px;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--label);
+  font-family: inherit;
+  font-size: var(--type-footnote);
   font-weight: 500;
-  background: var(--color-bg);
-  border: none;
-  color: var(--color-text-muted);
-  transition: background var(--transition-fast), color var(--transition-fast);
-  min-height: 2.5rem;
+  cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--transition-fast), box-shadow var(--transition-fast), color var(--transition-fast);
 }
 
-.btn:hover {
-  background: var(--color-border);
-  color: var(--color-text);
+.btn:hover:not(.active) {
+  color: var(--label-2);
 }
 
 .btn.active {
-  background: var(--gradient-dominant);
-  color: var(--color-text-inverse);
+  background: var(--bg-elevated);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04);
 }
 
-/* On dark/hero surfaces */
+.btn:focus-visible {
+  outline: 3px solid rgba(var(--tint-rgb), 0.6);
+  outline-offset: 1px;
+}
+
+/* On dark / image surfaces */
 .wrapperOnDark {
-  border-color: rgba(255, 255, 255, 0.28);
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: var(--material-blur);
+  -webkit-backdrop-filter: var(--material-blur);
 }
 
 .wrapperOnDark .btn {
-  background: transparent;
-  color: rgba(255, 255, 255, 0.78);
-  min-height: 2.25rem;
+  color: rgba(255, 255, 255, 0.86);
 }
 
-.wrapperOnDark .btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
+.wrapperOnDark .btn:hover:not(.active) {
+  color: #FFFFFF;
 }
 
 .wrapperOnDark .btn.active {
-  background: rgba(255, 255, 255, 0.95);
-  color: var(--color-primary-dark);
+  background: rgba(255, 255, 255, 0.92);
+  color: #1D1D1F;
 }

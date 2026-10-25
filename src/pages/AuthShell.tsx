@@ -1,7 +1,6 @@
 import { useRef, useState, type InputHTMLAttributes, type ReactNode, type ClipboardEvent, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageLayout } from '../components/layout/PageLayout'
-import { Backdrop } from '../components/design/Backdrop'
 import { LOGO_SRC, LOGO_WIDTH, LOGO_HEIGHT } from '../components/design/logo'
 import styles from './Auth.module.css'
 
@@ -13,29 +12,25 @@ interface AuthShellProps {
   children: ReactNode
 }
 
-/** Auth pages from design-reference/account-pages.html: silk fills the screen behind a small glass box. */
+/** Auth pages, Apple ID style: one centred column on the grouped background — logo, large title, a compact form card. */
 export function AuthShell({ title, subtitle, top, children }: AuthShellProps) {
   const { t } = useTranslation('common')
 
   return (
     <PageLayout noPadding design>
       <section className={styles.page} aria-labelledby="auth-title">
-        <Backdrop className={styles.silk} />
-        <span className={styles.vignette} aria-hidden="true" />
         <div className={`ds-wrap ${styles.wrap}`}>
           <div className={styles.auth}>
-            <div className={styles.formside}>
-              <div className={styles.boxLogo}>
-                <img src={LOGO_SRC} alt={t('app.name')} width={LOGO_WIDTH} height={LOGO_HEIGHT} />
-              </div>
-              {top}
-              <div className={styles.revealIn} key={title}>
-                <header className={styles.head}>
-                  <h1 id="auth-title">{title}</h1>
-                  <p className={styles.sub}>{subtitle}</p>
-                </header>
-                {children}
-              </div>
+            <div className={`ds-logo-chip ${styles.logo}`}>
+              <img src={LOGO_SRC} alt={t('app.name')} width={LOGO_WIDTH} height={LOGO_HEIGHT} />
+            </div>
+            {top}
+            <div className={styles.revealIn} key={title}>
+              <header className={styles.head}>
+                <h1 id="auth-title">{title}</h1>
+                <p className={styles.sub}>{subtitle}</p>
+              </header>
+              {children}
             </div>
           </div>
         </div>

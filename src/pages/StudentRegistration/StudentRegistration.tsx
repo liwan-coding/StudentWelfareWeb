@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { setDocumentDirection } from '../../i18n/config'
 import { PageLayout } from '../../components/layout/PageLayout'
 import { Container } from '../../components/ui/Container'
 import { Button } from '../../components/ui/Button'
-import { Card, CardContent, CardHeader } from '../../components/ui/Card'
 import { useAuth } from '../../context/AuthContext'
 import { studentRegistrationService } from '../../services/studentRegistrationService'
 import { ApiError } from '../../services/apiClient'
@@ -228,16 +227,14 @@ export function StudentRegistration() {
   const isLoadingRegistration = existingRegistration === undefined
   if (isLoadingRegistration) {
     return (
-      <PageLayout>
-        <section className={styles.heroStrip} aria-label={t('studentRegistration.title')} dir={isRtl ? 'rtl' : 'ltr'}>
-          <div className={styles.heroStripBg} />
-          <Container size="narrow">
-            <div className={styles.heroContent}>
-              <h1 className={styles.heroTitle}>{t('studentRegistration.title')}</h1>
-              <p className={styles.heroSubtitle}>{t('common.loading')}</p>
-            </div>
-          </Container>
-        </section>
+      <PageLayout design>
+        <Container size="narrow">
+          <header className={styles.hero} aria-label={t('studentRegistration.title')} dir={isRtl ? 'rtl' : 'ltr'}>
+            <h1 className={styles.heroTitle}>{t('studentRegistration.title')}</h1>
+            <p className={styles.heroSubtitle} aria-busy="true">{t('common.loading')}</p>
+          </header>
+          <div className={styles.skeleton} aria-hidden="true" />
+        </Container>
       </PageLayout>
     )
   }
@@ -253,170 +250,140 @@ export function StudentRegistration() {
 
     const statusKey = status ? `studentRegistration.status_${status}` : ''
     const statusLabel = statusKey && t(statusKey) !== statusKey ? t(statusKey) : status || t('studentRegistration.status_pending')
+    const statusClass = status.toLowerCase() === 'approved' ? styles.status_approved : status.toLowerCase() === 'rejected' ? styles.status_rejected : styles.status_pending
 
     return (
-      <PageLayout>
-        <section className={styles.heroStrip} aria-label={t('studentRegistration.alreadyRegisteredTitle')} dir={isRtl ? 'rtl' : 'ltr'}>
-          <div className={styles.heroStripBg} />
-          <Container size="narrow">
-            <div className={styles.heroContent}>
+      <PageLayout design>
+        <Container size="narrow">
+          <div dir={isRtl ? 'rtl' : 'ltr'}>
+            <header className={styles.hero} aria-label={t('studentRegistration.alreadyRegisteredTitle')}>
               <h1 className={styles.heroTitle}>{t('studentRegistration.alreadyRegisteredTitle')}</h1>
               <p className={styles.heroSubtitle}>{t('studentRegistration.alreadyRegisteredMessage')}</p>
-            </div>
-          </Container>
-        </section>
+            </header>
 
-        <div className={styles.pageGutter}>
-          <Container size="narrow">
             <div className={styles.readOnlyRoot}>
-              <Card className={styles.sectionCard} padding="none">
-                <CardHeader className={styles.sectionHeader}>
-                  {t('studentRegistration.registrationStatus')}
-                </CardHeader>
-                <CardContent>
-                  <div className={styles.readOnlyGrid}>
-                    <div className={styles.readOnlyItem}>
-                      <span className={styles.readOnlyLabel}>{t('studentRegistration.selectProgram')}</span>
-                      <span className={styles.readOnlyValue}>{programTitle}</span>
-                    </div>
-                    <div className={styles.readOnlyItem}>
-                      <span className={styles.readOnlyLabel}>{t('studentRegistration.statusLabel')}</span>
-                      <span className={styles.readOnlyValue + ' ' + (status ? styles.statusBadge + ' ' + (status.toLowerCase() === 'approved' ? styles.status_approved : status.toLowerCase() === 'rejected' ? styles.status_rejected : styles.status_pending) : '')}>{statusLabel}</span>
-                    </div>
+              <Section title={t('studentRegistration.registrationStatus')}>
+                <div className={styles.rows}>
+                  <div className={styles.readOnlyItem}>
+                    <span className={styles.readOnlyLabel}>{t('studentRegistration.selectProgram')}</span>
+                    <span className={styles.readOnlyValue}>{programTitle}</span>
                   </div>
-                </CardContent>
-              </Card>
+                  <div className={styles.readOnlyItem}>
+                    <span className={styles.readOnlyLabel}>{t('studentRegistration.statusLabel')}</span>
+                    <span className={status ? `${styles.statusBadge} ${statusClass}` : styles.readOnlyValue}>{statusLabel}</span>
+                  </div>
+                </div>
+              </Section>
 
-              <Card className={styles.sectionCard} padding="none">
-                <CardHeader className={styles.sectionHeader}>
-                  <span className={styles.sectionIcon} aria-hidden="true">1</span>
-                  {t('studentRegistration.personal')}
-                </CardHeader>
-                <CardContent className={styles.grid2}>
+              <Section step={1} title={t('studentRegistration.personal')}>
+                <div className={styles.rows}>
                   {(['full_name', 'civil_id', 'date_of_birth', 'phone', 'address', 'marital_status', 'email'] as const).map((key) => {
                     let val = personal[key]
                     if (key === 'marital_status') val = (val === 'married' ? t('studentRegistration.maritalMarried') : t('studentRegistration.maritalSingle')) as unknown
                     return (
-                      <div key={key} className={styles.readOnlyItem + ' ' + (key === 'address' ? styles.spanFull : '')}>
+                      <div key={key} className={styles.readOnlyItem}>
                         <span className={styles.readOnlyLabel}>{t(`studentRegistration.${key === 'full_name' ? 'fullName' : key === 'civil_id' ? 'civilId' : key === 'date_of_birth' ? 'dateOfBirth' : key === 'marital_status' ? 'maritalStatus' : key}`)}</span>
                         <span className={styles.readOnlyValue}>{String(val ?? '—')}</span>
                       </div>
                     )
                   })}
-                </CardContent>
-              </Card>
+                </div>
+              </Section>
 
-              <Card className={styles.sectionCard} padding="none">
-                <CardHeader className={styles.sectionHeader}>
-                  <span className={styles.sectionIcon} aria-hidden="true">2</span>
-                  {t('studentRegistration.academic')}
-                </CardHeader>
-                <CardContent className={styles.grid2}>
+              <Section step={2} title={t('studentRegistration.academic')}>
+                <div className={styles.rows}>
                   {(['institution', 'student_id', 'college', 'major', 'program', 'academic_year', 'gpa'] as const).map((key) => (
                     <div key={key} className={styles.readOnlyItem}>
                       <span className={styles.readOnlyLabel}>{t(`studentRegistration.${key === 'student_id' ? 'studentId' : key === 'academic_year' ? 'academicYear' : key}`)}</span>
                       <span className={styles.readOnlyValue}>{String(academic[key] ?? '—')}</span>
                     </div>
                   ))}
-                </CardContent>
-              </Card>
+                </div>
+              </Section>
 
-              <Card className={styles.sectionCard} padding="none">
-                <CardHeader className={styles.sectionHeader}>
-                  <span className={styles.sectionIcon} aria-hidden="true">3</span>
-                  {t('studentRegistration.guardian')}
-                </CardHeader>
-                <CardContent className={styles.grid2}>
+              <Section step={3} title={t('studentRegistration.guardian')}>
+                <div className={styles.rows}>
                   {(['name', 'job', 'monthly_income', 'family_size', 'is_father_alive', 'is_mother_alive', 'parents_marital_status'] as const).map((key) => {
                     let val: string
                     if (key === 'is_father_alive' || key === 'is_mother_alive') val = guardian[key] === '1' || guardian[key] === 1 ? t('studentRegistration.yes') : t('studentRegistration.no')
                     else if (key === 'parents_marital_status') val = guardian[key] === 'separated' ? t('studentRegistration.parentsSeparated') : t('studentRegistration.parentsStable')
                     else val = String(guardian[key] ?? '—')
                     return (
-                      <div key={key} className={styles.readOnlyItem + ' ' + (key === 'parents_marital_status' ? styles.spanFull : '')}>
+                      <div key={key} className={styles.readOnlyItem}>
                         <span className={styles.readOnlyLabel}>{t(`studentRegistration.${key === 'name' ? 'guardianName' : key === 'job' ? 'guardianJob' : key === 'monthly_income' ? 'monthlyIncome' : key === 'family_size' ? 'familySize' : key === 'is_father_alive' ? 'isFatherAlive' : key === 'is_mother_alive' ? 'isMotherAlive' : 'parentsMaritalStatus'}`)}</span>
                         <span className={styles.readOnlyValue}>{val}</span>
                       </div>
                     )
                   })}
-                </CardContent>
-              </Card>
+                </div>
+              </Section>
 
               <div className={styles.formActions}>
-                <Link to="/">
-                  <Button variant="primary" size="lg">{t('studentRegistration.backHome')}</Button>
+                <Link to="/" className={styles.actionLink}>
+                  <Button variant="primary" size="lg" fullWidth>{t('studentRegistration.backHome')}</Button>
                 </Link>
                 <Link to="/my-donations" className={styles.backLinkBlock}>{t('nav.myDonations')}</Link>
               </div>
             </div>
-          </Container>
-        </div>
+          </div>
+        </Container>
       </PageLayout>
     )
   }
 
   if (submitted) {
     return (
-      <PageLayout>
-        <section
-          className={styles.heroStrip}
-          aria-label={t('studentRegistration.successTitle')}
-          dir={isRtl ? 'rtl' : 'ltr'}
-        >
-          <div className={styles.heroStripBg} />
-          <Container size="narrow">
-            <div
-              className={styles.successCard}
-              role="status"
-              aria-live="polite"
-              aria-atomic="true"
-            >
-              <div className={styles.successIconWrap}>
-                <SuccessCheckIcon />
-              </div>
-              <h1 className={styles.successTitle}>{t('studentRegistration.successTitle')}</h1>
-              <p className={styles.successMessage}>{t('studentRegistration.successMessage')}</p>
-              <p className={styles.successNextSteps}>{t('studentRegistration.successNextSteps')}</p>
-              <div className={styles.successActions}>
-                <Link to="/">
-                  <Button variant="primary" size="lg">{t('studentRegistration.viewMyRegistration')}</Button>
-                </Link>
-                <Link to="/" className={styles.successBackLink}>{t('studentRegistration.backHome')}</Link>
-              </div>
+      <PageLayout design>
+        <Container size="narrow">
+          <section
+            className={styles.successCard}
+            aria-label={t('studentRegistration.successTitle')}
+            dir={isRtl ? 'rtl' : 'ltr'}
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <div className={styles.successIconWrap}>
+              <SuccessCheckIcon />
             </div>
-          </Container>
-        </section>
+            <h1 className={styles.successTitle}>{t('studentRegistration.successTitle')}</h1>
+            <p className={styles.successMessage}>{t('studentRegistration.successMessage')}</p>
+            <p className={styles.successNextSteps}>{t('studentRegistration.successNextSteps')}</p>
+            <div className={styles.successActions}>
+              <Link to="/" className={styles.actionLink}>
+                <Button variant="primary" size="lg" fullWidth>{t('studentRegistration.viewMyRegistration')}</Button>
+              </Link>
+              <Link to="/" className={styles.successBackLink}>{t('studentRegistration.backHome')}</Link>
+            </div>
+          </section>
+        </Container>
       </PageLayout>
     )
   }
 
   return (
-    <PageLayout>
-      <section className={styles.heroStrip} aria-label="Registration" dir={isRtl ? 'rtl' : 'ltr'}>
-        <div className={styles.heroStripBg} />
-        <Container size="narrow">
-          <div className={styles.heroContent}>
+    <PageLayout design>
+      <Container size="narrow">
+        <div dir={isRtl ? 'rtl' : 'ltr'}>
+          <header className={styles.hero} aria-label="Registration">
             <h1 className={styles.heroTitle}>{t('studentRegistration.title')}</h1>
             <p className={styles.heroSubtitle}>{t('studentRegistration.subtitle')}</p>
-          </div>
-        </Container>
-      </section>
+          </header>
 
-      <div className={styles.pageGutter}>
-        <Container size="narrow">
           <form onSubmit={handleSubmit} className={styles.form}>
             {error && (
               <div className={styles.error} role="alert">
-                {error}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 8v4" />
+                  <path d="M12 16h.01" />
+                </svg>
+                <span>{error}</span>
               </div>
             )}
 
-            <Card className={styles.sectionCard} padding="none">
-              <CardHeader className={styles.sectionHeader}>
-                <span className={styles.sectionIcon} aria-hidden="true">1</span>
-                {t('studentRegistration.selectProgram')}
-              </CardHeader>
-              <CardContent>
+            <Section step={1} title={t('studentRegistration.selectProgram')}>
+              <div className={styles.fields}>
                 <label className={styles.label}>
                   {t('studentRegistration.selectProgram')}
                   <select
@@ -431,33 +398,29 @@ export function StudentRegistration() {
                     ))}
                   </select>
                 </label>
-              </CardContent>
-            </Card>
+              </div>
+            </Section>
 
-            <Card className={styles.sectionCard} padding="none">
-              <CardHeader className={styles.sectionHeader}>
-                <span className={styles.sectionIcon} aria-hidden="true">2</span>
-                {t('studentRegistration.personal')}
-              </CardHeader>
-              <CardContent className={styles.grid2}>
+            <Section step={2} title={t('studentRegistration.personal')}>
+              <div className={styles.grid2}>
                 <label className={styles.label}>
-                  {t('studentRegistration.fullName')} <span className={styles.required}>*</span>
+                  <span>{t('studentRegistration.fullName')} <span className={styles.required}>*</span></span>
                   <input type="text" className={styles.input} value={personal.full_name} onChange={(e) => setPersonal((s) => ({ ...s, full_name: e.target.value }))} required disabled={submitting} />
                 </label>
                 <label className={styles.label}>
-                  {t('studentRegistration.civilId')} <span className={styles.required}>*</span>
+                  <span>{t('studentRegistration.civilId')} <span className={styles.required}>*</span></span>
                   <input type="text" className={styles.input} value={personal.civil_id} onChange={(e) => setPersonal((s) => ({ ...s, civil_id: e.target.value }))} required disabled={submitting} />
                 </label>
                 <label className={styles.label}>
-                  {t('studentRegistration.dateOfBirth')} <span className={styles.required}>*</span>
+                  <span>{t('studentRegistration.dateOfBirth')} <span className={styles.required}>*</span></span>
                   <input type="date" className={styles.input} value={personal.date_of_birth} onChange={(e) => setPersonal((s) => ({ ...s, date_of_birth: e.target.value }))} required disabled={submitting} />
                 </label>
                 <label className={styles.label}>
-                  {t('studentRegistration.phone')} <span className={styles.required}>*</span>
+                  <span>{t('studentRegistration.phone')} <span className={styles.required}>*</span></span>
                   <input type="tel" className={styles.input} value={personal.phone} onChange={(e) => setPersonal((s) => ({ ...s, phone: e.target.value }))} placeholder="968XXXXXXXX" required disabled={submitting} />
                 </label>
                 <label className={styles.label + ' ' + styles.spanFull}>
-                  {t('studentRegistration.address')} <span className={styles.required}>*</span>
+                  <span>{t('studentRegistration.address')} <span className={styles.required}>*</span></span>
                   <input type="text" className={styles.input} value={personal.address} onChange={(e) => setPersonal((s) => ({ ...s, address: e.target.value }))} required disabled={submitting} />
                 </label>
                 <label className={styles.label}>
@@ -471,21 +434,17 @@ export function StudentRegistration() {
                   {t('studentRegistration.email')}
                   <input type="email" className={styles.input} value={personal.email} onChange={(e) => setPersonal((s) => ({ ...s, email: e.target.value }))} disabled={submitting} />
                 </label>
-              </CardContent>
-            </Card>
+              </div>
+            </Section>
 
-            <Card className={styles.sectionCard} padding="none">
-              <CardHeader className={styles.sectionHeader}>
-                <span className={styles.sectionIcon} aria-hidden="true">3</span>
-                {t('studentRegistration.academic')}
-              </CardHeader>
-              <CardContent className={styles.grid2}>
+            <Section step={3} title={t('studentRegistration.academic')}>
+              <div className={styles.grid2}>
                 <label className={styles.label}>
-                  {t('studentRegistration.institution')} <span className={styles.required}>*</span>
+                  <span>{t('studentRegistration.institution')} <span className={styles.required}>*</span></span>
                   <input type="text" className={styles.input} value={academic.institution} onChange={(e) => setAcademic((s) => ({ ...s, institution: e.target.value }))} required disabled={submitting} />
                 </label>
                 <label className={styles.label}>
-                  {t('studentRegistration.studentId')} <span className={styles.required}>*</span>
+                  <span>{t('studentRegistration.studentId')} <span className={styles.required}>*</span></span>
                   <input type="text" className={styles.input} value={academic.student_id} onChange={(e) => setAcademic((s) => ({ ...s, student_id: e.target.value }))} required disabled={submitting} />
                 </label>
                 <label className={styles.label}>
@@ -513,29 +472,25 @@ export function StudentRegistration() {
                   {t('studentRegistration.gpa')}
                   <input type="text" className={styles.input} value={academic.gpa} onChange={(e) => setAcademic((s) => ({ ...s, gpa: e.target.value }))} placeholder="3.5" disabled={submitting} />
                 </label>
-              </CardContent>
-            </Card>
+              </div>
+            </Section>
 
-            <Card className={styles.sectionCard} padding="none">
-              <CardHeader className={styles.sectionHeader}>
-                <span className={styles.sectionIcon} aria-hidden="true">4</span>
-                {t('studentRegistration.guardian')}
-              </CardHeader>
-              <CardContent className={styles.grid2}>
+            <Section step={4} title={t('studentRegistration.guardian')}>
+              <div className={styles.grid2}>
                 <label className={styles.label}>
-                  {t('studentRegistration.guardianName')} <span className={styles.required}>*</span>
+                  <span>{t('studentRegistration.guardianName')} <span className={styles.required}>*</span></span>
                   <input type="text" className={styles.input} value={guardian.name} onChange={(e) => setGuardian((s) => ({ ...s, name: e.target.value }))} required disabled={submitting} />
                 </label>
                 <label className={styles.label}>
-                  {t('studentRegistration.guardianJob')} <span className={styles.required}>*</span>
+                  <span>{t('studentRegistration.guardianJob')} <span className={styles.required}>*</span></span>
                   <input type="text" className={styles.input} value={guardian.job} onChange={(e) => setGuardian((s) => ({ ...s, job: e.target.value }))} required disabled={submitting} />
                 </label>
                 <label className={styles.label}>
-                  {t('studentRegistration.monthlyIncome')} <span className={styles.required}>*</span>
+                  <span>{t('studentRegistration.monthlyIncome')} <span className={styles.required}>*</span></span>
                   <input type="number" step="0.001" min="0" className={styles.input} value={guardian.monthly_income} onChange={(e) => setGuardian((s) => ({ ...s, monthly_income: e.target.value }))} required disabled={submitting} />
                 </label>
                 <label className={styles.label}>
-                  {t('studentRegistration.familySize')} <span className={styles.required}>*</span>
+                  <span>{t('studentRegistration.familySize')} <span className={styles.required}>*</span></span>
                   <input type="number" min="1" className={styles.input} value={guardian.family_size} onChange={(e) => setGuardian((s) => ({ ...s, family_size: e.target.value }))} required disabled={submitting} />
                 </label>
                 <label className={styles.label}>
@@ -559,20 +514,20 @@ export function StudentRegistration() {
                     <option value="separated">{t('studentRegistration.parentsSeparated')}</option>
                   </select>
                 </label>
-              </CardContent>
-            </Card>
+              </div>
+            </Section>
 
-            <Card className={styles.sectionCard} padding="none">
-              <CardHeader className={styles.sectionHeader}>
-                <span className={styles.sectionIcon} aria-hidden="true">5</span>
-                {t('studentRegistration.documents')}
-              </CardHeader>
-              <CardContent className={styles.documentsSection}>
-                <p className={styles.documentsHint}>{t('studentRegistration.documentsHint')}</p>
-                <div className={styles.grid2}>
-                  {DOCUMENT_KEYS.map((key) => (
-                    <label key={key} className={styles.label + ' ' + styles.spanFull}>
-                      {t(`studentRegistration.${DOCUMENT_LABEL_KEYS[key]}`)} <span className={styles.required}>*</span>
+            <Section step={5} title={t('studentRegistration.documents')}>
+              <p className={styles.documentsHint}>{t('studentRegistration.documentsHint')}</p>
+              <div className={styles.files}>
+                {DOCUMENT_KEYS.map((key) => {
+                  const chosen = documents[key]?.[0]
+                  return (
+                    <label key={key} className={chosen ? `${styles.fileZone} ${styles.fileZoneDone}` : styles.fileZone}>
+                      <span className={styles.fileTitle}>
+                        {chosen ? <CheckIcon /> : <UploadIcon />}
+                        <span>{t(`studentRegistration.${DOCUMENT_LABEL_KEYS[key]}`)} <span className={styles.required}>*</span></span>
+                      </span>
                       <input
                         type="file"
                         className={styles.fileInput}
@@ -582,20 +537,53 @@ export function StudentRegistration() {
                         required
                       />
                     </label>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                  )
+                })}
+              </div>
+            </Section>
 
-            <div className={styles.formActions}>
+            <div className={`${styles.formActions} ${styles.stickyActions}`}>
               <Button type="submit" variant="primary" size="lg" fullWidth disabled={submitting}>
                 {submitting ? t('studentRegistration.submitting') : t('studentRegistration.submit')}
               </Button>
               <Link to="/" className={styles.backLinkBlock}>{t('studentRegistration.backHome')}</Link>
             </div>
           </form>
-        </Container>
-      </div>
+        </div>
+      </Container>
     </PageLayout>
+  )
+}
+
+/** iOS Settings-style group: small header above, rounded cell group, optional footnote below. */
+function Section({ step, title, footer, children }: { step?: number; title: string; footer?: string; children: ReactNode }) {
+  return (
+    <section className={styles.group}>
+      <h2 className={styles.groupHead}>
+        {step != null ? <span className={styles.sectionIcon} aria-hidden="true">{step}</span> : null}
+        {title}
+      </h2>
+      <div className={styles.groupBody}>{children}</div>
+      {footer ? <p className={styles.groupFoot}>{footer}</p> : null}
+    </section>
+  )
+}
+
+function UploadIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 16V4" />
+      <path d="m7 9 5-5 5 5" />
+      <path d="M20 16v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3" />
+    </svg>
+  )
+}
+
+function CheckIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <path d="m8 12 3 3 5-6" />
+    </svg>
   )
 }

@@ -10,7 +10,6 @@ import {
   AuthPasswordField,
   AuthError,
   PhoneIcon,
-  ArrowIcon,
 } from '../AuthShell'
 import styles from '../Auth.module.css'
 
@@ -67,9 +66,8 @@ export function Login() {
           onChange={(e) => setPassword(e.target.value)}
           disabled={loading}
         />
-        <button type="submit" disabled={loading} className={`ds-btn ds-btn-ink ${styles.submit}`}>
+        <button type="submit" disabled={loading} className={`ds-btn ds-btn-filled ds-btn-lg ds-btn-block ${styles.submit}`}>
           {loading ? t('common.loading') : t('auth.submitLogin')}
-          {!loading && <ArrowIcon />}
         </button>
       </form>
       <p className={styles.foot}>

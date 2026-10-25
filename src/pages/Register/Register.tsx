@@ -15,7 +15,6 @@ import {
   PhoneIcon,
   MailIcon,
   SmartphoneIcon,
-  ArrowIcon,
 } from '../AuthShell'
 import styles from '../Auth.module.css'
 
@@ -157,9 +156,8 @@ export function Register() {
             onChange={(code) => setOtpCode(code.replace(/\D/g, '').slice(0, 6))}
             disabled={loading}
           />
-          <button type="submit" disabled={loading || !otpCode.trim()} className={`ds-btn ds-btn-ink ${styles.submit}`}>
+          <button type="submit" disabled={loading || !otpCode.trim()} className={`ds-btn ds-btn-filled ds-btn-lg ds-btn-block ${styles.submit}`}>
             {loading ? t('common.loading') : t('auth.verifyCode')}
-            {!loading && <ArrowIcon />}
           </button>
         </form>
         <div className={styles.linksRow}>
@@ -247,9 +245,8 @@ export function Register() {
           onChange={(e) => setPasswordConfirm(e.target.value)}
           disabled={loading}
         />
-        <button type="submit" disabled={loading} className={`ds-btn ds-btn-ink ${styles.submit}`}>
+        <button type="submit" disabled={loading} className={`ds-btn ds-btn-filled ds-btn-lg ds-btn-block ${styles.submit}`}>
           {loading ? t('common.loading') : t('auth.submitRegister')}
-          {!loading && <ArrowIcon />}
         </button>
       </form>
       <p className={styles.foot}>

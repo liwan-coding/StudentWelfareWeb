@@ -1,44 +1,117 @@
-/* Donate — design-reference/inner-pages.html */
+/* =====================================================================
+   Donate — Apple Store checkout feel.
+   Grouped gray page, a white summary card for the initiative, and a
+   checkout sheet: amount tiles, a large custom amount, one filled pay
+   capsule. Colours come from tokens only (light + dark).
+   ===================================================================== */
+
 .page {
-  padding-top: var(--header-height);
+  background: var(--bg-2);
 }
 
 .main {
-  padding-block: clamp(44px, 6vw, 72px) clamp(56px, 8vw, 96px);
+  background: var(--bg-2);
+  padding-block: clamp(28px, 4vw, 56px) clamp(56px, 8vw, 104px);
 }
 
+/* ---------- loading ---------- */
 .placeholder {
-  text-align: center;
-  color: var(--muted);
-  padding: 48px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding-block: 64px;
+  font-size: var(--type-subhead);
+  color: var(--label-2);
 }
 
-/* cars stretch to the row so the form can stay sticky inside its own car */
+.spinner {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2.5px solid var(--fill-2);
+  border-block-start-color: var(--label-2);
+  animation: spin 0.8s linear infinite;
+}
+
+.spinnerOnTint {
+  border-color: rgba(255, 255, 255, 0.35);
+  border-block-start-color: #FFFFFF;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- layout ---------- */
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-  gap: 26px;
-  align-items: stretch;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
 }
 
-.layoutSingle {
-  grid-template-columns: minmax(0, 560px);
-  justify-content: center;
+.layout.layoutSingle {
+  max-width: 560px;
 }
 
-/* ----- the initiative ----- */
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
+    gap: 32px;
+  }
+
+  .layout.layoutSingle {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* the checkout stays in view while the summary scrolls */
+  .checkoutCol {
+    position: sticky;
+    top: calc(var(--header-height) + 24px);
+  }
+}
+
+.summary,
+.checkout {
+  animation: rise 0.7s var(--ease-spring) both;
+}
+
+.checkoutCol .checkout {
+  animation-delay: 0.08s;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+/* =====================================================================
+   Summary card (the initiative)
+   ===================================================================== */
 /* visible so the share menu can open past the card edge */
-.detail {
+.summary {
+  position: relative;
+  background: var(--bg-3);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
   overflow: visible;
-  align-self: flex-start;
-  width: 100%;
 }
 
 .media {
   position: relative;
-  height: 280px;
-  border-radius: 16px 16px 0 0;
-  background: linear-gradient(150deg, #A2458C, #D47EC0 55%, #32A1BF);
+  aspect-ratio: 16 / 10;
+  max-height: 420px;
+  width: 100%;
+  border-start-start-radius: var(--radius-lg);
+  border-start-end-radius: var(--radius-lg);
+  background: var(--fill-4);
 }
 
 .mediaImage {
@@ -49,6 +122,7 @@
   background-position: center;
 }
 
+/* ----- share (iOS context menu) ----- */
 .share {
   position: absolute;
   top: 14px;
@@ -57,44 +131,51 @@
 }
 
 .shareBtn {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: rgba(20, 12, 24, 0.35);
-  backdrop-filter: blur(8px);
-  color: #fff;
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--label);
+  background: var(--material-thick);
+  -webkit-backdrop-filter: var(--material-blur);
+  backdrop-filter: var(--material-blur);
+  box-shadow: var(--shadow-1);
   cursor: pointer;
-  transition: transform 0.3s;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s var(--ease-out), background-color var(--transition-fast);
 }
 
-.shareBtn:hover {
-  transform: rotate(-10deg) scale(1.05);
+.shareBtn:active {
+  transform: scale(0.94);
 }
 
 .shareBtn svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
+  margin-block-start: -2px;
 }
 
 .shareMenu {
   position: absolute;
-  top: 56px;
+  top: 52px;
   inset-inline-end: 0;
-  min-width: 200px;
-  padding: 8px;
-  border-radius: 16px;
-  background: var(--paper);
-  border: 1px solid var(--line);
-  box-shadow: 0 26px 50px -20px rgba(40, 20, 45, 0.45);
+  min-width: 232px;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--material-thick);
+  -webkit-backdrop-filter: var(--material-blur);
+  backdrop-filter: var(--material-blur);
+  box-shadow: var(--shadow-3);
   opacity: 0;
   visibility: hidden;
-  transform: translateY(-8px) scale(0.97);
+  transform: scale(0.92);
   transform-origin: top left;
   pointer-events: none;
-  transition: opacity 0.25s, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.3s;
+  transition: opacity 0.2s var(--ease-out), transform 0.3s var(--ease-spring), visibility 0.3s;
 }
 
 :global(html[dir='ltr']) .shareMenu {
@@ -108,330 +189,202 @@
   pointer-events: auto;
 }
 
-:global(html[data-theme='dark']) .shareMenu {
-  background: #1A1120;
-}
-
 .shareMenu button {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 16px;
   width: 100%;
-  padding: 10px 12px;
+  min-height: 44px;
+  padding: 11px 16px;
   border: 0;
-  background: none;
-  border-radius: 10px;
-  font-family: var(--ds-font);
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--ink);
-  cursor: pointer;
+  background: transparent;
+  color: var(--label);
+  font: inherit;
+  font-size: var(--type-callout);
   text-align: start;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
 }
 
-.shareMenu button:hover {
-  background: var(--wash);
+.shareMenu button + button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  inset-inline: 0;
+  height: 1px;
+  background: var(--separator);
 }
 
-.shareMenu svg {
-  flex: none;
+.shareMenu button:hover,
+.shareMenu button:focus-visible {
+  background: var(--fill-4);
+}
+
+.shareMenu button svg {
+  flex-shrink: 0;
   width: 18px;
   height: 18px;
-  color: #A2458C;
+  color: var(--label);
 }
 
+/* ----- body ----- */
 .body {
-  padding: 24px 26px 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  gap: 16px;
+  padding: clamp(20px, 3vw, 28px);
 }
 
-.body h2 {
-  font-size: clamp(22px, 2.2vw, 28px);
-  margin: 0;
+.title {
+  font-size: var(--type-title-2);
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .description {
-  color: var(--muted);
-  line-height: 1.85;
+  font-size: var(--type-callout);
+  line-height: 1.55;
+  color: var(--label-2);
+  white-space: pre-line;
 }
 
 .impact {
   display: flex;
-  gap: 10px;
   align-items: flex-start;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: rgba(50, 161, 191, 0.1);
-  border: 1px solid rgba(50, 161, 191, 0.25);
-  color: var(--ink);
-  font-weight: 600;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--bg-2);
+  font-size: var(--type-subhead);
+  line-height: 1.45;
+  color: var(--label);
 }
 
-.impact svg {
-  flex: none;
-  width: 20px;
-  height: 20px;
-  color: #1D7690;
-  margin-top: 3px;
+:global(html[data-theme='dark']) .impact {
+  background: var(--bg-elevated);
 }
 
-/* progress: what has been raised, plus a striped preview of the typed amount */
+.impactIcon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  color: var(--sys-red);
+  background: var(--bg-3);
+  box-shadow: var(--shadow-1);
+}
+
+.impactIcon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ----- progress ----- */
 .progress {
-  margin-top: 4px;
-}
-
-.progressRow {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  display: grid;
   gap: 10px;
-  font-size: 14.5px;
-  color: var(--muted);
-  margin-bottom: 8px;
+  padding-block-start: 16px;
+  border-block-start: 1px solid var(--separator);
 }
 
-.progressRow b {
-  color: var(--ink);
+.progressHead {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .pct {
-  font-weight: 700;
-  color: #A2458C;
+  font-size: var(--type-footnote);
+  font-weight: 600;
+  color: var(--tint);
   font-variant-numeric: tabular-nums;
 }
 
 .bar {
   position: relative;
-  height: 12px;
-  border-radius: 999px;
-  background: var(--wash);
+  height: 6px;
+  border-radius: 3px;
+  background: var(--fill-3);
   overflow: hidden;
-  border: 1px solid var(--line);
 }
 
 .bar i {
   position: absolute;
   inset-block: 0;
-  inset-inline-start: 0;
-  border-radius: 999px;
+  border-radius: inherit;
 }
 
 .barNow {
-  width: var(--now);
-  background: linear-gradient(270deg, #32A1BF, #A2458C);
-  transition: width 1.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  inset-inline-start: 0;
+  width: var(--now, 0%);
+  background: var(--tint);
+  transition: width 1.2s var(--ease-spring);
 }
 
-.bar .barAdd {
-  inset-inline-start: var(--now);
+/* the typed amount, previewed right after what is raised */
+.barAdd {
+  inset-inline-start: var(--now, 0%);
   width: var(--add, 0%);
-  background: repeating-linear-gradient(135deg, #F3B4E4 0 6px, #D47EC0 6px 12px);
-  background-size: 17px 17px;
-  transition: width 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-  animation: addFlow 1s linear infinite;
+  background: rgba(var(--tint-rgb), 0.4);
+  transition: width 0.5s var(--ease-spring), inset-inline-start 1.2s var(--ease-spring);
 }
 
-@keyframes addFlow {
-  to { background-position: 17px 0; }
-}
-
-/* ----- the form ----- */
-.formCard {
-  flex: 0 0 auto !important;
-  padding: 26px 26px 28px;
-  position: sticky;
-  top: calc(var(--header-height) + 24px);
-}
-
-.formCard h3 {
-  font-size: 16px;
-  margin: 0 0 12px;
-  color: var(--ink);
-}
-
-.quickAmounts {
+.stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 18px;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 0;
 }
 
-.quickBtn {
-  position: relative;
-  min-height: 54px;
-  border-radius: 14px;
-  border: 1.5px solid var(--line2);
-  background: var(--wash);
-  font-family: var(--ds-font);
-  font-size: 16.5px;
-  font-weight: 700;
-  color: var(--ink);
-  cursor: pointer;
-  font-variant-numeric: tabular-nums;
-  overflow: hidden;
-  transition: transform 0.25s, border-color 0.25s, background-color 0.25s, color 0.25s, box-shadow 0.25s;
+.stats > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
 }
 
-.quickBtn:hover {
-  transform: translateY(-2px);
-  border-color: #D47EC0;
-}
-
-.active {
-  background: linear-gradient(135deg, #C266AE, #A2458C);
-  border-color: transparent;
-  color: #fff;
-  box-shadow: 0 12px 24px -12px rgba(162, 69, 140, 0.8);
-}
-
-.active::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.55), transparent 60%);
-  animation: pop 0.55s ease-out forwards;
-}
-
-@keyframes pop {
-  from { transform: scale(0); opacity: 1; }
-  to { transform: scale(2.4); opacity: 0; }
-}
-
-.field {
-  margin-bottom: 16px;
-}
-
-.field label {
-  display: block;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--ink);
-  margin-bottom: 7px;
-}
-
-.control {
-  position: relative;
-}
-
-.control input {
-  width: 100%;
-  min-height: 54px;
-  padding-block: 12px;
-  padding-inline: 16px 56px;
-  border-radius: 14px;
-  border: 1.5px solid var(--line2);
-  background: var(--wash);
-  color: var(--ink);
-  font-family: var(--ds-font);
-  font-size: 17px;
-  font-weight: 600;
-  outline: none;
-  transition: border-color 0.25s, box-shadow 0.25s, background-color 0.25s;
-}
-
-.control input:focus {
-  border-color: #A2458C;
-  background: var(--paper);
-  box-shadow: 0 0 0 4px rgba(162, 69, 140, 0.14);
-}
-
-.unit {
-  position: absolute;
-  inset-inline-end: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--muted);
-}
-
-.tel .control input {
-  padding-inline: 16px;
-  direction: ltr;
+.stats > div:last-child {
   text-align: end;
 }
 
-:global(html[dir='ltr']) .tel .control input {
-  text-align: start;
+.stats dt {
+  font-size: var(--type-footnote);
+  color: var(--label-2);
 }
 
-@keyframes shake {
-  20%, 60% { transform: translateX(-6px); }
-  40%, 80% { transform: translateX(6px); }
-}
-
-.errorWrap {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.error {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
+.stats dd {
   margin: 0;
-  padding: 11px 14px;
-  border-radius: 12px;
-  background: #FCEEF1;
-  border: 1px solid #F3C4CF;
-  color: #A1283F;
-  font-size: 15px;
+  font-size: var(--type-headline);
   font-weight: 600;
-  animation: shake 0.45s ease;
+  color: var(--label);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
 }
 
-.error svg {
-  flex: none;
-  width: 20px;
-  height: 20px;
+.stats dd small {
+  font-size: var(--type-footnote);
+  font-weight: 500;
+  color: var(--label-2);
 }
 
-:global(html[data-theme='dark']) .error {
-  background: rgba(176, 58, 85, 0.16);
-  border-color: rgba(176, 58, 85, 0.4);
-  color: #FFB7C6;
-}
-
-.retry {
-  min-height: 40px;
-}
-
-.pay {
-  width: 100%;
-  min-height: 58px;
-  font-size: 17.5px;
-  border-radius: 16px;
-  margin-top: 6px;
-}
-
-/* ----- loading ----- */
-@keyframes shimmer {
-  to { background-position: -250% 0; }
-}
-
-.skeletonImage,
-.skeletonLine {
-  background: linear-gradient(110deg, var(--wash) 30%, var(--line) 50%, var(--wash) 70%);
-  background-size: 250% 100%;
-  animation: shimmer 1.4s linear infinite;
+/* ----- skeleton ----- */
+.skeleton {
+  display: grid;
 }
 
 .skeletonImage {
-  height: 280px;
-  border-radius: 16px 16px 0 0;
+  aspect-ratio: 16 / 10;
+  max-height: 420px;
+  border-start-start-radius: var(--radius-lg);
+  border-start-end-radius: var(--radius-lg);
 }
 
 .skeletonBody {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 12px;
-  padding: 24px 26px 28px;
+  padding: clamp(20px, 3vw, 28px);
 }
 
 .skeletonLine {
@@ -439,23 +392,230 @@
   border-radius: 7px;
 }
 
-.skeleton {
+.skeletonImage,
+.skeletonLine {
+  background: linear-gradient(90deg, var(--fill-4) 25%, var(--fill-3) 50%, var(--fill-4) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* =====================================================================
+   Checkout sheet
+   ===================================================================== */
+.checkout {
+  display: grid;
+  gap: 24px;
+  padding: clamp(20px, 3vw, 28px);
+  background: var(--bg-3);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+}
+
+.group {
+  display: grid;
+  gap: 16px;
+}
+
+.group + .group {
+  padding-block-start: 24px;
+  border-block-start: 1px solid var(--separator);
+}
+
+.groupTitle {
+  font-size: var(--type-title-3);
+  line-height: 1.25;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+/* ----- amount tiles (configurator options) ----- */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.tile {
   display: flex;
-  flex-direction: column;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+  min-height: 64px;
+  padding: 12px 8px;
+  border: 1px solid var(--separator-opaque);
+  border-radius: var(--radius-md);
+  background: var(--bg-3);
+  color: var(--label);
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast), box-shadow var(--transition-fast), transform 0.12s var(--ease-out);
 }
 
-@media (max-width: 980px) {
-  .layout {
-    grid-template-columns: minmax(0, 1fr);
+.tile:hover {
+  border-color: var(--label-3);
+}
+
+.tile:active {
+  transform: scale(0.97);
+}
+
+.tile:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+}
+
+.tileOn,
+.tileOn:hover {
+  border-color: var(--tint);
+  box-shadow: inset 0 0 0 1px var(--tint);
+  background: var(--tint-fill);
+}
+
+.tileValue {
+  font-family: var(--font-display);
+  font-size: var(--type-title-3);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  font-variant-numeric: tabular-nums;
+}
+
+.tileUnit {
+  font-size: var(--type-footnote);
+  font-weight: 500;
+  color: var(--label-2);
+}
+
+.tileOn .tileUnit {
+  color: var(--tint);
+}
+
+/* ----- custom amount ----- */
+.field {
+  margin-block-start: 4px;
+}
+
+.control {
+  position: relative;
+}
+
+.amountInput {
+  min-height: 60px;
+  padding-inline-end: 72px;
+  font-family: var(--font-display);
+  font-size: var(--type-title-2);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.amountInput::-webkit-outer-spin-button,
+.amountInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.amountInput::placeholder {
+  color: var(--label-4);
+}
+
+.unit {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 16px;
+  display: flex;
+  align-items: center;
+  font-size: var(--type-callout);
+  font-weight: 500;
+  color: var(--label-2);
+  pointer-events: none;
+}
+
+.telInput {
+  font-variant-numeric: tabular-nums;
+}
+
+.amountInput:disabled,
+.telInput:disabled {
+  opacity: 0.6;
+}
+
+/* ----- error ----- */
+.errorWrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--sys-red) 10%, transparent);
+  animation: shake 0.4s var(--ease-out);
+}
+
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex: 1 1 220px;
+  font-size: var(--type-footnote);
+  line-height: 1.45;
+  color: var(--sys-red);
+}
+
+.error svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-block-start: 1px;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: none;
   }
 
-  .formCard {
-    position: static;
+  25% {
+    transform: translateX(-4px);
+  }
+
+  75% {
+    transform: translateX(4px);
   }
 }
 
-@media (max-width: 420px) {
-  .quickAmounts {
+/* ----- pay ----- */
+.payBar {
+  display: grid;
+}
+
+.pay {
+  gap: 8px;
+  font-weight: 600;
+}
+
+.pay .lock {
+  width: 17px;
+  height: 17px;
+}
+
+/* ---------- phones ---------- */
+@media (max-width: 380px) {
+  .tiles {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

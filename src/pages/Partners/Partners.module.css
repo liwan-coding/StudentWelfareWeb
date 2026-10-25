@@ -1,249 +1,217 @@
-/* Partners — design-reference/inner-pages.html (partner tiles) */
-@property --fx-ang {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 0deg;
-}
-
-@keyframes fxSpin {
-  to { --fx-ang: 360deg; }
-}
-
+/* Partners — white logo tiles with name and caption, on the grouped background. */
 .page {
-  padding-top: var(--header-height);
+  background: var(--bg);
 }
 
-.main {
-  padding-block: clamp(44px, 6vw, 72px) clamp(56px, 8vw, 96px);
+.content {
+  background: var(--bg-2);
+  padding-block: clamp(32px, 5vw, 64px) var(--space-section);
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
 }
 
-.tile,
-.tile:hover {
-  color: inherit;
-}
-
-.tile {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 14px;
-  padding: 30px 22px 26px;
-}
-
-.featured {
-  border-color: transparent;
-  background:
-    linear-gradient(var(--paper), var(--paper)) padding-box,
-    linear-gradient(135deg, #D47EC0, #32A1BF) border-box;
-}
-
-:global(html[data-theme='dark']) .featured {
-  background:
-    linear-gradient(#170F1C, #170F1C) padding-box,
-    linear-gradient(135deg, #D47EC0, #32A1BF) border-box;
-}
-
-/* the logo always sits on white so real logos stay legible in dark mode */
-.logoWrap {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  border-radius: 30px;
-  display: grid;
-  place-items: center;
-  padding: 14px;
-  background: #FFFFFF;
-  border: 1px solid var(--line);
-  box-shadow: 0 18px 36px -20px rgba(40, 20, 45, 0.4);
-  isolation: isolate;
-  transition: transform 0.5s cubic-bezier(0.3, 1.4, 0.5, 1);
-}
-
-.logoWrap::before {
-  content: '';
-  position: absolute;
-  inset: -6px;
-  border-radius: 34px;
-  padding: 2px;
-  z-index: -1;
-  opacity: 0.55;
-  background: conic-gradient(from var(--fx-ang), transparent 0 55%, #32A1BF 70%, #7FD0E6 80%, #D47EC0 92%, transparent);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-  animation: fxSpin 5s linear infinite;
-}
-
-.tile:hover .logoWrap {
-  transform: translateY(-6px) rotate(-4deg) scale(1.05);
-}
-
-.tile:hover .logoWrap::before {
-  opacity: 1;
-  animation-duration: 1.6s;
-}
-
-.logo {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-
-.initial {
-  font-size: 44px;
-  font-weight: 700;
-  background: linear-gradient(135deg, #D47EC0, #32A1BF);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.name {
-  font-size: 19px;
-  margin: 0;
-}
-
-.desc {
-  color: var(--muted);
-  font-size: 15px;
-  line-height: 1.75;
-  margin: 0;
-}
-
-.visit {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 15px;
-  font-weight: 700;
-  color: #A2458C;
-  padding: 7px 14px;
-  border-radius: 999px;
-  background: #F7EAF3;
-  transition: gap 0.3s, background-color 0.3s;
-}
-
-.visit svg {
-  width: 16px;
-  height: 16px;
-  transition: transform 0.3s;
-}
-
-:global(html[dir='ltr']) .visit svg {
-  transform: scaleX(-1);
-}
-
-.tile:hover .visit {
-  gap: 11px;
-}
-
-.tile:hover .visit svg {
-  transform: translate(-3px, -3px);
-}
-
-:global(html[dir='ltr']) .tile:hover .visit svg {
-  transform: scaleX(-1) translate(-3px, -3px);
-}
-
-:global(html[data-theme='dark']) .visit {
-  background: rgba(212, 126, 192, 0.14);
-  color: #F3B4E4;
-}
-
-.url {
-  font-size: 13px;
-  color: var(--muted);
-  direction: ltr;
-}
-
-/* ----- loading ----- */
-@keyframes shimmer {
-  to { background-position: -250% 0; }
-}
-
-.skeletonCard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  padding: 30px 22px 26px;
-}
-
-.skeletonLogo,
-.skeletonLine {
-  background: linear-gradient(110deg, var(--wash) 30%, var(--line) 50%, var(--wash) 70%);
-  background-size: 250% 100%;
-  animation: shimmer 1.4s linear infinite;
-}
-
-.skeletonLogo {
-  width: 120px;
-  height: 120px;
-  border-radius: 30px;
-}
-
-.skeletonMeta {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.skeletonLine {
-  width: 100%;
-  height: 14px;
-  border-radius: 7px;
-}
-
-/* ----- empty ----- */
-.empty {
-  max-width: 560px;
-  margin: 0 auto;
-  padding: 48px 24px;
-  text-align: center;
-}
-
-.emptyIcon {
-  width: 96px;
-  height: 96px;
-  margin: 0 auto 18px;
-  border-radius: 30px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, rgba(212, 126, 192, 0.18), rgba(50, 161, 191, 0.18));
-  color: #A2458C;
-}
-
-.emptyIcon svg {
-  width: 46px;
-  height: 46px;
-}
-
-.emptyTitle {
-  font-size: 24px;
-  margin: 0 0 6px;
-}
-
-.emptyDescription {
-  color: var(--muted);
-}
-
-@media (max-width: 980px) {
+@media (min-width: 640px) {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 620px) {
+@media (min-width: 1024px) {
   .grid {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+  }
+}
+
+/* ----- tile ----- */
+.tile,
+.tile:hover {
+  color: inherit;
+  text-decoration: none;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+}
+
+.linked:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+}
+
+.logoWrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 10;
+  padding: clamp(20px, 3vw, 32px);
+  border-radius: calc(var(--radius-lg) - 8px);
+  background: #fff; /* logos are drawn for white; keep it white in dark mode too */
+  box-shadow: inset 0 0 0 1px var(--separator);
+}
+
+.logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.initial {
+  font-family: var(--font-display);
+  font-size: 48px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #6e6e73; /* sits on the fixed white tile, so it does not follow the theme */
+}
+
+.badge {
+  position: absolute;
+  inset-block-start: 10px;
+  inset-inline-start: 10px;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 4px;
+  padding: 16px 12px 8px;
+}
+
+.name {
+  font-size: var(--type-headline);
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+.url {
+  font-size: var(--type-footnote);
+  color: var(--label-2);
+  direction: ltr;
+  unicode-bidi: isolate;
+  align-self: flex-start;
+  overflow-wrap: anywhere;
+}
+
+.body .desc {
+  margin-block-start: 6px;
+  font-size: var(--type-subhead);
+  line-height: 1.5;
+  color: var(--label-2);
+}
+
+/* link-style action, like .ds-btn-plain; the whole tile is the hit target */
+.visit {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+  margin-block-start: auto;
+  padding-block-start: 12px;
+  min-height: 32px;
+  font-size: var(--type-subhead);
+  font-weight: 500;
+  color: var(--link);
+}
+
+.visit svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+/* the arrow points up-and-out toward the reading direction's end */
+:global(html[dir='rtl']) .visit svg {
+  transform: scaleX(-1);
+}
+
+.linked:hover .visit > span {
+  text-decoration: underline;
+}
+
+/* ----- loading ----- */
+@keyframes pulse {
+  50% { opacity: 0.55; }
+}
+
+.skeletonCard {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.skeletonLogo,
+.skeletonLine {
+  background: var(--fill-3);
+  animation: pulse 1.6s var(--ease-out) infinite;
+}
+
+.skeletonLogo {
+  aspect-ratio: 16 / 10;
+  border-radius: calc(var(--radius-lg) - 8px);
+}
+
+.skeletonMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 12px 12px;
+}
+
+.skeletonLine {
+  height: 14px;
+  border-radius: var(--radius-xs);
+}
+
+/* ----- empty ----- */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: 28rem;
+  margin-inline: auto;
+  padding-block: clamp(40px, 8vw, 88px);
+  text-align: center;
+}
+
+.emptyIcon {
+  width: 56px;
+  height: 56px;
+  margin-block-end: 8px;
+  color: var(--label-3);
+}
+
+.emptyTitle {
+  font-size: var(--type-title-3);
+  line-height: 1.25;
+}
+
+.emptyDescription {
+  font-size: var(--type-subhead);
+  line-height: 1.5;
+  color: var(--label-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile {
+    transition: none;
+  }
+
+  .linked:hover {
+    transform: none;
+  }
+
+  .skeletonLogo,
+  .skeletonLine {
+    animation: none;
   }
 }

@@ -1,20 +1,21 @@
+/* Container — centred content column. Horizontal gutters come from
+   PageLayout .main (or .ds-wrap on full-bleed pages). */
 .container {
   width: 100%;
   max-width: 100%;
   min-width: 0;
   margin-inline: auto;
-  /* Horizontal padding comes from PageLayout .main; Home uses .pageGutter for noPadding layout */
   padding-inline: 0;
 }
 
 .narrow {
-  max-width: 640px;
+  max-width: 680px;
 }
 
 .content {
-  max-width: 960px;
+  max-width: 980px;
 }
 
 .wide {
-  max-width: 1280px;
+  max-width: 1200px;
 }
