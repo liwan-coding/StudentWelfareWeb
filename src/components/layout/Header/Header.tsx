@@ -21,6 +21,23 @@ export function Header() {
   const setMenuOpen = (open: boolean) => setMenuOpenPath(open ? location.pathname : null)
   const setUserMenuOpen = (open: boolean) => setUserMenuOpenPath(open ? location.pathname : null)
 
+  // over a dark hero (marked data-dark-hero) the bar turns dark so it reads as part of it
+  const [onDark, setOnDark] = useState(false)
+  useEffect(() => {
+    const check = () => {
+      const hero = document.querySelector('[data-dark-hero]')
+      setOnDark(!!hero && hero.getBoundingClientRect().bottom > 60)
+    }
+    const raf = requestAnimationFrame(check)
+    window.addEventListener('scroll', check, { passive: true })
+    window.addEventListener('resize', check)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('scroll', check)
+      window.removeEventListener('resize', check)
+    }
+  }, [location.pathname])
+
   const isActive = (path: string) => (path === '/' ? location.pathname === '/' : location.pathname.startsWith(path))
 
   const navItems = [
@@ -72,7 +89,7 @@ export function Header() {
   const isRtl =(i18n.language || '').startsWith('ar')
   const otherLang: Locale = isRtl ? 'en' : 'ar'
   const userLabel = (user?.name || user?.phone || t('nav.myDonations')) as string
-  const headerClass = [styles.header, menuOpen ? styles.sheetOpen : ''].join(' ').trim()
+  const headerClass = [styles.header, menuOpen ? styles.sheetOpen : onDark ? `ds-dark ${styles.onDark}` : ''].join(' ').trim()
 
   return (
     <header className={headerClass} role="banner">

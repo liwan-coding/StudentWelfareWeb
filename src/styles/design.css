@@ -28,7 +28,8 @@
   color-scheme: light;
 }
 
-html[data-theme='dark'] {
+html[data-theme='dark'],
+.ds-dark {
   color-scheme: dark;
 
   --sys-blue: #0A84FF;
@@ -66,6 +67,29 @@ html[data-theme='dark'] {
   --shadow-1: 0 0 0 1px rgba(255, 255, 255, 0.04);
   --shadow-2: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 8px 24px rgba(0, 0, 0, 0.4);
   --shadow-3: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 24px 48px rgba(0, 0, 0, 0.55);
+
+  --grad-text: linear-gradient(100deg, #F472C4 0%, #A78BFA 50%, #5CC8F5 100%);
+  --aurora-1: rgba(214, 64, 159, 0.42);
+  --aurora-2: rgba(139, 92, 246, 0.38);
+  --aurora-3: rgba(45, 170, 226, 0.36);
+}
+
+/* a dark island inside a light page: aliases resolve where they are declared, so restate them */
+.ds-dark {
+  --tint: var(--sys-blue);
+  --tint-hover: var(--sys-blue-hover);
+  --tint-pressed: var(--sys-blue-pressed);
+  --tint-fill: rgba(var(--tint-rgb), 0.16);
+  --link: var(--sys-link);
+  --ink: var(--label);
+  --text: var(--label);
+  --muted: var(--label-2);
+  --line: var(--separator);
+  --line2: var(--separator-opaque);
+  --paper: var(--bg-3);
+  --wash: var(--bg-2);
+  color: var(--label);
+  background-color: var(--bg);
 }
 
 /* theme switch: colours cross-fade briefly */
@@ -508,12 +532,147 @@ html[data-theme='dark'] .ds-card {
   }
 }
 
-/* soft mesh used where the old silk shader was */
-.ds-mesh {
-  background:
-    radial-gradient(60% 80% at 15% 20%, rgba(var(--tint-rgb), 0.12), transparent 70%),
-    radial-gradient(50% 70% at 85% 30%, rgba(175, 82, 222, 0.1), transparent 70%),
-    radial-gradient(60% 60% at 50% 100%, rgba(48, 176, 199, 0.1), transparent 70%);
+/* ---------- premium layer: brand light ---------- */
+
+/* gradient headline text */
+.ds-gradient-text {
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  /* keep descenders and Arabic marks inside the painted box */
+  padding-block: 0.06em;
+}
+
+/* aurora: three soft colour lights drifting slowly behind content */
+.ds-mesh,
+.ds-aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ds-aurora > i {
+  position: absolute;
+  width: 60vmax;
+  height: 60vmax;
+  border-radius: 50%;
+  filter: blur(80px);
+  will-change: transform;
+}
+
+.ds-aurora > i:nth-child(1) {
+  top: -30vmax;
+  inset-inline-start: -14vmax;
+  background: radial-gradient(circle, var(--aurora-1), transparent 65%);
+  animation: ds-drift-1 22s var(--ease-out) infinite alternate;
+}
+
+.ds-aurora > i:nth-child(2) {
+  top: -24vmax;
+  inset-inline-end: -18vmax;
+  background: radial-gradient(circle, var(--aurora-3), transparent 65%);
+  animation: ds-drift-2 26s var(--ease-out) infinite alternate;
+}
+
+.ds-aurora > i:nth-child(3) {
+  bottom: -40vmax;
+  left: 50%;
+  margin-left: -30vmax;
+  background: radial-gradient(circle, var(--aurora-2), transparent 65%);
+  animation: ds-drift-3 30s var(--ease-out) infinite alternate;
+}
+
+@keyframes ds-drift-1 {
+  to { transform: translate(8vw, 6vh) scale(1.1); }
+}
+
+@keyframes ds-drift-2 {
+  to { transform: translate(-8vw, 8vh) scale(0.92); }
+}
+
+@keyframes ds-drift-3 {
+  to { transform: translate(4vw, -6vh) scale(1.08); }
+}
+
+/* glowing brand capsule — the hero call to action */
+.ds-btn-glow,
+.ds-btn-glow:hover {
+  color: #FFFFFF;
+}
+
+.ds-btn-glow {
+  background: var(--grad-brand);
+  background-size: 140% 100%;
+  background-position: 0% 50%;
+  box-shadow: 0 8px 28px -8px rgba(var(--brand-glow-rgb), 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: background-position 0.6s var(--ease-out), box-shadow var(--transition-normal), transform 0.12s var(--ease-out);
+}
+
+.ds-btn-glow:hover {
+  background-position: 100% 50%;
+  box-shadow: 0 12px 36px -8px rgba(var(--brand-glow-rgb), 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* light capsule for dark surfaces */
+.ds-btn-light,
+.ds-btn-light:hover {
+  color: #1D1D1F;
+}
+
+.ds-btn-light {
+  background: #F5F5F7;
+}
+
+.ds-btn-light:hover {
+  background: #FFFFFF;
+}
+
+/* a surface with a hairline gradient edge and a soft brand glow */
+.ds-glow-card {
+  position: relative;
+  isolation: isolate;
+  border-radius: var(--radius-xl);
+  background: var(--bg-3);
+  box-shadow: 0 30px 80px -40px rgba(var(--brand-glow-rgb), 0.55);
+}
+
+.ds-glow-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(140deg, rgba(214, 64, 159, 0.9), rgba(139, 92, 246, 0.35) 40%, rgba(45, 170, 226, 0.9));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* a grouped section washed with faint brand light (also available as var(--bg-wash)) */
+:root {
+  --bg-wash:
+    radial-gradient(60% 50% at 0% 0%, rgba(214, 64, 159, 0.08), transparent 70%),
+    radial-gradient(50% 50% at 100% 30%, rgba(139, 92, 246, 0.06), transparent 70%),
+    radial-gradient(60% 50% at 100% 100%, rgba(45, 170, 226, 0.09), transparent 70%),
+    #F5F5F7;
+}
+
+html[data-theme='dark'] {
+  --bg-wash:
+    radial-gradient(60% 50% at 0% 0%, rgba(214, 64, 159, 0.16), transparent 70%),
+    radial-gradient(50% 50% at 100% 30%, rgba(139, 92, 246, 0.1), transparent 70%),
+    radial-gradient(60% 50% at 100% 100%, rgba(45, 170, 226, 0.13), transparent 70%),
+    #0A0A0C;
+}
+
+.ds-wash {
+  background: var(--bg-wash);
 }
 
 /* ---------- accessibility: respect reduced motion ---------- */

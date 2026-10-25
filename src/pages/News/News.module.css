@@ -4,7 +4,7 @@
 }
 
 .content {
-  background: var(--bg-2);
+  background: var(--bg-wash);
   padding-block: clamp(32px, 5vw, 64px) var(--space-section);
 }
 

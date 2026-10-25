@@ -28,6 +28,18 @@
   --tint-fill: rgba(var(--tint-rgb), 0.1);
   --link: var(--sys-link);
 
+  /* ---------- Brand light (the fund's magenta → sky, Apple Intelligence style) ---------- */
+  --brand-magenta: #D6409F;
+  --brand-violet: #8B5CF6;
+  --brand-sky: #2DAAE2;
+  --brand-glow-rgb: 139, 92, 246;
+  --grad-brand: linear-gradient(100deg, var(--brand-magenta) 0%, var(--brand-violet) 48%, var(--brand-sky) 100%);
+  --grad-text: linear-gradient(100deg, #C2338F 0%, #7C4DEB 50%, #1E96D1 100%);
+  --grad-ring: linear-gradient(135deg, var(--brand-magenta), var(--brand-violet) 55%, var(--brand-sky));
+  --aurora-1: rgba(214, 64, 159, 0.28);
+  --aurora-2: rgba(139, 92, 246, 0.24);
+  --aurora-3: rgba(45, 170, 226, 0.26);
+
   /* ---------- Labels ---------- */
   --label: #1D1D1F;
   --label-2: #6E6E73;

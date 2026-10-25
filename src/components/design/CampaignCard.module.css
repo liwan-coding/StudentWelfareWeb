@@ -29,13 +29,13 @@
 }
 
 .bar {
-  stroke: var(--tint);
   stroke-linecap: round;
+  filter: drop-shadow(0 2px 6px rgba(var(--brand-glow-rgb), 0.35));
   transition: stroke-dashoffset 1.2s var(--ease-spring), stroke 0.3s;
 }
 
 .done .bar {
-  stroke: var(--sys-green);
+  filter: drop-shadow(0 2px 6px rgba(52, 199, 89, 0.35));
 }
 
 .pct {

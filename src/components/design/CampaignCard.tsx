@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useId, useRef, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { useInViewOnce } from './useInViewOnce'
 import styles from './CampaignCard.module.css'
@@ -30,7 +30,8 @@ export function CampaignCard(props: CampaignCardProps) {
   const [reduceMotion] = useState(() => !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
   const shown = inView || reduceMotion
   const numRef = useRef<HTMLSpanElement>(null)
-  const target = Math.max(0, Math.min(100, Math.round(percent)))
+  const gradId = `ring-${useId().replace(/[^a-zA-Z0-9]/g, '')}`
+  const target =Math.max(0, Math.min(100, Math.round(percent)))
   const done = target >= 100
 
   // count the number up alongside the ring
@@ -66,12 +67,20 @@ export function CampaignCard(props: CampaignCardProps) {
     >
       <div className={styles.ringWrap}>
         <svg className={styles.ring} viewBox="0 0 120 120" aria-hidden="true">
+          <defs>
+            <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stopColor={done ? '#34C759' : '#D6409F'} />
+              <stop offset=".55" stopColor={done ? '#30D158' : '#8B5CF6'} />
+              <stop offset="1" stopColor={done ? '#63E6BE' : '#2DAAE2'} />
+            </linearGradient>
+          </defs>
           <circle className={styles.track} cx="60" cy="60" r={R} />
           <circle
             className={styles.bar}
             cx="60"
             cy="60"
             r={R}
+            stroke={`url(#${gradId})`}
             strokeDasharray={CIRC}
             strokeDashoffset={offset}
           />

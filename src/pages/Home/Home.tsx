@@ -319,15 +319,15 @@ export function Home() {
       <Loader onDone={() => setReady(true)} />
 
       {/* ================= Hero ================= */}
-      <section className={styles.hero} aria-label={t('app.name')} dir={dir} lang={i18n.language || 'ar'}>
+      <section className={`ds-dark ${styles.hero}`} data-dark-hero aria-label={t('app.name')} dir={dir} lang={i18n.language || 'ar'}>
         <Backdrop className={styles.heroMesh} />
         <div className={`ds-wrap ${styles.heroInner}`}>
           <div className={`ds-vx ${ready ? 'ds-in' : ''} ${styles.heroText}`}>
             <span className={`ds-eyebrow ds-vx-copy ${styles.heroEyebrow}`}>{t('app.tagline')}</span>
-            <h1 className={`ds-vx-title ${styles.heroTitle}`}>{t('home.heroTitle')}</h1>
+            <h1 className={`ds-vx-title ds-gradient-text ${styles.heroTitle}`}>{t('home.heroTitle')}</h1>
             <p className={`ds-vx-copy ${styles.heroSub}`}>{t('home.heroSubtitle')}</p>
             <div className={styles.heroCtas}>
-              <Link to="/donate" className="ds-btn ds-btn-filled ds-btn-lg">{t('home.ctaDonate')}</Link>
+              <Link to="/donate" className="ds-btn ds-btn-glow ds-btn-lg">{t('home.ctaDonate')}</Link>
               <a href="#campaigns" className="ds-btn ds-btn-plain ds-btn-lg">
                 {t('home.campaignsSectionTitle')}
                 <Chevron />
@@ -378,8 +378,9 @@ export function Home() {
         <div className="ds-wrap">
           <div
             ref={regRef}
-            className={`ds-card ds-reveal ${regInView ? 'ds-in' : ''} ${styles.reg} ${cardBgImage ? styles.regHasMedia : ''}`}
+            className={`ds-dark ds-glow-card ds-reveal ${regInView ? 'ds-in' : ''} ${styles.reg} ${cardBgImage ? styles.regHasMedia : ''}`}
           >
+            <Backdrop className={styles.regAurora} />
             <div className={styles.regText}>
               <span className={styles.regIcon} aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

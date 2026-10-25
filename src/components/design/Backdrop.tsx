@@ -2,7 +2,13 @@ interface BackdropProps {
   className?: string
 }
 
-/** A quiet colour mesh behind heroes (static, no animation loop). */
+/** Aurora: three soft brand lights drifting slowly behind a hero (still under reduced motion). */
 export function Backdrop({ className = '' }: BackdropProps) {
-  return <div className={`ds-mesh ${className}`.trim()} aria-hidden="true" />
+  return (
+    <div className={`ds-aurora ${className}`.trim()} aria-hidden="true">
+      <i />
+      <i />
+      <i />
+    </div>
+  )
 }

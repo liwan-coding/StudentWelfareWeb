@@ -3,15 +3,23 @@
    a short secondary subtitle, then a compact form card. */
 
 .page {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   min-height: 100vh;
   min-height: 100dvh;
-  background: var(--bg-2);
+  background: var(--bg-wash);
   padding-top: calc(var(--header-height) + clamp(32px, 7vh, 72px));
   padding-bottom: clamp(40px, 8vh, 88px);
 }
 
+.aurora {
+  opacity: 0.8;
+}
+
 .wrap {
   position: relative;
+  z-index: 1;
 }
 
 .auth {
