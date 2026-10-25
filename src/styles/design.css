@@ -82,9 +82,7 @@ html.theme-anim * {
   letter-spacing: -0.011em;
 }
 
-.ds-page h1,
-.ds-page h2,
-.ds-page h3 {
+:where(.ds-page) :where(h1, h2, h3) {
   margin: 0;
   font-family: var(--font-display);
   font-weight: 600;
@@ -93,7 +91,7 @@ html.theme-anim * {
   letter-spacing: -0.022em;
 }
 
-.ds-page p {
+:where(.ds-page) :where(p) {
   margin: 0;
   text-wrap: pretty;
 }
