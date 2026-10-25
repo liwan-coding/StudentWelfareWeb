@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Button } from '../../components/ui/Button'
 import { useAuth } from '../../context/AuthContext'
 import { useErrorToast } from '../../context/ErrorContext'
 import { getApiErrorMessage } from '../../services/apiClient'
@@ -11,9 +10,11 @@ import {
   AuthField,
   AuthPasswordField,
   AuthError,
+  OtpBoxes,
   UserIcon,
   PhoneIcon,
   MailIcon,
+  SmartphoneIcon,
   ArrowIcon,
 } from '../AuthShell'
 import styles from '../Auth.module.css'
@@ -127,13 +128,15 @@ export function Register() {
 
   const steps = (
     <div className={styles.steps}>
-      <span className={`${styles.step} ${step === 'form' ? styles.stepActive : ''}`}>
-        <span className={styles.stepDot}>1</span>
+      <span className={`${styles.step} ${step === 'form' ? styles.stepOn : styles.stepDone}`}>
+        <span className={styles.sd}>1</span>
         {t('auth.stepAccount')}
       </span>
-      <span className={`${styles.stepLine} ${step === 'otp' ? styles.stepLineActive : ''}`} />
-      <span className={`${styles.step} ${step === 'otp' ? styles.stepActive : ''}`}>
-        <span className={styles.stepDot}>2</span>
+      <span className={`${styles.sline} ${step === 'otp' ? styles.slineFill : ''}`}>
+        <i />
+      </span>
+      <span className={`${styles.step} ${step === 'otp' ? styles.stepOn : ''}`}>
+        <span className={styles.sd}>2</span>
         {t('auth.stepVerify')}
       </span>
     </div>
@@ -141,51 +144,28 @@ export function Register() {
 
   if (step === 'otp') {
     return (
-      <AuthShell title={t('auth.otpVerify')} subtitle={t('auth.otpSubtitle')}>
-        {steps}
-        <p className={styles.otpSent}>{t('auth.otpSent', { phone: maskedPhone || phoneForResend })}</p>
+      <AuthShell title={t('auth.otpVerify')} subtitle={t('auth.otpSubtitle')} top={steps}>
+        <p className={styles.otpSent}>
+          <SmartphoneIcon />
+          <span>{t('auth.otpSent', { phone: maskedPhone || phoneForResend })}</span>
+        </p>
         <AuthError message={otpError} />
         <form className={styles.form} onSubmit={handleVerifyOtp}>
-          <AuthField
-            name="otp"
-            type="text"
-            inputMode="numeric"
-            autoComplete="one-time-code"
+          <OtpBoxes
             label={t('auth.otpVerify')}
             value={otpCode}
-            onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-            placeholder="000000"
+            onChange={(code) => setOtpCode(code.replace(/\D/g, '').slice(0, 6))}
             disabled={loading}
-            maxLength={6}
-            className={styles.otpInput}
           />
-          <Button type="submit" fullWidth size="lg" disabled={loading || !otpCode.trim()} className={styles.submitBtn}>
+          <button type="submit" disabled={loading || !otpCode.trim()} className={`ds-btn ds-btn-ink ${styles.submit}`}>
             {loading ? t('common.loading') : t('auth.verifyCode')}
             {!loading && <ArrowIcon />}
-          </Button>
-        </form>
-        <p className={styles.resendRow}>
-          <button
-            type="button"
-            className={styles.resendBtn}
-            onClick={handleResendOtp}
-            disabled={loading || resendCooldown > 0}
-          >
-            {resendCooldown > 0 ? `${t('auth.resendOtp')} (${resendCooldown}s)` : t('auth.resendOtp')}
           </button>
-        </p>
-        {isDev && (
-          <p className={styles.devOtpRow}>
-            <button type="button" className={styles.devOtpBtn} onClick={handleGetDevOtp} disabled={loading}>
-              {t('auth.devOtp')}
-            </button>
-            {devOtp !== null && devOtp !== '' && <span className={styles.devOtpCode}>{devOtp}</span>}
-          </p>
-        )}
-        <p className={styles.backRow}>
+        </form>
+        <div className={styles.linksRow}>
           <button
             type="button"
-            className={styles.backLink}
+            className={`${styles.lnk} ${styles.back}`}
             onClick={() => {
               setStep('form')
               setVerifyId(null)
@@ -194,14 +174,29 @@ export function Register() {
           >
             {t('common.back')}
           </button>
-        </p>
+          <button
+            type="button"
+            className={styles.lnk}
+            onClick={handleResendOtp}
+            disabled={loading || resendCooldown > 0}
+          >
+            {resendCooldown > 0 ? `${t('auth.resendOtp')} (${resendCooldown}s)` : t('auth.resendOtp')}
+          </button>
+        </div>
+        {isDev && (
+          <div className={styles.devRow}>
+            <button type="button" className={styles.devBtn} onClick={handleGetDevOtp} disabled={loading}>
+              {t('auth.devOtp')}
+            </button>
+            {devOtp !== null && devOtp !== '' && <span className={styles.devCode}>{devOtp}</span>}
+          </div>
+        )}
       </AuthShell>
     )
   }
 
   return (
-    <AuthShell title={t('auth.register')} subtitle={t('auth.registerSubtitle')}>
-      {steps}
+    <AuthShell title={t('auth.register')} subtitle={t('auth.registerSubtitle')} top={steps}>
       <AuthError message={error} />
       <form className={styles.form} onSubmit={handleSubmitForm}>
         <AuthField
@@ -223,7 +218,6 @@ export function Register() {
           icon={<PhoneIcon />}
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          placeholder={t('auth.phonePlaceholder')}
           disabled={loading}
         />
         <AuthField
@@ -253,12 +247,12 @@ export function Register() {
           onChange={(e) => setPasswordConfirm(e.target.value)}
           disabled={loading}
         />
-        <Button type="submit" fullWidth size="lg" disabled={loading} className={styles.submitBtn}>
+        <button type="submit" disabled={loading} className={`ds-btn ds-btn-ink ${styles.submit}`}>
           {loading ? t('common.loading') : t('auth.submitRegister')}
           {!loading && <ArrowIcon />}
-        </Button>
+        </button>
       </form>
-      <p className={styles.footer}>
+      <p className={styles.foot}>
         {t('auth.hasAccount')} <Link to="/login">{t('auth.login')}</Link>
       </p>
     </AuthShell>

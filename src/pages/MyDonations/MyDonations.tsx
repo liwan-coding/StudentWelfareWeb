@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PageLayout } from '../../components/layout/PageLayout'
-import { Container } from '../../components/ui/Container'
-import { Card, CardContent } from '../../components/ui/Card'
-import { Button } from '../../components/ui/Button'
+import { SilkCanvas } from '../../components/design/SilkCanvas'
+import { FxDot } from '../../components/design/FxDot'
+import { useAuth } from '../../context/AuthContext'
 import { donationService } from '../../services/donationService'
 import { campaignService } from '../../services/campaignService'
 import type { CampaignOrProgram, RecentDonation } from '../../types/api'
@@ -112,101 +112,156 @@ export function MyDonations() {
     }
   })
 
-  return (
-    <PageLayout>
-      <header className={styles.pageHeader}>
-        <Container size="content">
-          <h1 className={styles.title}>{t('myDonations.title')}</h1>
-          <p className={styles.subtitle}>{t('myDonations.subtitle')}</p>
-        </Container>
-      </header>
 
-      <Container size="content" className={styles.container}>
+  // ===== presentation only below: data, totals and rows above are unchanged =====
+  const { user } = useAuth()
+  const initial = ((user?.name || user?.phone || t('myDonations.title')) as string).trim().charAt(0)
+
+  return (
+    <PageLayout design>
+      <div className={styles.page}>
+        <div className={styles.accHero}>
+          <SilkCanvas className={styles.accCanvas} />
+          <div className={styles.accTop}>
+            <span className={styles.avatar} aria-hidden="true">{initial}</span>
+            <div>
+              <h1>{t('myDonations.title')}</h1>
+              <p>{t('myDonations.subtitle')}</p>
+            </div>
+          </div>
+          <div className={styles.accInfo}>
+            <span className={styles.chip}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+              <b>{t('auth.name')}</b> {user?.name ?? '—'}
+            </span>
+            <span className={styles.chip}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="3" /><path d="M11 18h2" /></svg>
+              <b>{t('auth.phone')}</b> <span dir="ltr">{user?.phone ?? '—'}</span>
+            </span>
+            <span className={styles.chip}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
+              <b>{t('auth.email')}</b> {user?.email ?? '—'}
+            </span>
+          </div>
+        </div>
+
         {loading ? (
-          <div className={styles.loadingWrap}>
-            <div className={styles.skeletonSummary} />
-            <div className={styles.skeletonTable} />
+          <div className={styles.loadingWrap} aria-busy="true">
+            <div className={styles.sum}>
+              <div className={`ds-card ${styles.skeleton}`} />
+              <div className={`ds-card ${styles.skeleton}`} />
+            </div>
+            <div className={`ds-card ${styles.skeleton} ${styles.skeletonList}`} />
+            <span className={styles.srOnly}>{t('common.loading')}</span>
           </div>
         ) : list.length === 0 ? (
-          <div className={styles.empty}>
-            <div className={styles.emptyIcon} aria-hidden>
-              <span className={styles.emptyHeart}>♥</span>
+          <div className={`ds-card ${styles.empty}`}>
+            <div className={styles.emptyIcon} aria-hidden="true">
+              <HeartIcon />
             </div>
-            <h2 className={styles.emptyTitle}>{t('myDonations.emptyTitle')}</h2>
-            <p className={styles.emptyDescription}>{t('myDonations.emptyDescription')}</p>
-            <Link to="/campaigns" className={styles.emptyCtaLink}>
-              <Button size="lg" fullWidth className={styles.emptyCta}>
-                {t('myDonations.ctaDonate')}
-              </Button>
+            <h2>{t('myDonations.emptyTitle')}</h2>
+            <p>{t('myDonations.emptyDescription')}</p>
+            <Link to="/campaigns" className={`ds-btn ds-btn-ink ${styles.emptyCta}`}>
+              {t('myDonations.ctaDonate')}
             </Link>
+            <FxDot index={1} />
           </div>
         ) : (
           <>
-            <section className={styles.summarySection} aria-labelledby="my-donations-summary">
-              <div className={styles.summaryGrid}>
-                <Card padding="none" className={styles.summaryCard}>
-                  <CardContent className={styles.summaryContent}>
-                    <span className={styles.summaryLabel} id="my-donations-summary">
-                      {t('myDonations.totalDonated')}
-                    </span>
-                    <span className={styles.summaryAmount}>
-                      {formatAmount(total)} <span className={styles.currency}>{t('donate.currencyShort')}</span>
-                    </span>
-                  </CardContent>
-                </Card>
-                <Card padding="none" className={styles.summaryCard}>
-                  <CardContent className={styles.summaryContent}>
-                    <span className={styles.summaryLabel}>{t('myDonations.donationCount')}</span>
-                    <span className={styles.summaryCount}>{list.length}</span>
-                  </CardContent>
-                </Card>
+            <section className={styles.sum} aria-labelledby="my-donations-summary">
+              <div className="ds-card">
+                <div className={styles.sumCard}>
+                  <span className={`${styles.si} ${styles.siPlum}`} aria-hidden="true"><HeartIcon /></span>
+                  <div>
+                    <div className={styles.lbl} id="my-donations-summary">{t('myDonations.totalDonated')}</div>
+                    <div className={styles.val}>
+                      <CountUp value={total} format={formatAmount} />
+                      <small>{t('donate.currencyShort')}</small>
+                    </div>
+                  </div>
+                </div>
+                <FxDot index={0} />
+              </div>
+              <div className="ds-card">
+                <div className={styles.sumCard}>
+                  <span className={`${styles.si} ${styles.siTeal}`} aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      <g className={styles.bars} fill="#FFFFFF">
+                        <rect x="4" y="10" width="4" height="10" rx="1.5" style={{ '--d': '0s' } as CSSProperties} />
+                        <rect x="10" y="6" width="4" height="14" rx="1.5" style={{ '--d': '.3s' } as CSSProperties} />
+                        <rect x="16" y="3" width="4" height="17" rx="1.5" style={{ '--d': '.6s' } as CSSProperties} />
+                      </g>
+                    </svg>
+                  </span>
+                  <div>
+                    <div className={styles.lbl}>{t('myDonations.donationCount')}</div>
+                    <div className={styles.val}><CountUp value={list.length} /></div>
+                  </div>
+                </div>
+                <FxDot index={1} />
               </div>
             </section>
 
-            <section className={styles.listSection} aria-labelledby="donations-list-title">
-              <h2 id="donations-list-title" className={styles.listSectionTitle}>
-                {t('myDonations.donationsListTitle')}
-              </h2>
-              <div className={styles.tableWrap}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th scope="col">{t('myDonations.campaign')}</th>
-                      <th scope="col">{t('myDonations.donationDate')}</th>
-                      <th scope="col" className={styles.amountCol}>{t('myDonations.amount')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rows.map((row) => (
-                      <tr key={row.key}>
-                        <td className={styles.campaignCell}>{row.title}</td>
-                        <td>{row.date}</td>
-                        <td className={styles.amountCell}>
-                          {row.amount} {t('donate.currencyShort')}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            <section aria-labelledby="donations-list-title">
+              <div className={styles.listHead}>
+                <h2 id="donations-list-title">{t('myDonations.donationsListTitle')}</h2>
               </div>
-
-              <ul className={styles.cardList}>
-                {rows.map((row) => (
-                  <li key={row.key} className={styles.donationCard}>
-                    <p className={styles.donationCardTitle}>{row.title}</p>
-                    <div className={styles.donationCardMeta}>
-                      <span className={styles.donationCardDate}>{row.date}</span>
-                      <span className={styles.donationCardAmount}>
-                        {row.amount} {t('donate.currencyShort')}
-                      </span>
-                    </div>
+              <ul className={styles.dlist}>
+                {rows.map((row, i) => (
+                  <li key={row.key} className={`ds-card ${styles.drow}`} style={{ '--i': i } as CSSProperties}>
+                    <span className={styles.dic} aria-hidden="true"><HeartIcon /></span>
+                    <span className={styles.dt}>
+                      <span className={styles.srOnly}>{t('myDonations.campaign')}: </span>
+                      {row.title}
+                    </span>
+                    <span className={styles.dd}>
+                      <span className={styles.srOnly}>{t('myDonations.donationDate')}: </span>
+                      {row.date}
+                    </span>
+                    <span className={styles.da}>
+                      <span className={styles.srOnly}>{t('myDonations.amount')}: </span>
+                      {row.amount} {t('donate.currencyShort')}
+                    </span>
                   </li>
                 ))}
               </ul>
             </section>
           </>
         )}
-      </Container>
+      </div>
     </PageLayout>
   )
+}
+
+function HeartIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20.8 8.6a5.5 5.5 0 0 0-7.8 0L12 9.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" />
+    </svg>
+  )
+}
+
+function formatCount(n: number): string {
+  return String(Math.round(n))
+}
+
+/** Totals count up from 0 when they appear. */
+function CountUp({ value, format = formatCount }: { value: number; format?: (n: number) => string }) {
+  const ref = useRef<HTMLSpanElement>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    let raf = 0
+    const t0 = performance.now()
+    const dur = 1400
+    const step = (now: number) => {
+      const k = Math.min(1, (now - t0) / dur)
+      const v = value * (1 - Math.pow(1 - k, 3))
+      el.textContent = k < 1 ? format(Number.isInteger(value) ? Math.round(v) : v) : format(value)
+      if (k < 1) raf = requestAnimationFrame(step)
+    }
+    raf = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(raf)
+  }, [value, format])
+  return <span ref={ref}>{format(0)}</span>
 }

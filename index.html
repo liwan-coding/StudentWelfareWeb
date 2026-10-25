@@ -21,6 +21,10 @@
         el.setAttribute('lang', locale.startsWith('ar') ? 'ar' : 'en');
         el.classList.remove('dir-ltr', 'dir-rtl');
         el.classList.add(dir === 'rtl' ? 'dir-rtl' : 'dir-ltr');
+        // Dark / light theme chosen from the header toggle (applied before first paint)
+        try {
+          if (localStorage.getItem('swf_theme') === 'dark') el.setAttribute('data-theme', 'dark');
+        } catch (e) {}
       })();
     </script>
     <script type="module" src="/src/main.tsx"></script>

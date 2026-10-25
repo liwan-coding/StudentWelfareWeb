@@ -1,59 +1,42 @@
-import { useState, type InputHTMLAttributes, type ReactNode } from 'react'
+import { useRef, useState, type InputHTMLAttributes, type ReactNode, type ClipboardEvent, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageLayout } from '../components/layout/PageLayout'
+import { SilkCanvas } from '../components/design/SilkCanvas'
+import { LOGO_SRC, LOGO_WIDTH, LOGO_HEIGHT } from '../components/design/logo'
 import styles from './Auth.module.css'
 
 interface AuthShellProps {
   title: string
   subtitle: string
+  /** shown between the logo and the title (e.g. register steps) */
+  top?: ReactNode
   children: ReactNode
 }
 
-export function AuthShell({ title, subtitle, children }: AuthShellProps) {
+/** Auth pages from design-reference/account-pages.html: silk fills the screen behind a small glass box. */
+export function AuthShell({ title, subtitle, top, children }: AuthShellProps) {
   const { t } = useTranslation('common')
 
   return (
-    <PageLayout noPadding>
+    <PageLayout noPadding design>
       <section className={styles.page} aria-labelledby="auth-title">
-        <div className={styles.brandPanel}>
-          <div className={styles.brandGlow} />
-          <div className={styles.brandShapes} />
-          <div className={styles.brandInner}>
-            <p className={styles.brandEyebrow}>{t('app.name')}</p>
-            <h2 className={styles.brandTitle}>{t('auth.welcomeTitle')}</h2>
-            <p className={styles.brandBody}>{t('auth.welcomeBody')}</p>
-            <ul className={styles.brandFeatures}>
-              <li>
-                <span className={styles.brandFeatureIcon} aria-hidden>
-                  <ShieldIcon />
-                </span>
-                {t('auth.feature1')}
-              </li>
-              <li>
-                <span className={styles.brandFeatureIcon} aria-hidden>
-                  <HeartIcon />
-                </span>
-                {t('auth.feature2')}
-              </li>
-              <li>
-                <span className={styles.brandFeatureIcon} aria-hidden>
-                  <UsersIcon />
-                </span>
-                {t('auth.feature3')}
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className={styles.formPanel}>
-          <div className={styles.formCard}>
-            <header className={styles.formHeader}>
-              <h1 id="auth-title" className={styles.title}>
-                {title}
-              </h1>
-              <p className={styles.subtitle}>{subtitle}</p>
-            </header>
-            {children}
+        <SilkCanvas className={styles.silk} />
+        <span className={styles.vignette} aria-hidden="true" />
+        <div className={`ds-wrap ${styles.wrap}`}>
+          <div className={styles.auth}>
+            <div className={styles.formside}>
+              <div className={styles.boxLogo}>
+                <img src={LOGO_SRC} alt={t('app.name')} width={LOGO_WIDTH} height={LOGO_HEIGHT} />
+              </div>
+              {top}
+              <div className={styles.revealIn} key={title}>
+                <header className={styles.head}>
+                  <h1 id="auth-title">{title}</h1>
+                  <p className={styles.sub}>{subtitle}</p>
+                </header>
+                {children}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -72,21 +55,17 @@ export function AuthField({ label, icon, hint, className = '', id, ...inputProps
 
   return (
     <div className={styles.field}>
-      <label className={styles.label} htmlFor={inputId}>
+      <label htmlFor={inputId}>
         {label}
-        {hint ? <span className={styles.optional}> {hint}</span> : null}
+        {hint ? <span className={styles.opt}> {hint}</span> : null}
       </label>
-      <div className={styles.control}>
+      <div className={styles.ctl}>
+        <input id={inputId} className={`${icon ? '' : styles.noIcon} ${className}`.trim() || undefined} {...inputProps} />
         {icon ? (
-          <span className={styles.controlIcon} aria-hidden>
+          <span className={styles.ic} aria-hidden>
             {icon}
           </span>
         ) : null}
-        <input
-          id={inputId}
-          className={`${styles.input} ${icon ? styles.inputWithIcon : ''} ${className}`.trim()}
-          {...inputProps}
-        />
       </div>
     </div>
   )
@@ -103,22 +82,15 @@ export function AuthPasswordField({ label, id, ...inputProps }: AuthPasswordFiel
 
   return (
     <div className={styles.field}>
-      <label className={styles.label} htmlFor={inputId}>
-        {label}
-      </label>
-      <div className={styles.control}>
-        <span className={styles.controlIcon} aria-hidden>
+      <label htmlFor={inputId}>{label}</label>
+      <div className={`${styles.ctl} ${styles.pw}`}>
+        <input id={inputId} type={visible ? 'text' : 'password'} {...inputProps} />
+        <span className={styles.ic} aria-hidden>
           <LockIcon />
         </span>
-        <input
-          id={inputId}
-          type={visible ? 'text' : 'password'}
-          className={`${styles.input} ${styles.inputWithIcon} ${styles.inputWithToggle}`}
-          {...inputProps}
-        />
         <button
           type="button"
-          className={styles.eyeBtn}
+          className={styles.eye}
           onClick={() => setVisible((v) => !v)}
           aria-label={visible ? t('auth.hidePassword') : t('auth.showPassword')}
         >
@@ -129,14 +101,94 @@ export function AuthPasswordField({ label, id, ...inputProps }: AuthPasswordFiel
   )
 }
 
+/** Six boxes for the verification code; reads and writes the same code string as before. */
+export function OtpBoxes({ label, value, onChange, disabled }: {
+  label: string
+  value: string
+  onChange: (code: string) => void
+  disabled?: boolean
+}) {
+  const refs = useRef<(HTMLInputElement | null)[]>([])
+  const focusBox = (i: number) => refs.current[Math.max(0, Math.min(5, i))]?.focus()
+  // The boxes themselves hold the newest digits (they update before React re-renders,
+  // which matters when digits are typed quickly), so the code is always read from them.
+  const boxes = () => refs.current.slice(0, 6)
+  const readCode = () => boxes().map((el) => (el?.value ?? '').replace(/\D/g, '')).join('').slice(0, 6)
+  const firstEmpty = () => {
+    const idx = boxes().findIndex((el) => !el?.value)
+    return idx === -1 ? 6 : idx
+  }
+
+  function onKeyDown(i: number, e: KeyboardEvent<HTMLInputElement>) {
+    const prev = refs.current[i - 1]
+    if (e.key === 'Backspace' && !e.currentTarget.value && i > 0 && prev) {
+      e.preventDefault()
+      prev.value = ''
+      onChange(readCode())
+      focusBox(i - 1)
+    }
+  }
+
+  function onPaste(e: ClipboardEvent<HTMLInputElement>) {
+    const digits = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6)
+    if (!digits) return
+    e.preventDefault()
+    boxes().forEach((el, k) => {
+      if (el) el.value = digits[k] ?? ''
+    })
+    onChange(digits)
+    focusBox(digits.length)
+  }
+
+  return (
+    <div className={styles.field} role="group" aria-label={label}>
+      <span className={styles.groupLabel}>{label}</span>
+      <div className={styles.otp}>
+        {Array.from({ length: 6 }, (_, i) => (
+          <input
+            key={i}
+            ref={(el) => { refs.current[i] = el }}
+            inputMode="numeric"
+            autoComplete={i === 0 ? 'one-time-code' : 'off'}
+            aria-label={String(i + 1)}
+            value={value[i] ?? ''}
+            disabled={disabled}
+            className={value[i] ? styles.filled : undefined}
+            onFocus={() => {
+              const empty = firstEmpty()
+              if (i > empty) focusBox(empty)
+            }}
+            onChange={(e) => {
+              const typed = e.target.value.replace(/\D/g, '')
+              // one new digit replaces the box; several (SMS autofill, fast input) spread forward
+              const digits = typed.length === 2 && value[i] ? typed.slice(-1) : typed
+              const els = boxes()
+              if (digits.length <= 1) {
+                e.target.value = digits
+              } else {
+                digits.split('').forEach((d, k) => {
+                  const el = els[i + k]
+                  if (el) el.value = d
+                })
+              }
+              onChange(readCode())
+              if (digits) focusBox(Math.min(5, i + digits.length))
+            }}
+            onKeyDown={(e) => onKeyDown(i, e)}
+            onPaste={onPaste}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function AuthError({ message }: { message: string | null }) {
   if (!message) return null
   return (
-    <p className={styles.error} role="alert">
-      <span className={styles.errorIcon} aria-hidden>
-        <AlertIcon />
-      </span>
-      {message}
+    <p className={styles.error} role="alert" key={message}>
+      <AlertIcon />
+      <span>{message}</span>
     </p>
   )
 }
@@ -167,6 +219,15 @@ export function MailIcon() {
   )
 }
 
+export function SmartphoneIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="5" y="2" width="14" height="20" rx="3" />
+      <path d="M11 18h2" />
+    </svg>
+  )
+}
+
 function LockIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -178,7 +239,7 @@ function LockIcon() {
 
 function EyeIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
       <circle cx="12" cy="12" r="3" />
     </svg>
@@ -187,7 +248,7 @@ function EyeIcon() {
 
 function EyeOffIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-6.5 0-10-7-10-7a18.45 18.45 0 0 1 5.06-5.94" />
       <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c6.5 0 10 7 10 7a18.5 18.5 0 0 1-2.16 3.19" />
       <path d="m1 1 22 22" />
@@ -198,7 +259,7 @@ function EyeOffIcon() {
 
 function AlertIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <circle cx="12" cy="12" r="10" />
       <path d="M12 8v4" />
       <path d="M12 16h.01" />
@@ -206,39 +267,11 @@ function AlertIcon() {
   )
 }
 
-function ShieldIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 3 4 7v6c0 5 3.4 8.4 8 9 4.6-.6 8-4 8-9V7l-8-4Z" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
-  )
-}
-
-function HeartIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20.8 8.6a5.5 5.5 0 0 0-7.8 0L12 9.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" />
-    </svg>
-  )
-}
-
-function UsersIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
-  )
-}
-
+/** Arrow pointing in the reading direction (left in Arabic, flipped in English via .ds-arrow). */
 export function ArrowIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M5 12h14" />
-      <path d="m13 6 6 6-6 6" />
+    <svg className="ds-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M19 12H5M11 18l-6-6 6-6" />
     </svg>
   )
 }
