@@ -77,7 +77,9 @@
     "trustTitle": "Why you can give with confidence",
     "trustMore": "More about the fund",
     "featuredLabel": "Featured initiative",
-    "applyTileBody": "Students: register in three steps and follow your request here."
+    "applyTileBody": "Students: register in three steps and follow your request here.",
+    "programsCount_one": "{{count}} ongoing support track",
+    "programsCount_other": "{{count}} ongoing support tracks"
   },
   "campaigns": {
     "title": "Initiatives",

@@ -77,7 +77,13 @@
     "trustTitle": "لماذا تتبرع بثقة",
     "trustMore": "المزيد عن الصندوق",
     "featuredLabel": "مبادرة مميّزة",
-    "applyTileBody": "للطلبة: سجّل في ثلاث خطوات وتابع طلبك من هنا."
+    "applyTileBody": "للطلبة: سجّل في ثلاث خطوات وتابع طلبك من هنا.",
+    "programsCount_zero": "لا توجد برامج حاليًا",
+    "programsCount_one": "برنامج دعم واحد",
+    "programsCount_two": "برنامجا دعم",
+    "programsCount_few": "{{count}} برامج دعم مستمرة",
+    "programsCount_many": "{{count}} برنامجًا للدعم",
+    "programsCount_other": "{{count}} برنامج دعم"
   },
   "campaigns": {
     "title": "المبادرات",

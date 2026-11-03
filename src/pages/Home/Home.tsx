@@ -280,16 +280,31 @@ export function Home() {
             <span className={styles.tGo} aria-hidden="true"><ArrowIcon /></span>
           </Link>
 
-          <a href="#programs" className={`${styles.tile} ${styles.tPrograms}`}>
-            <span className={styles.tRow}>
-              <b className={`ds-num ${styles.bigNum}`}>{statsReady ? programs.length : '—'}</b>
-              <span className={styles.tLabel}>{t('home.statPrograms')}</span>
-            </span>
-            <span className={styles.chips}>
-              {programs.map((p) => <span key={p.id}>{getTitle(p)}</span>)}
-            </span>
-            <span className={styles.tGo} aria-hidden="true"><ArrowIcon /></span>
-          </a>
+          <div className={`${styles.tile} ${styles.tPrograms}`}>
+            <div className={styles.pHead}>
+              <div>
+                <h2 className={styles.pTitle}>{t('home.programsTitle')}</h2>
+                <p className={styles.pSub}>
+                  {statsReady ? t('home.programsCount', { count: programs.length }) : t('common.loading')}
+                </p>
+              </div>
+              <a href="#programs" className={styles.pAll}>
+                {t('home.viewAll')}
+                <ArrowIcon />
+              </a>
+            </div>
+            <ul className={styles.pGrid}>
+              {programs.map((p, i) => (
+                <li key={p.id}>
+                  <Link to={`/donate?program_id=${p.id}`} className={styles.pItem}>
+                    <span className={`ds-num ${styles.pNo}`} aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                    <span className={styles.pName}>{getTitle(p)}</span>
+                    <span className={styles.pGo} aria-hidden="true"><ArrowIcon /></span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
 
