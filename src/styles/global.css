@@ -1,6 +1,41 @@
 /* Global reset & base – RTL-aware, responsive */
 @import './variables.css';
 
+/* LANTX, self-hosted in public/fonts/lantx (Arabic script only; Latin uses Readex Pro) */
+@font-face {
+  font-family: 'LANTX';
+  src: url('/fonts/lantx/LANTX-Light.otf') format('opentype');
+  size-adjust: 112%;
+  /* Arabic script only: Latin letters, digits, spaces and punctuation come from Readex Pro */
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+200C-200F;
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'LANTX';
+  src: url('/fonts/lantx/LANTX-Regular.otf') format('opentype');
+  size-adjust: 112%;
+  /* Arabic script only: Latin letters, digits, spaces and punctuation come from Readex Pro */
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+200C-200F;
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'LANTX';
+  src: url('/fonts/lantx/LANTX-Bold.otf') format('opentype');
+  size-adjust: 112%;
+  /* Arabic script only: Latin letters, digits, spaces and punctuation come from Readex Pro */
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+200C-200F;
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+
 *,
 *::before,
 *::after {
