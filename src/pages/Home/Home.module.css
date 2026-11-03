@@ -702,12 +702,36 @@
 }
 
 @media (max-width: 640px) {
+  /* campaigns: a swipeable row that bleeds to the screen edges, one card at a time */
   .campaignGrid {
-    grid-template-columns: 1fr;
+    display: flex;
+    gap: 12px;
+    margin-inline: -20px;
+    padding-inline: 20px;
+    padding-bottom: 4px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 20px;
+    scrollbar-width: none;
+  }
+
+  .campaignGrid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .campaignGrid > * {
+    flex: 0 0 84%;
+    scroll-snap-align: start;
   }
 
   .campaignGrid > :nth-child(4) {
     display: block;
+  }
+
+  .skeleton,
+  .skeletonFeature {
+    min-height: 420px;
   }
 
   /* the pen line runs down the start edge */

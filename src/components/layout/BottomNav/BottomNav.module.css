@@ -1,0 +1,239 @@
+/* App tab bar (phones and tablets) and the "More" bottom sheet.
+   Hidden from 1000px up, where the header carries the full navigation. */
+:global(:root) {
+  --tabbar-h: 64px;
+}
+
+.spacer {
+  height: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+}
+
+.bar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 60;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  height: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--material-thick);
+  -webkit-backdrop-filter: var(--material-blur);
+  backdrop-filter: var(--material-blur);
+  box-shadow: inset 0 1px 0 var(--separator);
+}
+
+.tab,
+.tab:hover {
+  color: var(--label-3);
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+  padding: 6px 2px 4px;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.2;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--transition-fast);
+}
+
+.tab span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab svg {
+  width: 24px;
+  height: 24px;
+  transition: transform 0.2s var(--ease-spring);
+}
+
+.tab:active svg {
+  transform: scale(0.88);
+}
+
+.tab.active {
+  color: var(--teal-ink);
+}
+
+/* the active tab carries a short teal step above its icon */
+.tab.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 28px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: currentColor;
+}
+
+.tab:focus-visible {
+  outline: 3px solid var(--teal);
+  outline-offset: -3px;
+  border-radius: var(--radius-md);
+}
+
+/* ---------- the "More" sheet ---------- */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgba(15, 26, 32, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s var(--ease-out), visibility 0.25s;
+}
+
+.backdropOn {
+  opacity: 1;
+  visibility: visible;
+}
+
+.sheet {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 71;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 8px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  background: var(--bg-2);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  box-shadow: var(--shadow-3);
+  transform: translateY(105%);
+  visibility: hidden;
+  transition: transform 0.35s var(--ease-spring), visibility 0.35s;
+}
+
+.sheetOn {
+  transform: none;
+  visibility: visible;
+  /* visible at once on open, so focus can move into the sheet */
+  transition: transform 0.35s var(--ease-spring), visibility 0s;
+}
+
+.grabber {
+  display: block;
+  width: 40px;
+  height: 5px;
+  margin: 4px auto 14px;
+  border-radius: 3px;
+  background: var(--fill-1);
+}
+
+.sheetList {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  background: var(--bg-3);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.sheetList li + li {
+  border-top: 1px solid var(--separator);
+}
+
+.sheetRow,
+.sheetRow:hover {
+  color: var(--label);
+}
+
+.sheetRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 54px;
+  padding: 12px 18px;
+  font-family: var(--font-display);
+  font-size: var(--type-callout);
+  font-weight: 500;
+  text-align: start;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sheetRow:active {
+  background: var(--fill-4);
+}
+
+.sheetRow[aria-current='page'] {
+  color: var(--teal-ink);
+}
+
+.sheetRow svg {
+  width: 18px;
+  height: 18px;
+  color: var(--label-4);
+}
+
+.value {
+  font-size: var(--type-subhead);
+  color: var(--label-3);
+}
+
+.danger,
+.danger:hover {
+  color: var(--sys-red-ink);
+}
+
+/* appearance switch */
+.switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 46px;
+  height: 28px;
+  border-radius: 14px;
+  background: var(--fill-1);
+  transition: background-color var(--transition-fast);
+}
+
+.switch i {
+  position: absolute;
+  top: 3px;
+  inset-inline-start: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s var(--ease-spring);
+}
+
+.switchOn {
+  background: #0B5E7A;
+}
+
+.switchOn i {
+  transform: translateX(18px);
+}
+
+:global(html[dir='rtl']) .switchOn i {
+  transform: translateX(-18px);
+}
+
+@media (min-width: 1000px) {
+  .spacer,
+  .bar,
+  .backdrop,
+  .sheet {
+    display: none;
+  }
+}

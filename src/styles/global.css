@@ -10,6 +10,7 @@
 html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
   overflow-x: hidden;
 }
 
@@ -162,4 +163,16 @@ button {
 
 .skip-link:focus {
   top: var(--space-4);
+}
+
+/* touch screens: a small press-down instead of the grey tap flash */
+@media (hover: none) {
+  a.ds-card:active,
+  .ds-card:has(a:active) {
+    transform: scale(0.985);
+  }
+
+  .ds-btn:active {
+    transform: scale(0.97);
+  }
 }

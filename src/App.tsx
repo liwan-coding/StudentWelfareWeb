@@ -6,6 +6,7 @@ import { AuthProvider } from './context/AuthContext'
 import { ErrorProvider } from './context/ErrorContext'
 import { AuthRedirectEffect } from './components/AuthRedirectEffect'
 import { ScrollToTop } from './components/ScrollToTop'
+import { BottomNav } from './components/layout/BottomNav/BottomNav'
 import { AuthCheckedGate } from './components/AuthCheckedGate'
 import { AppToast } from './components/AppToast'
 import { ProtectedRoute } from './components/ProtectedRoute'
@@ -55,6 +56,7 @@ function App() {
               <Route path="/my-donations" element={<ProtectedRoute><MyDonations /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <BottomNav />
           </AuthCheckedGate>
         </ErrorProvider>
       </AuthProvider>

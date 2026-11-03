@@ -184,3 +184,44 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* phones and tablets: the tab bar already lists every page, so the footer
+   keeps the closing line, the brand, contacts and the legal line */
+@media (max-width: 999px) {
+  .in {
+    padding-block: 44px 20px;
+  }
+
+  .closing {
+    padding-bottom: 32px;
+  }
+
+  .closingLine {
+    font-size: var(--type-title-1);
+  }
+
+  .directory nav.col {
+    display: none;
+  }
+
+  .directory {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding-block: 28px;
+  }
+
+  .brand {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .logo img {
+    height: 36px;
+  }
+
+  .col ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+  }
+}

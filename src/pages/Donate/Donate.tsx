@@ -491,6 +491,13 @@ export function Donate() {
                 )}
 
                 <div className={styles.payBar}>
+                  {/* the chosen amount, shown beside Pay when the bar docks to the bottom on small screens */}
+                  <p className={styles.payTotal} aria-live="polite">
+                    <span>{t('donate.amount')}</span>
+                    <b className="ds-num">
+                      {Number.isFinite(typedAmount) && typedAmount > 0 ? formatAmount(typedAmount) : '—'} <small>{currency}</small>
+                    </b>
+                  </p>
                   <button type="submit" className={`ds-btn ds-btn-filled ds-btn-lg ds-btn-block ${styles.pay}`} disabled={submitting} aria-busy={submitting}>
                     {submitting ? (
                       <span className={`${styles.spinner} ${styles.spinnerOnTint}`} aria-hidden="true" />

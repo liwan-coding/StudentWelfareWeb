@@ -78,7 +78,8 @@
 
 .summary,
 .checkout {
-  animation: rise 0.7s var(--ease-spring) both;
+  /* backwards, not both: a finished transform animation would trap the docked pay bar inside the card */
+  animation: rise 0.7s var(--ease-spring) backwards;
 }
 
 .checkoutCol .checkout {
@@ -670,4 +671,67 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* ---------- pay bar: docked to the bottom on phones and tablets ---------- */
+.payTotal {
+  display: none;
+}
+
+@media (max-width: 999px) {
+  /* keep the last field clear of the docked bar */
+  .main {
+    padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .media {
+    aspect-ratio: 16 / 9;
+    max-height: 240px;
+  }
+
+  .payBar {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 60;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 6px 16px;
+    padding: 12px max(16px, env(safe-area-inset-left, 0px)) calc(10px + env(safe-area-inset-bottom, 0px));
+    background: var(--material-thick);
+    -webkit-backdrop-filter: var(--material-blur);
+    backdrop-filter: var(--material-blur);
+    box-shadow: inset 0 1px 0 var(--separator), 0 -8px 24px -16px rgba(15, 26, 32, 0.3);
+  }
+
+  .payTotal {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    line-height: 1.25;
+  }
+
+  .payTotal span {
+    font-size: var(--type-caption);
+    color: var(--label-3);
+  }
+
+  .payTotal b {
+    font-size: var(--type-title-3);
+    font-weight: 600;
+    color: var(--label);
+    white-space: nowrap;
+  }
+
+  .payTotal small {
+    font-size: var(--type-footnote);
+    font-weight: 500;
+    color: var(--label-2);
+  }
+
+  .payBar .secure {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-size: var(--type-caption);
+  }
 }

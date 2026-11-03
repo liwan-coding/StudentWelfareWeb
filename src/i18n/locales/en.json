@@ -19,7 +19,11 @@
     "logout": "Logout",
     "main": "Main navigation",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "more": "More",
+    "apply": "Apply",
+    "account": "Account",
+    "signInShort": "Sign in"
   },
   "home": {
     "heroTitle": "Student Welfare Fund",
