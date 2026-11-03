@@ -643,3 +643,39 @@ html[data-theme='dark'] .ds-feat-badge {
     transform: none;
   }
 }
+
+/* ---------- page glow: soft light in the brand colours at the top of every page ----------
+   Teal from the start corner, magenta from the end corner, fading to the page colour.
+   Sits under all content; sections with their own surface simply cover it. */
+.ds-page {
+  position: relative;
+  isolation: isolate;
+}
+
+.ds-page::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  z-index: -1;
+  height: clamp(560px, 95vh, 980px);
+  pointer-events: none;
+  background:
+    radial-gradient(38% 52% at 14% 6%, rgba(42, 155, 192, 0.36), transparent 72%),
+    radial-gradient(36% 50% at 88% 4%, rgba(163, 65, 143, 0.28), transparent 72%),
+    radial-gradient(55% 40% at 50% 0%, rgba(42, 155, 192, 0.12), transparent 75%);
+  filter: blur(12px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent);
+  mask-image: linear-gradient(to bottom, #000 45%, transparent);
+}
+
+html[dir='rtl'] .ds-page::before {
+  background:
+    radial-gradient(38% 52% at 86% 6%, rgba(42, 155, 192, 0.36), transparent 72%),
+    radial-gradient(36% 50% at 12% 4%, rgba(163, 65, 143, 0.28), transparent 72%),
+    radial-gradient(55% 40% at 50% 0%, rgba(42, 155, 192, 0.12), transparent 75%);
+}
+
+html[data-theme='dark'] .ds-page::before {
+  opacity: 0.55;
+}

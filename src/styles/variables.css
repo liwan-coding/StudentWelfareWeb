@@ -72,7 +72,7 @@
   --rule: #0F1A20;
 
   /* ---------- Materials ---------- */
-  --material-bar: rgba(255, 255, 255, 0.88);
+  --material-bar: rgba(255, 255, 255, 0.62);
   --material-thick: rgba(255, 255, 255, 0.95);
   --material-thin: rgba(255, 255, 255, 0.72);
   --material-blur: saturate(140%) blur(14px);

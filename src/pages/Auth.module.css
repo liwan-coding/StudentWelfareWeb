@@ -482,7 +482,7 @@
 
 /* ---------- brand panel: the logo's staircase beside the form (desktop) ---------- */
 .page {
-  background: var(--bg);
+  background: transparent;
 }
 
 .split {
