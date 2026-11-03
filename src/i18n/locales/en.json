@@ -75,7 +75,9 @@
     "applyStep3": "Follow your request",
     "applyStep3Body": "Its status appears here once it has been reviewed.",
     "trustTitle": "Why you can give with confidence",
-    "trustMore": "More about the fund"
+    "trustMore": "More about the fund",
+    "featuredLabel": "Featured initiative",
+    "applyTileBody": "Students: register in three steps and follow your request here."
   },
   "campaigns": {
     "title": "Initiatives",

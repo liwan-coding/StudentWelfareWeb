@@ -1,6 +1,6 @@
 /* =====================================================================
    Home. The logo supplies the structure, not decoration:
-   - hero: the campaigns as photo steps rising on the logo's magenta
+   - hero: a bento grid of the fund's real content in the logo's colours
    - programs: four tiles standing on one floor as the logo's staircase
    - apply: the logo's pen line, a stroke with three points
    Sections alternate white and the cool surface; headers are a title
@@ -19,41 +19,80 @@
   border: 0;
 }
 
-/* ---------- hero: the logo rebuilt from the campaigns ----------
-   A magenta field; the campaigns stand as photo steps rising toward the
-   end corner, each with a teal tread that carries its funding. */
+/* ---------- hero: bento grid ----------
+   12 columns on desktop. Each tile is one piece of real content, coloured
+   from the logo: magenta headline, photo, teal total, light apply, ink programs. */
 .hero {
-  --hero-bg: #A3418F;
+  --tile-ink: #0F1A20;
+  padding-block: calc(var(--header-height) + clamp(16px, 2vw, 28px)) var(--space-section-sm);
+  background: var(--bg);
+}
+
+:global(html[data-theme='dark']) .hero {
+  --tile-ink: #1E2C34;
+}
+
+.bento {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, auto);
+  gap: 12px;
+}
+
+.tile {
   position: relative;
   isolation: isolate;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  min-height: clamp(620px, 88vh, 860px);
-  padding-top: calc(var(--header-height) + clamp(40px, 6vw, 88px));
+  min-width: 0;
+  padding: clamp(20px, 2.4vw, 32px);
+  border-radius: var(--radius-2xl);
+  animation: tileIn 0.7s var(--ease-spring) backwards;
+}
+
+.tile:nth-child(2) { animation-delay: 0.06s; }
+.tile:nth-child(3) { animation-delay: 0.12s; }
+.tile:nth-child(4) { animation-delay: 0.18s; }
+.tile:nth-child(5) { animation-delay: 0.24s; }
+
+@keyframes tileIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+}
+
+a.tile {
+  transition: transform 0.35s var(--ease-spring), box-shadow var(--transition-normal);
+}
+
+a.tile:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-3);
+}
+
+a.tile:focus-visible {
+  outline: 3px solid var(--teal);
+  outline-offset: 3px;
+}
+
+/* ---- headline tile ---- */
+.tHead {
+  grid-column: span 7;
+  grid-row: span 2;
+  justify-content: flex-start;
+  gap: 20px;
+  min-height: clamp(460px, 56vh, 560px);
   color: #FFFFFF;
-  background: var(--hero-bg);
+  background: #A3418F;
 }
 
-:global(html[data-theme='dark']) .hero {
-  --hero-bg: #7C2F6B;
+:global(html[data-theme='dark']) .tHead {
+  background: #7C2F6B;
 }
 
-.heroInner {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-}
-
-.heroText {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 22px;
-  max-width: min(46%, 600px);
-}
-
-.heroKicker {
+.kicker {
   display: inline-flex;
   align-items: center;
   gap: 12px;
@@ -62,7 +101,6 @@
   font-size: var(--type-subhead);
   font-weight: 500;
   color: rgba(255, 255, 255, 0.9);
-  animation: heroIn 0.7s var(--ease-spring) backwards;
 }
 
 /* the logo's pen line */
@@ -85,184 +123,72 @@
   background: currentColor;
 }
 
-.hero .heroTitle {
-  max-width: 12ch;
-  font-size: clamp(2.6rem, 1.2rem + 4.2vw, 5.5rem);
+.tHead .heroTitle {
+  max-width: 16ch;
+  font-size: clamp(2.4rem, 1.1rem + 3.4vw, 4.4rem);
   line-height: 1.12;
   font-weight: 600;
   color: #FFFFFF;
-  animation: heroIn 0.8s var(--ease-spring) 0.05s backwards;
 }
 
-:global(html[lang='en']) .hero .heroTitle {
-  line-height: 1.02;
+:global(html[lang='en']) .tHead .heroTitle {
+  line-height: 1.03;
   letter-spacing: -0.035em;
 }
 
 .heroBody {
-  max-width: 32rem;
-  font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  max-width: 30rem;
+  font-size: var(--type-callout);
   line-height: 1.75;
   color: rgba(255, 255, 255, 0.9);
-  animation: heroIn 0.8s var(--ease-spring) 0.1s backwards;
 }
 
 .heroCtas {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  animation: heroIn 0.8s var(--ease-spring) 0.15s backwards;
+  gap: 10px;
+  margin-top: auto;
 }
 
-.heroGhost,
-.heroGhost:hover {
+.ghost,
+.ghost:hover {
   color: #FFFFFF;
 }
 
-.heroGhost {
+.ghost {
   background: transparent;
   border-color: rgba(255, 255, 255, 0.75);
 }
 
-.heroGhost:hover {
+.ghost:hover {
   background: rgba(255, 255, 255, 0.12);
 }
 
-/* live totals: value over label, hairline between */
-/* live totals: each a small tread, a white line over value and label */
-.heroStats {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, auto));
-  justify-content: start;
-  gap: 18px 28px;
-  margin: 10px 0 0;
-  animation: heroIn 0.8s var(--ease-spring) 0.2s backwards;
-}
-
-.heroStats div {
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 2px;
-  padding-top: 10px;
-  border-top: 2px solid rgba(255, 255, 255, 0.4);
-}
-
-.heroStats dt {
-  font-size: var(--type-footnote);
-  color: rgba(255, 255, 255, 0.82);
-}
-
-.heroStats dd {
-  margin: 0;
-  font-size: clamp(1.25rem, 1rem + 0.8vw, 1.75rem);
-  font-weight: 600;
-  line-height: 1.1;
-}
-
-@keyframes heroIn {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-}
-
-/* the staircase of campaigns */
-.stairs3d {
+/* the logo's staircase, in the end corner of the headline tile */
+.headSteps {
   position: absolute;
   inset-block-end: 0;
   inset-inline-end: 0;
-  z-index: 1;
+  z-index: 0;
   display: flex;
   align-items: flex-end;
-  gap: 6px;
-  width: min(52%, 760px);
-  height: 82%;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  width: 34%;
+  height: 44%;
 }
 
-.heroStep {
+.headSteps i {
   flex: 1;
-  min-width: 0;
-  height: calc(30% + var(--n) * 17.5%);
-  transform-origin: bottom;
-  animation: stepUp 0.8s var(--ease-spring) backwards;
-  animation-delay: calc(0.15s + var(--n) * 0.1s);
-}
-
-.heroStepLink {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  color: #0F1A20;
-  background: #0B5E7A;
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-}
-
-.heroStepLink:hover {
-  color: #0F1A20;
-}
-
-.heroStepLink:focus-visible {
-  outline: 3px solid #FFFFFF;
-  outline-offset: -3px;
-}
-
-/* the tread: the logo teal, with the funding on it */
-.tread {
-  flex-shrink: 0;
-  display: grid;
-  gap: 2px;
-  padding: 12px 14px 14px;
   background: #2A9BC0;
-  transition: background-color var(--transition-normal);
+  transform-origin: bottom;
+  animation: stepUp 0.7s var(--ease-spring) backwards;
 }
 
-.tread b {
-  font-family: var(--font-display);
-  font-size: clamp(1.35rem, 0.9rem + 1.2vw, 2.1rem);
-  font-weight: 600;
-  line-height: 1;
-}
-
-.tread small {
-  font-size: 0.6em;
-  font-weight: 500;
-}
-
-.treadTitle {
-  font-size: var(--type-footnote);
-  font-weight: 500;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.heroStepLink img {
-  flex: 1;
-  min-height: 0;
-  width: 100%;
-  object-fit: cover;
-  transition: transform 0.8s var(--ease-spring);
-}
-
-.heroStepLink:hover img {
-  transform: scale(1.06);
-}
-
-.heroStepLink:hover .tread {
-  background: #FFFFFF;
-}
-
-.heroStepEmpty {
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  background: rgba(255, 255, 255, 0.14);
-}
+.headSteps i:nth-child(1) { height: 25%; animation-delay: 0.3s; }
+.headSteps i:nth-child(2) { height: 50%; animation-delay: 0.38s; }
+.headSteps i:nth-child(3) { height: 75%; animation-delay: 0.46s; }
+.headSteps i:nth-child(4) { height: 100%; animation-delay: 0.54s; }
 
 @keyframes stepUp {
   from {
@@ -270,58 +196,382 @@
   }
 }
 
-@media (max-width: 1179px) {
-  .heroText {
-    max-width: 50%;
-  }
-
-  .stairs3d {
-    width: 50%;
-    height: 66%;
-  }
-
-  .treadTitle {
-    display: none;
-  }
-
-  .heroStats {
-    grid-template-columns: repeat(2, minmax(0, auto));
-  }
+/* ---- featured campaign tile ---- */
+.tFeature,
+.tFeature:hover {
+  color: #FFFFFF;
 }
 
-/* phones and small tablets: text first, the staircase below it */
-@media (max-width: 899px) {
-  .hero {
+.tFeature {
+  grid-column: span 5;
+  grid-row: span 2;
+  justify-content: flex-end;
+  min-height: 320px;
+  padding: 0;
+  background: #0B5E7A;
+}
+
+.tFeature img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.9s var(--ease-spring);
+}
+
+.tFeature:hover img {
+  transform: scale(1.05);
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to top, rgba(15, 26, 32, 0.92) 0%, rgba(15, 26, 32, 0.55) 38%, rgba(15, 26, 32, 0) 65%);
+}
+
+.fTag {
+  position: absolute;
+  inset-block-start: 18px;
+  inset-inline-start: 18px;
+}
+
+.fBody {
+  display: grid;
+  gap: 10px;
+  padding: clamp(20px, 2.4vw, 28px);
+}
+
+.fLabel {
+  font-family: var(--font-display);
+  font-size: var(--type-footnote);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.fTitle {
+  font-family: var(--font-display);
+  font-size: clamp(1.375rem, 1rem + 1vw, 1.875rem);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.fBar {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.24);
+  overflow: hidden;
+}
+
+.fBar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #2A9BC0;
+}
+
+.fMeta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: var(--type-subhead);
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.fMeta b {
+  font-size: var(--type-title-2);
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.fCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  margin-top: 4px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: #0F1A20;
+  background: #FFFFFF;
+  border-radius: var(--radius-md);
+}
+
+.fCta svg,
+.tGo svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---- shared small-tile parts ---- */
+.tLabel {
+  font-family: var(--font-display);
+  font-size: var(--type-subhead);
+  font-weight: 500;
+}
+
+.bigNum {
+  font-size: clamp(2.25rem, 1.5rem + 2vw, 3.25rem);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.tGo {
+  position: absolute;
+  inset-block-start: clamp(20px, 2.4vw, 28px);
+  inset-inline-end: clamp(20px, 2.4vw, 28px);
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: transform 0.35s var(--ease-spring);
+}
+
+a.tile:hover .tGo {
+  transform: translateX(-4px);
+}
+
+:global(html[dir='ltr']) a.tile:hover .tGo {
+  transform: translateX(4px);
+}
+
+/* ---- raised so far (teal) ---- */
+.tRaised {
+  grid-column: span 3;
+  gap: 10px;
+  min-height: 220px;
+  color: #0F1A20;
+  background: #2A9BC0;
+}
+
+.miniSteps {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 38px;
+  margin-top: auto;
+}
+
+.miniSteps i {
+  position: relative;
+  flex: 1;
+  height: calc(var(--h) * 100%);
+  overflow: hidden;
+  border-radius: 2px 2px 0 0;
+  background: rgba(15, 26, 32, 0.18);
+}
+
+.miniSteps b {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: calc(var(--f) * 100%);
+  background: #0F1A20;
+}
+
+.tFoot {
+  font-size: var(--type-footnote);
+  font-weight: 500;
+}
+
+.tFoot b {
+  font-family: var(--font-display);
+  font-size: var(--type-callout);
+}
+
+/* ---- apply (light) ---- */
+.tApply,
+.tApply:hover {
+  color: var(--label);
+}
+
+.tApply {
+  grid-column: span 4;
+  gap: 8px;
+  min-height: 220px;
+  background: var(--bg-2);
+}
+
+.tIcon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: auto;
+  border-radius: var(--radius-md);
+  color: #FFFFFF;
+  background: #0B5E7A;
+}
+
+.tIcon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.tTitle {
+  margin-top: 18px;
+  font-family: var(--font-display);
+  font-size: var(--type-title-3);
+  font-weight: 600;
+}
+
+.tText {
+  font-size: var(--type-subhead);
+  line-height: 1.6;
+  color: var(--label-2);
+}
+
+.tApply .tGo {
+  color: #FFFFFF;
+  background: #A3418F;
+}
+
+/* ---- programs (ink) ---- */
+.tPrograms,
+.tPrograms:hover {
+  color: #FFFFFF;
+}
+
+.tPrograms {
+  grid-column: span 5;
+  gap: 16px;
+  min-height: 220px;
+  background: var(--tile-ink);
+}
+
+.tRow {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.tPrograms .bigNum {
+  color: #4DB8DC;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.chips span {
+  padding: 7px 12px;
+  font-size: var(--type-footnote);
+  line-height: 1.3;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+}
+
+.tPrograms .tGo {
+  color: #0F1A20;
+  background: #FFFFFF;
+}
+
+.tSkeleton {
+  background: var(--fill-3);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+/* ---- tablet: two columns ---- */
+@media (max-width: 999px) {
+  .bento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tHead,
+  .tFeature,
+  .tPrograms {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .tRaised,
+  .tApply {
+    grid-column: span 1;
+  }
+
+  .tHead {
     min-height: 0;
   }
 
-  .heroText {
-    max-width: none;
+  .heroCtas {
+    margin-top: 12px;
   }
 
-  .stairs3d {
-    position: relative;
-    inset: auto;
-    width: auto;
-    height: 260px;
-    margin-top: 40px;
-    padding-inline: max(20px, env(safe-area-inset-left, 0px));
+  .headSteps {
+    width: 30%;
+    height: 34%;
+    opacity: 0.9;
   }
 
-  .heroStep {
-    height: calc(34% + var(--n) * 22%);
+  .tFeature {
+    min-height: 380px;
+  }
+}
+
+/* ---- phones ---- */
+@media (max-width: 560px) {
+  .bento {
+    gap: 10px;
   }
 
-  .heroStep:nth-child(5) {
+  .tile {
+    border-radius: var(--radius-xl);
+  }
+
+  /* the steps get their own strip below the buttons */
+  .tHead {
+    padding-bottom: 84px;
+  }
+
+  .headSteps {
+    width: 44%;
+    height: 60px;
+  }
+
+  .tRaised .bigNum {
+    font-size: 1.875rem;
+  }
+
+  .tPrograms {
+    min-height: 0;
+  }
+
+  .chips {
+    margin-top: 8px;
+  }
+
+  .heroCtas :global(.ds-btn) {
+    flex: 1 1 auto;
+  }
+
+  .tRaised,
+  .tApply {
+    min-height: 200px;
+    padding: 18px;
+  }
+
+  .tApply .tText {
     display: none;
   }
 
-  .treadTitle {
-    display: none;
+  .tGo {
+    width: 34px;
+    height: 34px;
+    inset-block-start: 16px;
+    inset-inline-end: 16px;
   }
 
-  .tread {
-    padding: 10px;
+  .tFeature {
+    min-height: 340px;
   }
 }
 

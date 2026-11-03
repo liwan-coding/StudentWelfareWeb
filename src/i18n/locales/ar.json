@@ -75,7 +75,9 @@
     "applyStep3": "تابع طلبك",
     "applyStep3Body": "تظهر حالته هنا بعد مراجعته.",
     "trustTitle": "لماذا تتبرع بثقة",
-    "trustMore": "المزيد عن الصندوق"
+    "trustMore": "المزيد عن الصندوق",
+    "featuredLabel": "مبادرة مميّزة",
+    "applyTileBody": "للطلبة: سجّل في ثلاث خطوات وتابع طلبك من هنا."
   },
   "campaigns": {
     "title": "المبادرات",

@@ -47,9 +47,6 @@ const FALLBACK_CARD_DESC_EN = 'Register your application for student support pro
 /** campaigns shown on the home page: one wide feature + a row of three */
 const HOME_CAMPAIGNS = 4
 
-/** photo steps in the hero staircase */
-const HERO_STEPS = 5
-
 function formatNewsDate(isoDate: string | undefined, locale: string): string {
   if (!isoDate) return ''
   try {
@@ -207,27 +204,25 @@ export function Home() {
   const percentSign = lang === 'ar' ? '٪' : '%'
   const currency = t('donate.currencyShort')
   const statsReady = !loadingCampaigns && !loadingPrograms
-  const climb = [
-    { value: String(programs.length), label: t('home.statPrograms') },
-    { value: String(campaigns.length), label: t('home.statInitiatives') },
-    { value: `${overallPct}${percentSign}`, label: t('home.statGoal') },
-    { value: compact.format(totalRaised), label: t('home.statRaised') },
-  ]
 
   const featured = campaigns.slice(0, HOME_CAMPAIGNS)
-  // hero staircase: the first campaigns, one photo step each
-  const heroSteps = campaigns.slice(0, HERO_STEPS)
+  // hero: the first campaign is the featured tile
+  const heroCampaign = campaigns[0]
+  const heroImage = heroCampaign && (heroCampaign.image_url || heroCampaign.image) ? resolveImageUrl(heroCampaign.image_url || heroCampaign.image) : ''
+  const heroPct = heroCampaign
+    ? Math.round(getCampaignProgressPercent(Number(heroCampaign.raised_amount) || 0, Number(heroCampaign.goal_amount) || 1))
+    : 0
   const tagFor = (c: CampaignOrProgram) => (c.is_urgent ? t('campaigns.urgent') : c.category ? (lang === 'ar' ? c.category.name_ar : c.category.name_en) || undefined : undefined)
 
   return (
     <PageLayout noPadding design>
-      {/* ================= Hero: the logo rebuilt from the campaigns themselves =================
-          Magenta field (the logo's wedge); the campaigns rise as photo steps toward the
-          end corner (the logo's staircase); each step's teal tread carries its funding. */}
+      {/* ================= Hero: a bento grid of the fund's real content =================
+          headline (magenta, with the logo's steps) · featured campaign photo ·
+          raised so far (teal) · apply for support · the support programs (ink) */}
       <section className={styles.hero} aria-labelledby="hero-title">
-        <div className={`ds-wrap ${styles.heroInner}`}>
-          <div className={styles.heroText}>
-            <p className={styles.heroKicker}>
+        <div className={`ds-wrap ${styles.bento}`}>
+          <div className={`${styles.tile} ${styles.tHead}`}>
+            <p className={styles.kicker}>
               <span className={styles.nib} aria-hidden="true" />
               {t('app.name')}
             </p>
@@ -240,42 +235,81 @@ export function Home() {
                 {t('home.ctaDonate')}
                 <ArrowIcon />
               </a>
-              <Link to="/student-registration" className={`ds-btn ds-btn-lg ${styles.heroGhost}`}>
+              <Link to="/student-registration" className={`ds-btn ds-btn-lg ${styles.ghost}`}>
                 {t('home.ctaApply')}
               </Link>
             </div>
-            <dl className={styles.heroStats} aria-label={t('home.climbLabel')}>
-              {climb.map((s) => (
-                <div key={s.label}>
-                  <dt>{s.label}</dt>
-                  <dd className="ds-num">{statsReady ? s.value : '—'}</dd>
-                </div>
-              ))}
-            </dl>
+            <span className={styles.headSteps} aria-hidden="true"><i /><i /><i /><i /></span>
           </div>
-        </div>
 
-        <ol className={styles.stairs3d} aria-label={t('home.campaignsSectionTitle')}>
-          {(loadingCampaigns ? Array.from({ length: HERO_STEPS }, () => null) : heroSteps).map((item, i) => {
-            const style = { '--n': i, '--count': HERO_STEPS } as CSSProperties
-            if (!item) return <li key={`s${i}`} className={`${styles.heroStep} ${styles.heroStepEmpty}`} style={style} aria-hidden="true" />
-            const raised = Number(item.raised_amount) || 0
-            const goal = Number(item.goal_amount) || 0
-            const pct = Math.round(getCampaignProgressPercent(raised, goal > 0 ? goal : 1))
-            const image = item.image_url || item.image
-            return (
-              <li key={item.id} className={styles.heroStep} style={style}>
-                <Link to={`/donate?campaign_id=${item.id}`} className={styles.heroStepLink}>
-                  <span className={styles.tread}>
-                    <b className="ds-num">{pct}<small>{percentSign}</small></b>
-                    <span className={styles.treadTitle}>{getTitle(item)}</span>
-                  </span>
-                  {image && <img src={resolveImageUrl(image)} alt="" loading={i < 2 ? 'eager' : 'lazy'} decoding="async" />}
-                </Link>
-              </li>
-            )
-          })}
-        </ol>
+          {heroCampaign ? (
+            <Link to={`/donate?campaign_id=${heroCampaign.id}`} className={`${styles.tile} ${styles.tFeature}`}>
+              {heroImage && <img src={heroImage} alt="" decoding="async" />}
+              <span className={styles.scrim} aria-hidden="true" />
+              {tagFor(heroCampaign) && <span className={`ds-badge ${styles.fTag}`}>{tagFor(heroCampaign)}</span>}
+              <span className={styles.fBody}>
+                <span className={styles.fLabel}>{t('home.featuredLabel')}</span>
+                <span className={styles.fTitle}>{getTitle(heroCampaign)}</span>
+                <span
+                  className={styles.fBar}
+                  role="progressbar"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={heroPct}
+                  aria-label={t('campaigns.raised')}
+                >
+                  <i style={{ width: `${heroPct}%` }} />
+                </span>
+                <span className={styles.fMeta}>
+                  <b className="ds-num">{heroPct}{percentSign}</b>
+                  <span className="ds-num">{formatAmount(Number(heroCampaign.raised_amount) || 0)} / {formatAmount(Number(heroCampaign.goal_amount) || 0)} {currency}</span>
+                </span>
+                <span className={styles.fCta}>
+                  {t('campaigns.donate')}
+                  <ArrowIcon />
+                </span>
+              </span>
+            </Link>
+          ) : (
+            <div className={`${styles.tile} ${styles.tFeature} ${styles.tSkeleton}`} aria-hidden="true" />
+          )}
+
+          <div className={`${styles.tile} ${styles.tRaised}`}>
+            <span className={styles.tLabel}>{t('home.statRaised')}</span>
+            <b className={`ds-num ${styles.bigNum}`}>{statsReady ? compact.format(totalRaised) : '—'}</b>
+            <span className={styles.miniSteps} aria-hidden="true">
+              {Array.from({ length: 10 }, (_, i) => (
+                <i key={i} style={{ '--h': (i + 1) / 10, '--f': Math.max(0, Math.min(1, overallPct / 10 - i)) } as CSSProperties}><b /></i>
+              ))}
+            </span>
+            <span className={styles.tFoot}>
+              <b className="ds-num">{overallPct}{percentSign}</b> {t('home.statGoal')}
+            </span>
+          </div>
+
+          <Link to="/student-registration" className={`${styles.tile} ${styles.tApply}`}>
+            <span className={styles.tIcon} aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 9.5 12 5 2 9.5l10 4.5 10-4.5z" />
+                <path d="M6 11.5v4.5c3 2 9 2 12 0v-4.5" />
+              </svg>
+            </span>
+            <span className={styles.tTitle}>{t('home.ctaApply')}</span>
+            <span className={styles.tText}>{t('home.applyTileBody')}</span>
+            <span className={styles.tGo} aria-hidden="true"><ArrowIcon /></span>
+          </Link>
+
+          <a href="#programs" className={`${styles.tile} ${styles.tPrograms}`}>
+            <span className={styles.tRow}>
+              <b className={`ds-num ${styles.bigNum}`}>{statsReady ? programs.length : '—'}</b>
+              <span className={styles.tLabel}>{t('home.statPrograms')}</span>
+            </span>
+            <span className={styles.chips}>
+              {programs.map((p) => <span key={p.id}>{getTitle(p)}</span>)}
+            </span>
+            <span className={styles.tGo} aria-hidden="true"><ArrowIcon /></span>
+          </a>
+        </div>
       </section>
 
       {/* ================= Banners (admin-managed), swipeable, no autoplay ================= */}
@@ -350,7 +384,7 @@ export function Home() {
 
       {/* ================= Support programs: the logo's staircase, one step per program ================= */}
       {programs.length > 0 && (
-        <section className={styles.section} aria-labelledby="programs-heading">
+        <section className={styles.section} id="programs" aria-labelledby="programs-heading">
           <div className="ds-wrap">
             <SectionHead id="programs-heading" title={t('home.programsTitle')} subtitle={t('home.programsSubtitle')} />
             <ol className={styles.stairs}>
