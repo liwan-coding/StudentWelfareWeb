@@ -1,6 +1,6 @@
 /* =====================================================================
    Home. The logo supplies the structure, not decoration:
-   - hero: the mark redrawn as a live chart (teal steps under the magenta wedge)
+   - hero: the campaigns as photo steps rising on the logo's magenta
    - programs: four tiles standing on one floor as the logo's staircase
    - apply: the logo's pen line, a stroke with three points
    Sections alternate white and the cool surface; headers are a title
@@ -19,52 +19,144 @@
   border: 0;
 }
 
-/* ---------- hero ---------- */
+/* ---------- hero: the logo rebuilt from the campaigns ----------
+   A magenta field; the campaigns stand as photo steps rising toward the
+   end corner, each with a teal tread that carries its funding. */
 .hero {
-  padding-block: calc(var(--header-height) + clamp(28px, 4.5vw, 64px)) var(--space-section-sm);
-  background: var(--bg);
+  --hero-bg: #A3418F;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: clamp(620px, 88vh, 860px);
+  padding-top: calc(var(--header-height) + clamp(40px, 6vw, 88px));
+  color: #FFFFFF;
+  background: var(--hero-bg);
+}
+
+:global(html[data-theme='dark']) .hero {
+  --hero-bg: #7C2F6B;
 }
 
 .heroInner {
-  display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-  gap: clamp(32px, 5vw, 80px);
-  align-items: center;
+  position: relative;
+  z-index: 2;
+  width: 100%;
 }
 
 .heroText {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 24px;
+  gap: 22px;
+  max-width: min(46%, 600px);
 }
 
-.heroTitle {
-  max-width: 13ch;
-  font-size: clamp(2.4rem, 1.2rem + 3.8vw, 4.75rem);
-  line-height: 1.15;
+.heroKicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--type-subhead);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  animation: heroIn 0.7s var(--ease-spring) backwards;
+}
+
+/* the logo's pen line */
+.nib {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 2px;
+  background: currentColor;
+}
+
+.nib::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: -4px;
+  top: -4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.hero .heroTitle {
+  max-width: 12ch;
+  font-size: clamp(2.6rem, 1.2rem + 4.2vw, 5.5rem);
+  line-height: 1.12;
   font-weight: 600;
-  animation: heroIn 0.8s var(--ease-spring) both;
+  color: #FFFFFF;
+  animation: heroIn 0.8s var(--ease-spring) 0.05s backwards;
 }
 
-:global(html[lang='en']) .heroTitle {
-  line-height: 1.04;
+:global(html[lang='en']) .hero .heroTitle {
+  line-height: 1.02;
   letter-spacing: -0.035em;
 }
 
 .heroBody {
-  max-width: 34rem;
+  max-width: 32rem;
   font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
   line-height: 1.75;
-  color: var(--label-2);
-  animation: heroIn 0.8s var(--ease-spring) 0.08s both;
+  color: rgba(255, 255, 255, 0.9);
+  animation: heroIn 0.8s var(--ease-spring) 0.1s backwards;
 }
 
 .heroCtas {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  animation: heroIn 0.8s var(--ease-spring) 0.16s both;
+  animation: heroIn 0.8s var(--ease-spring) 0.15s backwards;
+}
+
+.heroGhost,
+.heroGhost:hover {
+  color: #FFFFFF;
+}
+
+.heroGhost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.75);
+}
+
+.heroGhost:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* live totals: value over label, hairline between */
+/* live totals: each a small tread, a white line over value and label */
+.heroStats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, auto));
+  justify-content: start;
+  gap: 18px 28px;
+  margin: 10px 0 0;
+  animation: heroIn 0.8s var(--ease-spring) 0.2s backwards;
+}
+
+.heroStats div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 2px;
+  padding-top: 10px;
+  border-top: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.heroStats dt {
+  font-size: var(--type-footnote);
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.heroStats dd {
+  margin: 0;
+  font-size: clamp(1.25rem, 1rem + 0.8vw, 1.75rem);
+  font-weight: 600;
+  line-height: 1.1;
 }
 
 @keyframes heroIn {
@@ -74,116 +166,162 @@
   }
 }
 
-/* ---------- the climb (logo as chart) ---------- */
-.climb {
-  --c-teal: #2A9BC0;
-  --c-magenta: #A3418F;
-  --c-ink: #0F1A20;
-  position: relative;
-  width: 100%;
-  margin: 0;
-  aspect-ratio: 1 / 0.9;
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  background: var(--c-teal);
-}
-
-/* magenta wedge above the stair diagonal, as in the logo */
-.climbSky {
+/* the staircase of campaigns */
+.stairs3d {
   position: absolute;
-  inset: 0;
-  background: var(--c-magenta);
-  clip-path: polygon(0 0, 100% 0, 0 100%);
-  animation: skyIn 0.9s var(--ease-out) 0.1s both;
-}
-
-:global(html[dir='rtl']) .climbSky {
-  clip-path: polygon(0 0, 100% 0, 100% 100%);
-}
-
-@keyframes skyIn {
-  from {
-    opacity: 0;
-  }
-}
-
-/* the logo's pen line carries the caption */
-.climbCaption {
-  position: absolute;
-  inset-block-start: clamp(18px, 3vw, 30px);
-  inset-inline-start: clamp(18px, 3vw, 30px);
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-family: var(--font-display);
-  font-size: var(--type-subhead);
-  font-weight: 500;
-  color: #FFFFFF;
-}
-
-.nib {
-  position: relative;
-  width: 44px;
-  height: 2px;
-  background: #FFFFFF;
-}
-
-.nib::before {
-  content: '';
-  position: absolute;
-  inset-inline-end: -5px;
-  top: -4px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #FFFFFF;
-}
-
-.steps {
-  position: absolute;
-  inset: 0;
+  inset-block-end: 0;
+  inset-inline-end: 0;
   z-index: 1;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  align-items: end;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  width: min(52%, 760px);
+  height: 82%;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.step {
-  height: calc((var(--n) + 1) * 25%);
+.heroStep {
+  flex: 1;
+  min-width: 0;
+  height: calc(30% + var(--n) * 17.5%);
+  transform-origin: bottom;
+  animation: stepUp 0.8s var(--ease-spring) backwards;
+  animation-delay: calc(0.15s + var(--n) * 0.1s);
+}
+
+.heroStepLink {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: clamp(12px, 1.4vw, 18px);
-  color: var(--c-ink);
-  background: var(--c-teal);
-  transform-origin: bottom;
-  animation: stepUp 0.7s var(--ease-spring) both;
-  animation-delay: calc(0.2s + var(--n) * 0.12s);
+  height: 100%;
+  overflow: hidden;
+  color: #0F1A20;
+  background: #0B5E7A;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
-.step + .step {
-  box-shadow: inset 1px 0 0 rgba(15, 26, 32, 0.16);
+.heroStepLink:hover {
+  color: #0F1A20;
 }
 
-.step b {
-  font-size: clamp(1.35rem, 0.7rem + 2vw, 2.6rem);
+.heroStepLink:focus-visible {
+  outline: 3px solid #FFFFFF;
+  outline-offset: -3px;
+}
+
+/* the tread: the logo teal, with the funding on it */
+.tread {
+  flex-shrink: 0;
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px 14px;
+  background: #2A9BC0;
+  transition: background-color var(--transition-normal);
+}
+
+.tread b {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 0.9rem + 1.2vw, 2.1rem);
   font-weight: 600;
-  line-height: 1.05;
+  line-height: 1;
 }
 
-.step span {
-  font-size: clamp(0.8125rem, 0.76rem + 0.2vw, 0.875rem);
-  line-height: 1.35;
+.tread small {
+  font-size: 0.6em;
   font-weight: 500;
+}
+
+.treadTitle {
+  font-size: var(--type-footnote);
+  font-weight: 500;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.heroStepLink img {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  object-fit: cover;
+  transition: transform 0.8s var(--ease-spring);
+}
+
+.heroStepLink:hover img {
+  transform: scale(1.06);
+}
+
+.heroStepLink:hover .tread {
+  background: #FFFFFF;
+}
+
+.heroStepEmpty {
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: rgba(255, 255, 255, 0.14);
 }
 
 @keyframes stepUp {
   from {
     transform: scaleY(0);
+  }
+}
+
+@media (max-width: 1179px) {
+  .heroText {
+    max-width: 50%;
+  }
+
+  .stairs3d {
+    width: 50%;
+    height: 66%;
+  }
+
+  .treadTitle {
+    display: none;
+  }
+
+  .heroStats {
+    grid-template-columns: repeat(2, minmax(0, auto));
+  }
+}
+
+/* phones and small tablets: text first, the staircase below it */
+@media (max-width: 899px) {
+  .hero {
+    min-height: 0;
+  }
+
+  .heroText {
+    max-width: none;
+  }
+
+  .stairs3d {
+    position: relative;
+    inset: auto;
+    width: auto;
+    height: 260px;
+    margin-top: 40px;
+    padding-inline: max(20px, env(safe-area-inset-left, 0px));
+  }
+
+  .heroStep {
+    height: calc(34% + var(--n) * 22%);
+  }
+
+  .heroStep:nth-child(5) {
+    display: none;
+  }
+
+  .treadTitle {
+    display: none;
+  }
+
+  .tread {
+    padding: 10px;
   }
 }
 
@@ -667,15 +805,6 @@
 }
 
 @media (max-width: 899px) {
-  .heroInner {
-    grid-template-columns: 1fr;
-  }
-
-  .climb {
-    aspect-ratio: auto;
-    height: clamp(240px, 62vw, 380px);
-  }
-
   .newsGrid {
     grid-template-columns: 1fr;
   }

@@ -47,6 +47,9 @@ const FALLBACK_CARD_DESC_EN = 'Register your application for student support pro
 /** campaigns shown on the home page: one wide feature + a row of three */
 const HOME_CAMPAIGNS = 4
 
+/** photo steps in the hero staircase */
+const HERO_STEPS = 5
+
 function formatNewsDate(isoDate: string | undefined, locale: string): string {
   if (!isoDate) return ''
   try {
@@ -212,45 +215,67 @@ export function Home() {
   ]
 
   const featured = campaigns.slice(0, HOME_CAMPAIGNS)
+  // hero staircase: the first campaigns, one photo step each
+  const heroSteps = campaigns.slice(0, HERO_STEPS)
   const tagFor = (c: CampaignOrProgram) => (c.is_urgent ? t('campaigns.urgent') : c.category ? (lang === 'ar' ? c.category.name_ar : c.category.name_en) || undefined : undefined)
 
   return (
     <PageLayout noPadding design>
-      {/* ================= Hero: the logo, drawn with live numbers ================= */}
+      {/* ================= Hero: the logo rebuilt from the campaigns themselves =================
+          Magenta field (the logo's wedge); the campaigns rise as photo steps toward the
+          end corner (the logo's staircase); each step's teal tread carries its funding. */}
       <section className={styles.hero} aria-labelledby="hero-title">
         <div className={`ds-wrap ${styles.heroInner}`}>
           <div className={styles.heroText}>
+            <p className={styles.heroKicker}>
+              <span className={styles.nib} aria-hidden="true" />
+              {t('app.name')}
+            </p>
             <h1 id="hero-title" className={styles.heroTitle}>
               {t('home.heroLead')} {t('home.heroMark')} {t('home.heroTail')}
             </h1>
             <p className={styles.heroBody}>{t('home.heroBody')}</p>
             <div className={styles.heroCtas}>
-              <a href="#campaigns" className="ds-btn ds-btn-filled ds-btn-lg">
+              <a href="#campaigns" className="ds-btn ds-btn-light ds-btn-lg">
                 {t('home.ctaDonate')}
                 <ArrowIcon />
               </a>
-              <Link to="/student-registration" className="ds-btn ds-btn-outline ds-btn-lg">
+              <Link to="/student-registration" className={`ds-btn ds-btn-lg ${styles.heroGhost}`}>
                 {t('home.ctaApply')}
               </Link>
             </div>
-          </div>
-
-          <figure className={styles.climb} aria-labelledby="climb-caption">
-            <span className={styles.climbSky} aria-hidden="true" />
-            <figcaption id="climb-caption" className={styles.climbCaption}>
-              <span className={styles.nib} aria-hidden="true" />
-              {t('home.climbLabel')}
-            </figcaption>
-            <ol className={styles.steps}>
-              {climb.map((s, i) => (
-                <li key={s.label} className={styles.step} style={{ '--n': i } as CSSProperties}>
-                  <b className="ds-num">{statsReady ? s.value : '—'}</b>
-                  <span>{s.label}</span>
-                </li>
+            <dl className={styles.heroStats} aria-label={t('home.climbLabel')}>
+              {climb.map((s) => (
+                <div key={s.label}>
+                  <dt>{s.label}</dt>
+                  <dd className="ds-num">{statsReady ? s.value : '—'}</dd>
+                </div>
               ))}
-            </ol>
-          </figure>
+            </dl>
+          </div>
         </div>
+
+        <ol className={styles.stairs3d} aria-label={t('home.campaignsSectionTitle')}>
+          {(loadingCampaigns ? Array.from({ length: HERO_STEPS }, () => null) : heroSteps).map((item, i) => {
+            const style = { '--n': i, '--count': HERO_STEPS } as CSSProperties
+            if (!item) return <li key={`s${i}`} className={`${styles.heroStep} ${styles.heroStepEmpty}`} style={style} aria-hidden="true" />
+            const raised = Number(item.raised_amount) || 0
+            const goal = Number(item.goal_amount) || 0
+            const pct = Math.round(getCampaignProgressPercent(raised, goal > 0 ? goal : 1))
+            const image = item.image_url || item.image
+            return (
+              <li key={item.id} className={styles.heroStep} style={style}>
+                <Link to={`/donate?campaign_id=${item.id}`} className={styles.heroStepLink}>
+                  <span className={styles.tread}>
+                    <b className="ds-num">{pct}<small>{percentSign}</small></b>
+                    <span className={styles.treadTitle}>{getTitle(item)}</span>
+                  </span>
+                  {image && <img src={resolveImageUrl(image)} alt="" loading={i < 2 ? 'eager' : 'lazy'} decoding="async" />}
+                </Link>
+              </li>
+            )
+          })}
+        </ol>
       </section>
 
       {/* ================= Banners (admin-managed), swipeable, no autoplay ================= */}
