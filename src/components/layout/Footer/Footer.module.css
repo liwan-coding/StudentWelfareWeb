@@ -1,59 +1,86 @@
-/* Footer, apple.com style: gray directory, 12px type, hairline separators. */
+/* Footer on ink: closing line + donate, a three-column directory, legal line.
+   The logo's staircase (teal steps under a magenta wedge) sits in the end corner. */
 .footer {
+  position: relative;
+  overflow: hidden;
   margin-top: auto;
   font-family: var(--font-sans);
-  font-size: var(--type-caption);
-  line-height: 1.4;
   color: var(--label-2);
-  background: var(--bg-2);
-  border-top: 1px solid var(--separator);
-}
-
-html[data-theme='dark'] .footer {
-  background: #161617;
+  background: #17131F;
 }
 
 .in {
-  padding-block: 32px 24px;
+  position: relative;
+  z-index: 1;
+  padding-block: clamp(56px, 7vw, 96px) 28px;
+}
+
+/* ---------- closing ---------- */
+.closing {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 24px 48px;
+  padding-bottom: clamp(40px, 5vw, 64px);
+  border-bottom: 1px solid var(--separator);
+}
+
+.closingLine {
+  max-width: 18ch;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--type-large);
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--label);
+  text-wrap: balance;
+}
+
+:global(html[lang='en']) .closingLine {
+  letter-spacing: -0.03em;
+}
+
+/* ---------- directory ---------- */
+.directory {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 32px;
+  padding-block: 36px;
 }
 
 .brand {
   display: flex;
-  align-items: center;
-  gap: 14px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--separator);
-}
-
-.logo img {
-  height: 28px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
 }
 
 .brand p {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  gap: 4px;
   margin: 0;
+  font-size: var(--type-footnote);
+  line-height: 1.6;
 }
 
 .brand strong {
-  font-size: var(--type-footnote);
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: var(--type-callout);
+  font-weight: 500;
   color: var(--label);
 }
 
-.directory {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 24px;
-  padding-block: 24px;
-  border-bottom: 1px solid var(--separator);
+.logo img {
+  height: 44px;
 }
 
 .col h3 {
-  margin: 0 0 10px;
-  font-size: var(--type-caption);
-  font-weight: 600;
-  color: var(--label);
+  margin: 0 0 14px;
+  font-family: var(--font-display);
+  font-size: var(--type-footnote);
+  font-weight: 500;
+  color: var(--teal);
 }
 
 .col ul {
@@ -61,18 +88,20 @@ html[data-theme='dark'] .footer {
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 8px;
+  gap: 10px;
 }
 
 .col a,
 .legal a {
-  color: var(--label-2);
+  font-size: var(--type-subhead);
+  color: var(--label);
 }
 
 .col a:hover,
 .legal a:hover {
   color: var(--label);
   text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 .legal {
@@ -81,11 +110,76 @@ html[data-theme='dark'] .footer {
   align-items: center;
   justify-content: space-between;
   gap: 8px 20px;
-  padding-top: 18px;
+  padding-top: 20px;
+  font-size: var(--type-footnote);
   color: var(--label-3);
+  border-top: 1px solid var(--separator);
 }
 
-@media (max-width: 560px) {
+.legal a {
+  font-size: var(--type-footnote);
+  color: var(--label-2);
+}
+
+/* ---------- the staircase in the corner ---------- */
+.stairs {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-end: 0;
+  display: flex;
+  align-items: flex-start;
+  width: min(34vw, 360px);
+  height: min(30vw, 300px);
+  opacity: 0.9;
+}
+
+.stairs::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #A3418F;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+:global(html[dir='rtl']) .stairs::before {
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+/* steps hang from the top edge, longest toward the end corner */
+.stairs i {
+  position: relative;
+  flex: 1;
+  height: calc(var(--k) * 25%);
+  background: #2A9BC0;
+}
+
+.stairs i:nth-child(1) { --k: 1; }
+.stairs i:nth-child(2) { --k: 2; }
+.stairs i:nth-child(3) { --k: 3; }
+.stairs i:nth-child(4) { --k: 4; }
+
+/* the wedge sits over the steps so only the stepped edge shows */
+.stairs::before {
+  z-index: 1;
+}
+
+@media (max-width: 860px) {
+  .directory {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .brand {
+    grid-column: 1 / -1;
+  }
+
+  .stairs {
+    width: 160px;
+    height: 130px;
+    opacity: 0.5;
+  }
+}
+
+@media (max-width: 480px) {
   .directory {
     grid-template-columns: 1fr;
   }

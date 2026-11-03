@@ -70,7 +70,6 @@
   font-size: var(--type-title-1);
   line-height: 1.1;
   font-weight: 700;
-  letter-spacing: -0.024em;
   margin: 0 0 8px;
 }
 
@@ -478,5 +477,81 @@
     width: 42px;
     height: 52px;
     font-size: var(--type-title-3);
+  }
+}
+
+/* ---------- brand panel: the logo's staircase beside the form (desktop) ---------- */
+.page {
+  background: var(--bg);
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(32px, 6vw, 96px);
+  align-items: center;
+}
+
+.brandPanel {
+  position: relative;
+  align-self: stretch;
+  min-height: 520px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: #2A9BC0;
+}
+
+.brandWedge {
+  position: absolute;
+  inset: 0;
+  background: #A3418F;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+:global(html[dir='rtl']) .brandWedge {
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+.brandSteps {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+}
+
+.brandSteps i {
+  flex: 1;
+  background: #2A9BC0;
+}
+
+.brandSteps i:nth-child(1) { height: 25%; }
+.brandSteps i:nth-child(2) { height: 50%; }
+.brandSteps i:nth-child(3) { height: 75%; }
+.brandSteps i:nth-child(4) { height: 100%; }
+
+.brandLine {
+  position: absolute;
+  inset-block-start: clamp(24px, 3vw, 40px);
+  inset-inline-start: clamp(24px, 3vw, 40px);
+  max-width: 12ch;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 1rem + 1.8vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1.2;
+  color: #FFFFFF;
+}
+
+.brandLine :global(.ds-mark) {
+  color: #17131F;
+}
+
+@media (max-width: 899px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+
+  .brandPanel {
+    display: none;
   }
 }

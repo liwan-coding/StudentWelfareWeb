@@ -50,7 +50,26 @@
     "timeAgoJustNow": "Just now",
     "viewAll": "View All",
     "bannersLabel": "Banners",
-    "bannerSlide": "Slide {{number}}"
+    "bannerSlide": "Slide {{number}}",
+    "heroLead": "One step from you,",
+    "heroMark": "one stair",
+    "heroTail": "in a student’s climb.",
+    "heroBody": "The University Student Welfare Fund helps students in need with fees, housing, transport and exams, so that money is never the reason a student leaves university.",
+    "ctaApply": "Apply for support",
+    "climbLabel": "The climb so far",
+    "statRaised": "Raised so far (OMR)",
+    "statGoal": "Of all goals combined",
+    "statInitiatives": "Open initiatives",
+    "statPrograms": "Support programs",
+    "programsTitle": "Support programs",
+    "programsSubtitle": "Lasting support tracks you can give to directly.",
+    "programDonate": "Give to this program",
+    "applyStep1": "Create your account",
+    "applyStep1Body": "With your phone number, in about a minute.",
+    "applyStep2": "Fill in your application",
+    "applyStep2Body": "Your details, your studies and the required documents.",
+    "applyStep3": "Follow your request",
+    "applyStep3Body": "Its status appears here once it has been reviewed."
   },
   "campaigns": {
     "title": "Initiatives",
@@ -61,7 +80,8 @@
     "donate": "Donate",
     "details": "Details",
     "noCampaigns": "No initiatives at the moment",
-    "noCampaignsDescription": "Check back later for new initiatives to support."
+    "noCampaignsDescription": "Check back later for new initiatives to support.",
+    "urgent": "Urgent"
   },
   "donate": {
     "title": "Donate",
@@ -265,7 +285,9 @@
     "terms": "Terms",
     "privacy": "Privacy",
     "rights": "All rights reserved",
-    "explore": "Explore"
+    "explore": "Explore",
+    "madeBy": "A Social Development Committee initiative, Wilayat Al Rustaq",
+    "closing": "Every stair you give is a step a student climbs."
   },
   "errors": {
     "network": "Can’t reach the server. Check your connection and try again.",

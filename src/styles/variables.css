@@ -1,95 +1,108 @@
 /* =====================================================================
-   Design tokens — Apple system design (Human Interface Guidelines).
-   Semantic colours follow the iOS / macOS system palette; one tint
-   colour drives every interactive element. Dark mode lives in
-   design.css under html[data-theme='dark'].
+   Design tokens — "The Staircase".
+   Everything is drawn from the fund's logo: the teal / magenta diagonal
+   split and the stepped edge (education climbed one step at a time).
+   Warm exam-paper background, deep plum ink, one highlighter yellow used
+   sparingly. Dark-mode values live in design.css under html[data-theme='dark'].
    ===================================================================== */
 :root {
-  /* ---------- System colours ---------- */
-  --sys-blue: #0071E3;          /* apple.com action blue */
-  --sys-blue-hover: #0077ED;
-  --sys-blue-pressed: #006EDB;
-  --sys-link: #0066CC;
-  --sys-green: #34C759;
-  --sys-green-ink: #248A3D;
-  --sys-orange: #FF9500;
-  --sys-red: #FF3B30;
-  --sys-red-ink: #D70015;
-  --sys-indigo: #5856D6;
-  --sys-teal: #30B0C7;
-  --sys-pink: #FF2D55;
-  --sys-purple: #AF52DE;
+  /* ---------- Brand (sampled from the logo, deepened for text contrast) ---------- */
+  --teal: #2A9BC0;              /* logo teal — fills, illustration */
+  --teal-ink: #0B5E7A;          /* teal for text and links (7.1:1 on paper) */
+  --teal-soft: #DCEFF5;
+  --magenta: #A3418F;           /* logo magenta — fills, illustration */
+  --magenta-ink: #87306F;       /* magenta behind white text (7.4:1) */
+  --magenta-soft: #F4E3EF;
+  --marker: #F5C84C;            /* highlighter — behind ink text only */
+  --ink-deep: #17131F;          /* the dark band / footer surface */
 
-  /* the app tint — swap this single value to re-brand */
-  --tint: var(--sys-blue);
-  --tint-hover: var(--sys-blue-hover);
-  --tint-pressed: var(--sys-blue-pressed);
-  --tint-rgb: 0, 113, 227;
-  --tint-fill: rgba(var(--tint-rgb), 0.1);
-  --link: var(--sys-link);
+  /* the app tint — primary actions are magenta, links are teal */
+  --tint: var(--magenta-ink);
+  --tint-hover: #74265F;
+  --tint-pressed: #62204F;
+  --tint-rgb: 135, 48, 111;
+  --tint-fill: rgba(var(--tint-rgb), 0.09);
+  --link: var(--teal-ink);
 
-  /* ---------- Brand light (the fund's magenta → sky, Apple Intelligence style) ---------- */
-  --brand-magenta: #D6409F;
-  --brand-violet: #8B5CF6;
-  --brand-sky: #2DAAE2;
-  --brand-glow-rgb: 139, 92, 246;
-  --grad-brand: linear-gradient(100deg, var(--brand-magenta) 0%, var(--brand-violet) 48%, var(--brand-sky) 100%);
-  --grad-text: linear-gradient(100deg, #C2338F 0%, #7C4DEB 50%, #1E96D1 100%);
-  --grad-ring: linear-gradient(135deg, var(--brand-magenta), var(--brand-violet) 55%, var(--brand-sky));
-  --aurora-1: rgba(214, 64, 159, 0.28);
-  --aurora-2: rgba(139, 92, 246, 0.24);
-  --aurora-3: rgba(45, 170, 226, 0.26);
+  /* status colours (ink versions pass 4.5:1 on paper) */
+  --sys-green: #1E8A55;
+  --sys-green-ink: #166B42;
+  --sys-orange: #B86A00;
+  --sys-red: #C22B3A;
+  --sys-red-ink: #A3202E;
+  --sys-blue: var(--teal-ink);
+  --sys-blue-hover: #094E66;
+  --sys-blue-pressed: #083F52;
+  --sys-link: var(--teal-ink);
+  --sys-indigo: var(--teal-ink);
+  --sys-teal: var(--teal);
+  --sys-pink: var(--magenta);
+  --sys-purple: var(--magenta);
+
+  /* retired gradient tokens now resolve to flat brand colour */
+  --brand-magenta: var(--magenta);
+  --brand-violet: var(--magenta);
+  --brand-sky: var(--teal);
+  --brand-glow-rgb: 0, 0, 0;
+  --grad-brand: var(--magenta-ink);
+  --grad-text: none;
+  --grad-ring: var(--teal);
+  --aurora-1: transparent;
+  --aurora-2: transparent;
+  --aurora-3: transparent;
 
   /* ---------- Labels ---------- */
-  --label: #1D1D1F;
-  --label-2: #6E6E73;
-  --label-3: #86868B;
-  --label-4: #AEAEB2;
+  --label: #17131F;
+  --label-2: #4F4A5E;
+  --label-3: #6B667A;
+  --label-4: #9C97A8;
 
   /* ---------- Backgrounds ---------- */
-  --bg: #FFFFFF;
-  --bg-2: #F5F5F7;              /* grouped / secondary background */
-  --bg-3: #FFFFFF;              /* cells on grouped background */
+  --bg: #F7F4ED;                /* exam paper */
+  --bg-2: #EFEAE0;              /* grouped / secondary */
+  --bg-3: #FFFFFF;              /* cards */
   --bg-elevated: #FFFFFF;
 
   /* ---------- Fills & separators ---------- */
-  --fill-1: rgba(120, 120, 128, 0.2);
-  --fill-2: rgba(120, 120, 128, 0.16);
-  --fill-3: rgba(118, 118, 128, 0.12);
-  --fill-4: rgba(116, 116, 128, 0.08);
-  --separator: rgba(0, 0, 0, 0.1);
-  --separator-opaque: #D2D2D7;
+  --fill-1: rgba(23, 19, 31, 0.14);
+  --fill-2: rgba(23, 19, 31, 0.1);
+  --fill-3: rgba(23, 19, 31, 0.07);
+  --fill-4: rgba(23, 19, 31, 0.045);
+  --separator: rgba(23, 19, 31, 0.12);
+  --separator-opaque: #D9D3C7;
+  --rule: #17131F;              /* strong editorial rule */
 
-  /* ---------- Materials (vibrancy) ---------- */
-  --material-bar: rgba(255, 255, 255, 0.72);
-  --material-thick: rgba(255, 255, 255, 0.86);
-  --material-thin: rgba(255, 255, 255, 0.6);
-  --material-blur: saturate(180%) blur(20px);
+  /* ---------- Materials ---------- */
+  --material-bar: rgba(247, 244, 237, 0.86);
+  --material-thick: rgba(247, 244, 237, 0.94);
+  --material-thin: rgba(247, 244, 237, 0.7);
+  --material-blur: saturate(140%) blur(14px);
 
-  /* ---------- Elevation ---------- */
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 1px rgba(0, 0, 0, 0.02);
-  --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
-  --shadow-3: 0 4px 12px rgba(0, 0, 0, 0.06), 0 24px 48px rgba(0, 0, 0, 0.1);
+  /* ---------- Elevation: crisp, not glowy ---------- */
+  --shadow-1: 0 1px 0 rgba(23, 19, 31, 0.06);
+  --shadow-2: 0 1px 0 rgba(23, 19, 31, 0.06), 0 10px 24px -14px rgba(23, 19, 31, 0.28);
+  --shadow-3: 0 2px 0 rgba(23, 19, 31, 0.06), 0 24px 48px -20px rgba(23, 19, 31, 0.38);
 
-  /* ---------- Typography (SF Pro / SF Arabic, Inter + IBM Plex Sans Arabic elsewhere) ---------- */
-  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Arabic', 'Inter', 'IBM Plex Sans Arabic', 'Helvetica Neue', 'Segoe UI', system-ui, sans-serif;
-  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Arabic', 'Inter', 'IBM Plex Sans Arabic', 'Helvetica Neue', 'Segoe UI', system-ui, sans-serif;
+  /* ---------- Typography ----------
+     Readex Pro: one display family with matching Arabic and Latin.
+     IBM Plex Sans Arabic: text, with its own Latin. */
+  --font-sans: 'IBM Plex Sans Arabic', 'Segoe UI', system-ui, sans-serif;
+  --font-display: 'Readex Pro', 'IBM Plex Sans Arabic', 'Segoe UI', system-ui, sans-serif;
   --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
-  /* HIG text styles (web-scaled) */
   --type-caption: 0.75rem;      /* 12 */
   --type-footnote: 0.8125rem;   /* 13 */
   --type-subhead: 0.9375rem;    /* 15 */
   --type-callout: 1rem;         /* 16 */
   --type-body: 1.0625rem;       /* 17 */
-  --type-headline: 1.0625rem;   /* 17 semibold */
+  --type-headline: 1.0625rem;
   --type-title-3: 1.25rem;      /* 20 */
   --type-title-2: 1.5rem;       /* 24 */
-  --type-title-1: clamp(1.75rem, 1.4rem + 1.2vw, 2.5rem);
-  --type-large: clamp(2.25rem, 1.6rem + 2.6vw, 3.5rem);
-  --type-hero: clamp(2.75rem, 1.6rem + 4.6vw, 5rem);
+  --type-title-1: clamp(1.875rem, 1.4rem + 1.6vw, 2.75rem);
+  --type-large: clamp(2.375rem, 1.6rem + 3vw, 4rem);
+  --type-hero: clamp(2.75rem, 1.4rem + 5.4vw, 6rem);
 
-  /* legacy scale names, mapped onto the HIG styles */
+  /* legacy scale names */
   --text-xs: var(--type-footnote);
   --text-sm: var(--type-subhead);
   --text-base: var(--type-body);
@@ -99,9 +112,9 @@
   --text-3xl: var(--type-title-1);
   --text-4xl: var(--type-large);
 
-  --line-height-tight: 1.1;
-  --line-height-normal: 1.47;
-  --line-height-relaxed: 1.6;
+  --line-height-tight: 1.15;
+  --line-height-normal: 1.6;
+  --line-height-relaxed: 1.75;
 
   /* ---------- Spacing (8-pt grid) ---------- */
   --space-1: 0.25rem;
@@ -116,28 +129,31 @@
   --space-14: 3.5rem;
   --space-16: 4rem;
   --space-20: 5rem;
-  --space-section: clamp(4rem, 3rem + 4vw, 7.5rem);
+  --space-section: clamp(4.5rem, 3rem + 5vw, 8.5rem);
 
   /* ---------- Layout ---------- */
   --container-narrow: min(100% - 2rem, 640px);
   --container-content: min(100% - 2rem, 980px);
-  --container-wide: min(100% - 2rem, 1200px);
+  --container-wide: min(100% - 2rem, 1240px);
 
-  --header-height: 52px;
+  --header-height: 68px;
   --content-offset-top: calc(var(--header-height) + 3rem);
 
-  /* continuous-corner radii */
-  --radius-xs: 6px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
-  --radius-xl: 24px;
-  --radius-2xl: 32px;
-  --radius-full: 980px;
+  /* corners: squarer, like the logo's steps */
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 22px;
+  --radius-full: 999px;
+
+  /* one step of the staircase, reused by every stepped shape */
+  --step: clamp(10px, 1.2vw, 16px);
 
   /* ---------- Motion ---------- */
-  --ease-out: cubic-bezier(0.25, 0.1, 0.25, 1);
-  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-spring: cubic-bezier(0.2, 0.9, 0.25, 1);
   --transition-fast: 160ms var(--ease-out);
   --transition-normal: 280ms var(--ease-out);
 
@@ -149,15 +165,15 @@
   --color-primary-tint: var(--tint-fill);
   --color-primary-tint-hover: rgba(var(--tint-rgb), 0.16);
   --color-primary-rgb: var(--tint-rgb);
-  --color-secondary: var(--tint);
-  --color-secondary-light: var(--tint-hover);
-  --color-secondary-dark: var(--tint-pressed);
-  --color-secondary-hover: var(--tint-hover);
-  --color-accent: var(--sys-orange);
-  --color-accent-light: var(--sys-orange);
+  --color-secondary: var(--teal-ink);
+  --color-secondary-light: var(--teal);
+  --color-secondary-dark: var(--teal-ink);
+  --color-secondary-hover: var(--teal-ink);
+  --color-accent: var(--marker);
+  --color-accent-light: var(--marker);
   --color-accent-dark: var(--sys-orange);
-  --color-accent-hover: var(--sys-orange);
-  --color-bg: var(--bg-2);
+  --color-accent-hover: var(--marker);
+  --color-bg: var(--bg);
   --color-bg-elevated: var(--bg-elevated);
   --color-surface: var(--bg-3);
   --color-surface-variant: var(--bg-2);
@@ -171,17 +187,17 @@
   --color-success-dark: var(--sys-green-ink);
   --color-warning: var(--sys-orange);
   --color-error: var(--sys-red);
-  --color-error-tint: rgba(255, 59, 48, 0.1);
-  --color-info: var(--tint);
+  --color-error-tint: rgba(194, 43, 58, 0.1);
+  --color-info: var(--teal-ink);
   --gradient-dominant: var(--tint);
   --gradient-primary: var(--tint);
-  --gradient-secondary: var(--tint);
-  --gradient-accent: var(--sys-orange);
+  --gradient-secondary: var(--teal-ink);
+  --gradient-accent: var(--marker);
   --gradient-modern: var(--tint);
   --gradient-reverse: var(--tint);
   --gradient-soft: var(--bg-2);
   --gradient-page-bg: none;
-  --gradient-dark: var(--bg-2);
+  --gradient-dark: var(--ink-deep);
   --shadow-sm: var(--shadow-1);
   --shadow-md: var(--shadow-2);
   --shadow-lg: var(--shadow-3);
@@ -190,6 +206,6 @@
 
 @media (max-width: 833px) {
   :root {
-    --header-height: 48px;
+    --header-height: 60px;
   }
 }

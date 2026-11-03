@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { LOGO_SRC, LOGO_WIDTH, LOGO_HEIGHT } from '../../design/logo'
 import styles from './Footer.module.css'
 
-/** Footer in the apple.com manner: quiet gray, small type, a link directory and a legal line. */
+/** Footer on ink: a closing line with the donate action, the directory, and the logo's staircase in the corner. */
 export function Footer() {
   const { t } = useTranslation('common')
 
@@ -16,20 +16,29 @@ export function Footer() {
   ]
 
   return (
-    <footer className={styles.footer} role="contentinfo">
+    <footer className={`ds-dark ${styles.footer}`} role="contentinfo">
+      <span className={styles.stairs} aria-hidden="true">
+        <i /><i /><i /><i />
+      </span>
+
       <div className={`ds-wrap ${styles.in}`}>
-        <div className={styles.brand}>
-          <Link to="/" className={`ds-logo-chip ${styles.logo}`}>
-            <img src={LOGO_SRC} alt={t('app.name')} width={LOGO_WIDTH} height={LOGO_HEIGHT} />
-          </Link>
-          <p>
-            <strong>{t('app.name')}</strong>
-            <span>{t('app.tagline')}</span>
-          </p>
+        <div className={styles.closing}>
+          <p className={styles.closingLine}>{t('footer.closing')}</p>
+          <Link to="/campaigns" className="ds-btn ds-btn-filled ds-btn-lg">{t('nav.donate')}</Link>
         </div>
 
         <div className={styles.directory}>
-          <nav className={styles.col} aria-label="Footer navigation">
+          <div className={styles.brand}>
+            <Link to="/" className={`ds-logo-chip ${styles.logo}`}>
+              <img src={LOGO_SRC} alt={t('app.name')} width={LOGO_WIDTH} height={LOGO_HEIGHT} />
+            </Link>
+            <p>
+              <strong>{t('app.name')}</strong>
+              <span>{t('footer.madeBy')}</span>
+            </p>
+          </div>
+
+          <nav className={styles.col} aria-label={t('footer.explore')}>
             <h3>{t('footer.explore')}</h3>
             <ul>
               {explore.map(({ to, label }) => (
@@ -39,6 +48,7 @@ export function Footer() {
               ))}
             </ul>
           </nav>
+
           <div className={styles.col}>
             <h3>{t('footer.contactVia')}</h3>
             <ul>

@@ -88,7 +88,7 @@ body {
   font-family: var(--font-sans);
   font-size: var(--type-body);
   line-height: var(--line-height-normal);
-  letter-spacing: -0.011em;
+  font-feature-settings: "kern";
   color: var(--label);
   background-color: var(--bg);
   text-rendering: optimizeLegibility;
@@ -97,7 +97,8 @@ body {
 }
 
 ::selection {
-  background: rgba(var(--tint-rgb), 0.24);
+  background: var(--marker);
+  color: #17131F;
 }
 
 #root {
@@ -135,7 +136,7 @@ button {
 
 /* Focus visible for accessibility */
 :focus-visible {
-  outline: 3px solid rgba(var(--tint-rgb), 0.6);
+  outline: 3px solid var(--teal);
   outline-offset: 2px;
 }
 

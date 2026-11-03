@@ -159,9 +159,12 @@ export function Header() {
           ) : (
             <span className={styles.authLinks}>
               <Link to="/login" className={styles.signIn}>{t('nav.login')}</Link>
-              <Link to="/register" className="ds-btn ds-btn-filled ds-btn-sm">{t('nav.register')}</Link>
             </span>
           )}
+
+          <Link to="/campaigns" className={`ds-btn ds-btn-filled ${styles.donate}`}>
+            {t('nav.donate')}
+          </Link>
 
           <button
             type="button"
@@ -198,8 +201,8 @@ export function Header() {
             </button>
             {!(isAuthenticated && user) && (
               <>
-                <Link to="/login" className="ds-btn ds-btn-gray ds-btn-lg" onClick={() => setMenuOpen(false)} tabIndex={menuOpen ? 0 : -1}>{t('nav.login')}</Link>
-                <Link to="/register" className="ds-btn ds-btn-filled ds-btn-lg" onClick={() => setMenuOpen(false)} tabIndex={menuOpen ? 0 : -1}>{t('nav.register')}</Link>
+                <Link to="/login" className="ds-btn ds-btn-outline ds-btn-lg" onClick={() => setMenuOpen(false)} tabIndex={menuOpen ? 0 : -1}>{t('nav.login')}</Link>
+                <Link to="/register" className="ds-btn ds-btn-gray ds-btn-lg" onClick={() => setMenuOpen(false)} tabIndex={menuOpen ? 0 : -1}>{t('nav.register')}</Link>
               </>
             )}
           </div>

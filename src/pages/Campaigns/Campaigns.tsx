@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageLayout } from '../../components/layout/PageLayout'
 import { campaignService } from '../../services/campaignService'
+import { resolveImageUrl } from '../../config/api'
 import type { CampaignOrProgram } from '../../types/api'
 import { getCampaignProgressPercent } from '../../components/CampaignAmountGoal'
 import { PageHero } from '../../components/design/PageHero'
@@ -89,6 +90,10 @@ export function Campaigns() {
                 {campaigns.map((item, i) => {
                   const raised = Number(item.raised_amount) || 0
                   const goal = Number(item.goal_amount) || 0
+                  const image = item.image_url || item.image
+                  const tag = item.is_urgent
+                    ? t('campaigns.urgent')
+                    : (lang === 'ar' ? item.category?.name_ar : item.category?.name_en) || undefined
                   return (
                     <CampaignCard
                       key={item.id}
@@ -96,6 +101,9 @@ export function Campaigns() {
                       reveal={false}
                       percent={getCampaignProgressPercent(raised, goal > 0 ? goal : 1)}
                       title={getTitle(item)}
+                      description={(item[(lang === 'ar' ? 'description_ar' : 'description_en') as keyof CampaignOrProgram] as string) || item.description}
+                      imageUrl={image ? resolveImageUrl(image) : undefined}
+                      tag={tag}
                       raisedLabel={t('campaigns.raised')}
                       goalLabel={t('campaigns.goal')}
                       raisedText={`${formatAmount(raised)} ${currency}`}

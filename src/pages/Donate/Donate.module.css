@@ -305,7 +305,7 @@
 
 .bar {
   position: relative;
-  height: 6px;
+  height: 8px;
   border-radius: 3px;
   background: var(--fill-3);
   overflow: hidden;
@@ -320,7 +320,7 @@
 .barNow {
   inset-inline-start: 0;
   width: var(--now, 0%);
-  background: var(--tint);
+  background: var(--teal);
   transition: width 1.2s var(--ease-spring);
 }
 
@@ -328,7 +328,7 @@
 .barAdd {
   inset-inline-start: var(--now, 0%);
   width: var(--add, 0%);
-  background: rgba(var(--tint-rgb), 0.4);
+  background: var(--marker);
   transition: width 0.5s var(--ease-spring), inset-inline-start 1.2s var(--ease-spring);
 }
 

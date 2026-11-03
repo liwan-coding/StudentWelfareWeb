@@ -2,7 +2,6 @@ import { useRef, useState, type InputHTMLAttributes, type ReactNode, type Clipbo
 import { useTranslation } from 'react-i18next'
 import { PageLayout } from '../components/layout/PageLayout'
 import { LOGO_SRC, LOGO_WIDTH, LOGO_HEIGHT } from '../components/design/logo'
-import { Backdrop } from '../components/design/Backdrop'
 import styles from './Auth.module.css'
 
 interface AuthShellProps {
@@ -20,8 +19,16 @@ export function AuthShell({ title, subtitle, top, children }: AuthShellProps) {
   return (
     <PageLayout noPadding design>
       <section className={styles.page} aria-labelledby="auth-title">
-        <Backdrop className={styles.aurora} />
-        <div className={`ds-wrap ${styles.wrap}`}>
+        <div className={`ds-wrap ${styles.wrap} ${styles.split}`}>
+          <aside className={styles.brandPanel} aria-hidden="true">
+            <span className={styles.brandWedge} />
+            <span className={styles.brandSteps}>
+              <i /><i /><i /><i />
+            </span>
+            <p className={styles.brandLine}>
+              {t('home.heroLead')} <span className="ds-mark">{t('home.heroMark')}</span> {t('home.heroTail')}
+            </p>
+          </aside>
           <div className={styles.auth}>
             <div className={`ds-logo-chip ${styles.logo}`}>
               <img src={LOGO_SRC} alt={t('app.name')} width={LOGO_WIDTH} height={LOGO_HEIGHT} />
@@ -29,7 +36,7 @@ export function AuthShell({ title, subtitle, top, children }: AuthShellProps) {
             {top}
             <div className={styles.revealIn} key={title}>
               <header className={styles.head}>
-                <h1 id="auth-title" className="ds-gradient-text">{title}</h1>
+                <h1 id="auth-title">{title}</h1>
                 <p className={styles.sub}>{subtitle}</p>
               </header>
               {children}
