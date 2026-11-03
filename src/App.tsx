@@ -5,6 +5,7 @@ import { setDocumentDirection } from './i18n/config'
 import { AuthProvider } from './context/AuthContext'
 import { ErrorProvider } from './context/ErrorContext'
 import { AuthRedirectEffect } from './components/AuthRedirectEffect'
+import { ScrollToTop } from './components/ScrollToTop'
 import { AuthCheckedGate } from './components/AuthCheckedGate'
 import { AppToast } from './components/AppToast'
 import { ProtectedRoute } from './components/ProtectedRoute'
@@ -35,6 +36,7 @@ function App() {
       <AuthProvider>
         <ErrorProvider>
           <DirSync />
+          <ScrollToTop />
           <AuthRedirectEffect />
           <AuthCheckedGate>
             <AppToast />
