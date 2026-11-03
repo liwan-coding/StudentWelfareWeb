@@ -79,7 +79,6 @@ export function Home() {
   const [loadingPrograms, setLoadingPrograms] = useState(true)
 
   const lang = i18n.language === 'ar' ? 'ar' : 'en'
-  const locale = lang === 'ar' ? 'ar-OM' : 'en-GB'
   const titleKey = lang === 'ar' ? 'title_ar' : 'title_en'
   const descKey = lang === 'ar' ? 'description_ar' : 'description_en'
   const getTitle = (item: CampaignOrProgram) =>
@@ -196,11 +195,6 @@ export function Home() {
       ? (lang === 'ar' ? registrationCard.subtitle_ar : registrationCard.subtitle_en)!
       : (lang === 'ar' ? FALLBACK_CARD_DESC_AR : FALLBACK_CARD_DESC_EN)
 
-  // ===== the climb: live totals for the hero staircase =====
-  const totalRaised = campaigns.reduce((s, c) => s + (Number(c.raised_amount) || 0), 0)
-  const totalGoal = campaigns.reduce((s, c) => s + (Number(c.goal_amount) || 0), 0)
-  const overallPct = totalGoal > 0 ? Math.round((totalRaised / totalGoal) * 100) : 0
-  const compact = new Intl.NumberFormat(`${locale}-u-nu-latn`, { notation: 'compact', maximumFractionDigits: 1 })
   const percentSign = lang === 'ar' ? '٪' : '%'
   const currency = t('donate.currencyShort')
   const statsReady = !loadingCampaigns && !loadingPrograms
@@ -218,7 +212,7 @@ export function Home() {
     <PageLayout noPadding design>
       {/* ================= Hero: a bento grid of the fund's real content =================
           headline (magenta, with the logo's steps) · featured campaign photo ·
-          raised so far (teal) · apply for support · the support programs (ink) */}
+          apply for support · the support programs (ink) */}
       <section className={styles.hero} aria-labelledby="hero-title">
         <div className={`ds-wrap ${styles.bento}`}>
           <div className={`${styles.tile} ${styles.tHead}`}>
@@ -273,19 +267,6 @@ export function Home() {
           ) : (
             <div className={`${styles.tile} ${styles.tFeature} ${styles.tSkeleton}`} aria-hidden="true" />
           )}
-
-          <div className={`${styles.tile} ${styles.tRaised}`}>
-            <span className={styles.tLabel}>{t('home.statRaised')}</span>
-            <b className={`ds-num ${styles.bigNum}`}>{statsReady ? compact.format(totalRaised) : '—'}</b>
-            <span className={styles.miniSteps} aria-hidden="true">
-              {Array.from({ length: 10 }, (_, i) => (
-                <i key={i} style={{ '--h': (i + 1) / 10, '--f': Math.max(0, Math.min(1, overallPct / 10 - i)) } as CSSProperties}><b /></i>
-              ))}
-            </span>
-            <span className={styles.tFoot}>
-              <b className="ds-num">{overallPct}{percentSign}</b> {t('home.statGoal')}
-            </span>
-          </div>
 
           <Link to="/student-registration" className={`${styles.tile} ${styles.tApply}`}>
             <span className={styles.tIcon} aria-hidden="true">
