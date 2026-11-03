@@ -4,13 +4,13 @@
    Every page uses the alias family 'Brand' (see --font-sans and
    --font-display in variables.css), so nothing else needs editing.
 
-   Current font: Elgharib "Hayyakum Allah Taweel" (Arabic + Latin)
-   Files:        public/fonts/elgharib/
+   Current font: Lama Sans, Standard width (Arabic + Latin)
+   Files:        public/fonts/lama-sans/
 
    To switch to another font:
-   1. Copy its files into public/fonts/<folder>/ (woff2, ttf or otf).
-   2. Update the url(...) and format(...) of each @font-face below,
-      one block per weight (300 Light, 400 Regular, 500 Medium, 700 Bold).
+   1. Copy its files into public/fonts/<folder>/ (woff2 preferred; ttf or otf work).
+   2. Update the url(...) and format(...) in each block below, one block
+      per weight (300 Light, 400 Regular, 500 Medium, 600 SemiBold, 700 Bold).
       Missing weights are fine: the browser uses the nearest one.
    3. Arabic-only font (no English letters)? Uncomment the unicode-range
       line in every block, so English falls back to system fonts, or add
@@ -20,7 +20,7 @@
 
 @font-face {
   font-family: 'Brand';
-  src: url('/fonts/elgharib/Elgharib-Light.ttf') format('truetype');
+  src: url('/fonts/lama-sans/LamaSans-Light.woff2') format('woff2');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -30,7 +30,7 @@
 
 @font-face {
   font-family: 'Brand';
-  src: url('/fonts/elgharib/Elgharib-Regular.ttf') format('truetype');
+  src: url('/fonts/lama-sans/LamaSans-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -40,7 +40,7 @@
 
 @font-face {
   font-family: 'Brand';
-  src: url('/fonts/elgharib/Elgharib-Medium.ttf') format('truetype');
+  src: url('/fonts/lama-sans/LamaSans-Medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -50,7 +50,17 @@
 
 @font-face {
   font-family: 'Brand';
-  src: url('/fonts/elgharib/Elgharib-Bold.ttf') format('truetype');
+  src: url('/fonts/lama-sans/LamaSans-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  size-adjust: 100%;
+  /* unicode-range: U+0600-06FF, U+0750-077F, U+0870-08FF, U+FB50-FDFF, U+FE70-FEFF, U+200C-200F; */
+}
+
+@font-face {
+  font-family: 'Brand';
+  src: url('/fonts/lama-sans/LamaSans-Bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
