@@ -1135,3 +1135,17 @@ a.tile:hover .tGo {
     margin: 0;
   }
 }
+
+/* ---------- card gradients (tokens in design.css) ---------- */
+.tHead,
+.tRaised,
+.tPrograms,
+.stair,
+:global(html[data-theme='dark']) .tHead {
+  background-image: var(--sheen);
+}
+
+.tApply,
+.apply {
+  background-image: var(--card-wash);
+}

@@ -735,3 +735,9 @@
     font-size: var(--type-caption);
   }
 }
+
+/* card gradient (token in design.css) */
+.summary,
+.checkout {
+  background-image: var(--card-wash);
+}
