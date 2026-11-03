@@ -37,8 +37,8 @@ function SectionHead({ index, id, title, subtitle, action }: {
       <div className={styles.headText}>
         <h2 id={id} className="ds-title-1">{title}</h2>
         {subtitle && <p className="ds-subhead">{subtitle}</p>}
+        {action && <div className={styles.headAction}>{action}</div>}
       </div>
-      {action && <div className={styles.headAction}>{action}</div>}
     </div>
   )
 }
@@ -280,7 +280,7 @@ export function Home() {
       )}
 
       {/* ================= Initiatives ================= */}
-      <section className={styles.section} id="campaigns" aria-labelledby="campaigns-heading">
+      <section className={`${styles.section} ${styles.sectionFirst} ${styles.wash}`} id="campaigns" aria-labelledby="campaigns-heading">
         <div className="ds-wrap">
           <SectionHead
             index={nextIndex()}
@@ -364,15 +364,36 @@ export function Home() {
         </section>
       )}
 
+      {/* ================= Trust: the fund's legal standing, from the About page ================= */}
+      <section className={`${styles.section} ${styles.trust}`} aria-labelledby="trust-heading">
+        <div className={`ds-wrap ${styles.trustInner}`}>
+          <div className={styles.trustText}>
+            <span className="ds-eyebrow">{t('about.legalStatusTitle')}</span>
+            <h2 id="trust-heading" className="ds-title-1">{t('home.trustTitle')}</h2>
+            <Link to="/about" className="ds-btn ds-btn-plain">{t('home.trustMore')}</Link>
+          </div>
+          <ul className={styles.trustList}>
+            {(['legalStatus1', 'legalStatus3', 'legalStatus5'] as const).map((key) => (
+              <li key={key}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z" />
+                  <path d="M9 12l2 2 4-4" />
+                </svg>
+                <span>{t(`about.${key}`)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
       {/* ================= Students: apply, in three steps ================= */}
-      <section className={`${styles.section} ${styles.apply}`} aria-labelledby="apply-heading">
-        <span className={styles.applyCorner} aria-hidden="true" />
+      <section className={`${styles.section} ${styles.wash} ${styles.apply}`} aria-labelledby="apply-heading">
         <div className={`ds-wrap ${styles.applyInner}`}>
           <div className={styles.applyText}>
-            <span className={`ds-eyebrow ${styles.applyEyebrow}`}>{t('home.regCardTag')}</span>
+            <span className="ds-eyebrow">{t('home.regCardTag')}</span>
             <h2 id="apply-heading" className={styles.applyTitle}>{cardHeadline}</h2>
             <p className={styles.applySub}>{cardSubtitle}</p>
-            <Link to="/student-registration" className={`ds-btn ds-btn-light ds-btn-lg ${styles.applyBtn} ${statusClass}`}>
+            <Link to="/student-registration" className={`ds-btn ds-btn-filled ds-btn-lg ${styles.applyBtn} ${statusClass}`}>
               {statusLabel}
               <ArrowIcon />
             </Link>

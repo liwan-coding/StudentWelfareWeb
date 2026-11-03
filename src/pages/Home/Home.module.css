@@ -21,9 +21,8 @@
 /* ---------- hero ---------- */
 .hero {
   position: relative;
-  padding-block: calc(var(--header-height) + clamp(40px, 6vw, 88px)) clamp(48px, 6vw, 96px);
+  padding-block: calc(var(--header-height) + clamp(32px, 5vw, 72px)) var(--space-section-sm);
   background: var(--bg);
-  border-bottom: 1px solid var(--separator);
 }
 
 .heroInner {
@@ -181,7 +180,7 @@
 }
 
 .step span {
-  font-size: clamp(0.6875rem, 0.62rem + 0.25vw, 0.8125rem);
+  font-size: clamp(0.8125rem, 0.76rem + 0.2vw, 0.875rem);
   line-height: 1.35;
   font-weight: 500;
 }
@@ -216,15 +215,25 @@
 /* ---------- sections ---------- */
 .section {
   position: relative;
-  padding-block: var(--space-section);
+  padding-block: var(--space-section-md);
+}
+
+/* the first section after the hero stays close to it */
+.sectionFirst {
+  padding-top: var(--space-section-sm);
+}
+
+/* the darker paper layer, so white cards and the hero read as separate surfaces */
+.wash {
+  background: var(--bg-2);
 }
 
 .head {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
   gap: 8px clamp(16px, 3vw, 40px);
-  align-items: end;
-  margin-bottom: clamp(32px, 4vw, 56px);
+  align-items: start;
+  margin-bottom: clamp(28px, 3.5vw, 48px);
   padding-top: 18px;
   border-top: 2px solid var(--rule);
 }
@@ -243,7 +252,7 @@
 }
 
 .headAction {
-  justify-self: end;
+  margin-top: 2px;
 }
 
 /* ---------- initiatives ---------- */
@@ -307,13 +316,14 @@
 
 .program {
   display: grid;
-  grid-template-columns: clamp(56px, 8vw, 120px) minmax(0, 1fr) auto;
-  gap: 16px clamp(16px, 3vw, 40px);
+  grid-template-columns: clamp(56px, 7vw, 96px) minmax(0, 1fr) minmax(0, 1.15fr) auto;
+  gap: 12px clamp(16px, 3vw, 48px);
   align-items: center;
-  padding: clamp(22px, 3vw, 34px) 8px;
+  padding: clamp(22px, 2.6vw, 32px) 8px;
   transition: background-color var(--transition-fast), padding var(--transition-normal);
 }
 
+/* title and description sit side by side, so the row has no dead middle */
 .program:hover {
   background: var(--fill-4);
   padding-inline: 20px;
@@ -326,9 +336,9 @@
   color: var(--teal);
 }
 
+/* title and description become their own grid columns, so the row has no dead middle */
 .programText {
-  display: grid;
-  gap: 6px;
+  display: contents;
 }
 
 .programTitle {
@@ -339,9 +349,8 @@
 }
 
 .programDesc {
-  max-width: 46rem;
   font-size: var(--type-subhead);
-  line-height: 1.65;
+  line-height: 1.7;
   color: var(--label-2);
 }
 
@@ -372,21 +381,6 @@
 /* ---------- apply: teal band, magenta corner, three rising steps ---------- */
 .apply {
   overflow: hidden;
-  color: #FFFFFF;
-  background: #0B5E7A;
-}
-
-.applyCorner {
-  position: absolute;
-  inset-block: 0;
-  inset-inline-end: 0;
-  width: min(42vw, 560px);
-  background: #A3418F;
-  clip-path: polygon(0 0, 100% 0, 100% 100%);
-}
-
-:global(html[dir='rtl']) .applyCorner {
-  clip-path: polygon(0 0, 100% 0, 0 100%);
 }
 
 .applyInner {
@@ -404,22 +398,17 @@
   gap: 18px;
 }
 
-.applyEyebrow {
-  color: #CDEBF5;
-}
-
 .apply .applyTitle {
   font-size: var(--type-large);
   line-height: 1.15;
   font-weight: 600;
-  color: #FFFFFF;
 }
 
 .applySub {
   max-width: 32rem;
   font-size: var(--type-callout);
-  line-height: 1.75;
-  color: rgba(255, 255, 255, 0.86);
+  line-height: 1.8;
+  color: var(--label-2);
 }
 
 .applyBtn {
@@ -464,8 +453,8 @@
   gap: 8px;
   min-height: calc(180px + var(--n) * 64px);
   padding: 20px 18px;
-  color: #17131F;
-  background: #F7F4ED;
+  color: #FFFFFF;
+  background: #0B5E7A;
   border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
@@ -473,20 +462,20 @@
   font-size: 2.5rem;
   font-weight: 300;
   line-height: 1;
-  color: #0B5E7A;
+  color: #CDEBF5;
 }
 
-.applySteps h3 {
+.apply .applySteps h3 {
   font-size: var(--type-callout);
   font-weight: 600;
-  line-height: 1.35;
-  color: #17131F;
+  line-height: 1.4;
+  color: #FFFFFF;
 }
 
 .applySteps p {
-  font-size: var(--type-footnote);
-  line-height: 1.6;
-  color: #4F4A5E;
+  font-size: var(--type-subhead);
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.86);
 }
 
 /* ---------- news ---------- */
@@ -576,11 +565,6 @@
     grid-template-columns: 1fr;
   }
 
-  .applyCorner {
-    width: 60vw;
-    height: 280px;
-    inset-block-end: auto;
-  }
 }
 
 @media (max-width: 899px) {
@@ -590,7 +574,7 @@
 
   .climb {
     aspect-ratio: auto;
-    height: clamp(300px, 80vw, 440px);
+    height: clamp(240px, 62vw, 380px);
   }
 
   .newsGrid {
@@ -648,4 +632,86 @@
     font-size: 1.6rem;
     min-width: 1.6rem;
   }
+}
+
+/* ---------- trust: the fund's legal standing ---------- */
+.trust {
+  background: var(--bg);
+}
+
+.trustInner {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(28px, 5vw, 80px);
+  align-items: start;
+}
+
+.trustText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.trustList {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 2px solid var(--rule);
+}
+
+.trustList li {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding-block: 18px;
+  font-family: var(--font-display);
+  font-size: var(--type-title-3);
+  line-height: 1.5;
+  border-bottom: 1px solid var(--separator);
+}
+
+.trustList svg {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  margin-top: 2px;
+  color: var(--teal-ink);
+}
+
+@media (max-width: 899px) {
+  .trustInner {
+    grid-template-columns: 1fr;
+  }
+
+  .trustList li {
+    font-size: var(--type-callout);
+  }
+}
+
+/* program rows stack below the wide layout */
+@media (max-width: 1023px) {
+  .program {
+    grid-template-columns: clamp(48px, 8vw, 80px) minmax(0, 1fr) auto;
+  }
+
+  .programTitle {
+    grid-column: 2;
+  }
+
+  .programDesc {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .programNo,
+  .programGo {
+    grid-row: 1 / span 2;
+  }
+}
+
+/* dark theme: the ink band sits a shade below the page so the layering still reads */
+:global(html[data-theme='dark']) .programs {
+  background: #09070D;
 }

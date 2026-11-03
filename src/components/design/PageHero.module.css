@@ -1,8 +1,9 @@
-/* Inner-page header: paper, start-aligned title, an ink rule below,
-   and the logo's staircase (teal steps under a magenta wedge) at the end. */
+/* Inner-page header: paper, start-aligned title and subtitle, an ink rule below. */
 .ph {
   padding-block: calc(var(--header-height) + clamp(40px, 5vw, 80px)) clamp(32px, 4vw, 56px);
   background: var(--bg);
+  /* the ink rule the page content starts from */
+  border-bottom: 2px solid var(--rule);
 }
 
 .inner {
@@ -10,10 +11,6 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 32px;
-}
-
-.inner::after {
-  content: none;
 }
 
 .text {
@@ -37,48 +34,6 @@
   animation: phIn 0.7s var(--ease-spring) 0.08s both;
 }
 
-/* the mark: four steps rising toward the end, wedge above */
-.mark {
-  position: relative;
-  flex-shrink: 0;
-  display: flex;
-  align-items: flex-end;
-  width: clamp(120px, 16vw, 220px);
-  aspect-ratio: 1;
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  overflow: hidden;
-}
-
-.mark::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: #A3418F;
-  clip-path: polygon(0 0, 100% 0, 0 100%);
-}
-
-:global(html[dir='rtl']) .mark::before {
-  clip-path: polygon(0 0, 100% 0, 100% 100%);
-}
-
-.mark i {
-  position: relative;
-  flex: 1;
-  background: #2A9BC0;
-  transform-origin: bottom;
-  animation: stepUp 0.6s var(--ease-spring) both;
-}
-
-.mark i:nth-child(1) { height: 25%; animation-delay: 0.1s; }
-.mark i:nth-child(2) { height: 50%; animation-delay: 0.18s; }
-.mark i:nth-child(3) { height: 75%; animation-delay: 0.26s; }
-.mark i:nth-child(4) { height: 100%; animation-delay: 0.34s; }
-
-/* the ink rule the page content starts from */
-.ph {
-  border-bottom: 2px solid var(--rule);
-}
-
 @keyframes phIn {
   from {
     opacity: 0;
@@ -86,17 +41,7 @@
   }
 }
 
-@keyframes stepUp {
-  from {
-    transform: scaleY(0);
-  }
-}
-
 @media (max-width: 640px) {
-  .mark {
-    width: 84px;
-  }
-
   .text {
     padding-bottom: 20px;
   }

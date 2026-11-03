@@ -8,7 +8,7 @@ interface PageHeroProps {
   eyebrow?: string
 }
 
-/** Inner-page header: start-aligned title and subtitle beside a small copy of the logo's staircase. */
+/** Inner-page header: start-aligned title and subtitle above an ink rule. The staircase is kept for the home hero and footer. */
 export function PageHero({ title, subtitle, id, eyebrow }: PageHeroProps) {
   return (
     <header className={styles.ph}>
@@ -18,9 +18,6 @@ export function PageHero({ title, subtitle, id, eyebrow }: PageHeroProps) {
           <h1 id={id} className={`ds-large-title ${styles.title}`}>{title}</h1>
           {subtitle && <p className={`ds-subhead ${styles.sub}`}>{subtitle}</p>}
         </div>
-        <span className={styles.mark} aria-hidden="true">
-          <i /><i /><i /><i />
-        </span>
       </div>
     </header>
   )

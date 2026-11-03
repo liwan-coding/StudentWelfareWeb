@@ -80,6 +80,12 @@ html.dir-rtl .js-donation-subtext {
   text-align: right !important;
 }
 
+/* Arabic reads better a little larger and taller than Latin */
+html[lang="ar"] body {
+  font-size: 1.125rem;
+  line-height: 1.8;
+}
+
 body {
   margin: 0;
   min-height: 100vh;

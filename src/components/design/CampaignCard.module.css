@@ -9,7 +9,7 @@
 
 .card:hover {
   box-shadow: var(--shadow-2);
-  border-color: var(--label-4);
+  border-color: var(--tint);
 }
 
 .card:focus-within {
@@ -122,7 +122,7 @@
   align-items: flex-end;
   gap: 14px;
   margin-top: auto;
-  padding-top: 4px;
+  padding-top: 12px;
 }
 
 .climb {
@@ -178,21 +178,16 @@
 .figures {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 16px;
   margin: 0;
-  border-top: 1px solid var(--separator);
 }
 
 .figures div {
-  padding-top: 12px;
-}
-
-.figures div + div {
-  padding-inline-start: 14px;
-  border-inline-start: 1px solid var(--separator);
+  padding-top: 0;
 }
 
 .figures dt {
-  font-size: var(--type-caption);
+  font-size: var(--type-footnote);
   color: var(--label-3);
 }
 

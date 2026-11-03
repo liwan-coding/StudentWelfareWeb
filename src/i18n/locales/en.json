@@ -69,7 +69,9 @@
     "applyStep2": "Fill in your application",
     "applyStep2Body": "Your details, your studies and the required documents.",
     "applyStep3": "Follow your request",
-    "applyStep3Body": "Its status appears here once it has been reviewed."
+    "applyStep3Body": "Its status appears here once it has been reviewed.",
+    "trustTitle": "Why you can give with confidence",
+    "trustMore": "More about the fund"
   },
   "campaigns": {
     "title": "Initiatives",
@@ -106,7 +108,8 @@
     "amountRequired": "Please enter the amount you would like to donate",
     "phoneRequired": "Please enter your phone number",
     "paymentFailed": "We couldn’t confirm your payment",
-    "paymentFailedDetail": "Before trying again, check My Donations so you aren’t charged twice."
+    "paymentFailedDetail": "Before trying again, check My Donations so you aren’t charged twice.",
+    "secureNote": "Secure payment through Thawani. You will come back here once the payment is done."
   },
   "myDonations": {
     "title": "My Donations",

@@ -490,6 +490,7 @@ export function Donate() {
                     )}
                     <span>{submitting ? t('common.loading') : t('donate.submit')}</span>
                   </button>
+                  <p className={styles.secure}>{t('donate.secureNote')}</p>
                 </div>
               </form>
             </div>

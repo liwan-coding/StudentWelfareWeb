@@ -54,15 +54,15 @@ html[data-theme='dark'],
   --label-4: #6E687A;
 
   --bg: #120F18;
-  --bg-2: #0C0A11;
-  --bg-3: #1C1824;
-  --bg-elevated: #26212F;
+  --bg-2: #19151F;
+  --bg-3: #221D2B;
+  --bg-elevated: #2B2535;
 
   --fill-1: rgba(244, 240, 232, 0.2);
   --fill-2: rgba(244, 240, 232, 0.14);
   --fill-3: rgba(244, 240, 232, 0.09);
   --fill-4: rgba(244, 240, 232, 0.05);
-  --separator: rgba(244, 240, 232, 0.13);
+  --separator: rgba(244, 240, 232, 0.16);
   --separator-opaque: #332D3D;
   --rule: #F4F0E8;
 
