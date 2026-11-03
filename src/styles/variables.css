@@ -83,10 +83,9 @@
   --shadow-3: 0 2px 4px rgba(15, 26, 32, 0.06), 0 28px 56px -24px rgba(15, 26, 32, 0.34);
 
   /* ---------- Typography ----------
-     LANTX (public/fonts/lantx) covers Arabic letters and digits only, so Latin
-     text falls through to Readex Pro. One stack for display and text. */
-  --font-sans: 'LANTX', 'Readex Pro', 'Segoe UI', system-ui, sans-serif;
-  --font-display: 'LANTX', 'Readex Pro', 'Segoe UI', system-ui, sans-serif;
+     'Brand' is defined in fonts.css; change the typeface there, not here. */
+  --font-sans: 'Brand', 'Segoe UI', Tahoma, system-ui, sans-serif;
+  --font-display: 'Brand', 'Segoe UI', Tahoma, system-ui, sans-serif;
   --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
   --type-caption: 0.75rem;      /* 12 */
