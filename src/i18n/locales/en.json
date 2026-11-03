@@ -109,7 +109,8 @@
     "phoneRequired": "Please enter your phone number",
     "paymentFailed": "We couldn’t confirm your payment",
     "paymentFailedDetail": "Before trying again, check My Donations so you aren’t charged twice.",
-    "secureNote": "Secure payment through Thawani. You will come back here once the payment is done."
+    "secureNote": "Secure payment through Thawani. You will come back here once the payment is done.",
+    "backToCampaigns": "All initiatives"
   },
   "myDonations": {
     "title": "My Donations",

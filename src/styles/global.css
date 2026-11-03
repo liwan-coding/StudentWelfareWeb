@@ -103,8 +103,8 @@ body {
 }
 
 ::selection {
-  background: var(--marker);
-  color: #17131F;
+  background: var(--teal-soft);
+  color: #0F1A20;
 }
 
 #root {

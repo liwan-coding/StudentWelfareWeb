@@ -8,7 +8,7 @@ interface PageHeroProps {
   eyebrow?: string
 }
 
-/** Inner-page header: start-aligned title and subtitle above an ink rule. The staircase is kept for the home hero and footer. */
+/** Inner-page header: a compact teal band with the title and one line; its bottom edge steps down like the logo. */
 export function PageHero({ title, subtitle, id, eyebrow }: PageHeroProps) {
   return (
     <header className={styles.ph}>

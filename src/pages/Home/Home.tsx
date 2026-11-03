@@ -23,9 +23,8 @@ function ArrowIcon() {
   )
 }
 
-/** Editorial section head: an ink rule, a running number, the title and an optional link. */
-function SectionHead({ index, id, title, subtitle, action }: {
-  index: string
+/** Section head: the title (and an optional line under it) at the start, the action at the end of the same row. */
+function SectionHead({ id, title, subtitle, action }: {
   id: string
   title: string
   subtitle?: string
@@ -33,12 +32,11 @@ function SectionHead({ index, id, title, subtitle, action }: {
 }) {
   return (
     <div className={styles.head}>
-      <span className={`ds-num ${styles.headIndex}`} aria-hidden="true">{index}</span>
       <div className={styles.headText}>
-        <h2 id={id} className="ds-title-1">{title}</h2>
-        {subtitle && <p className="ds-subhead">{subtitle}</p>}
-        {action && <div className={styles.headAction}>{action}</div>}
+        <h2 id={id} className={styles.headTitle}>{title}</h2>
+        {subtitle && <p className={styles.headSub}>{subtitle}</p>}
       </div>
+      {action}
     </div>
   )
 }
@@ -216,21 +214,14 @@ export function Home() {
   const featured = campaigns.slice(0, HOME_CAMPAIGNS)
   const tagFor = (c: CampaignOrProgram) => (c.is_urgent ? t('campaigns.urgent') : c.category ? (lang === 'ar' ? c.category.name_ar : c.category.name_en) || undefined : undefined)
 
-  // running section numbers only count sections that are shown
-  let sectionNo = 0
-  const nextIndex = () => String(++sectionNo).padStart(2, '0')
-
   return (
     <PageLayout noPadding design>
       {/* ================= Hero: the logo, drawn with live numbers ================= */}
       <section className={styles.hero} aria-labelledby="hero-title">
         <div className={`ds-wrap ${styles.heroInner}`}>
           <div className={styles.heroText}>
-            <span className="ds-eyebrow">{t('app.tagline')}</span>
             <h1 id="hero-title" className={styles.heroTitle}>
-              {t('home.heroLead')}{' '}
-              <span className="ds-mark">{t('home.heroMark')}</span>{' '}
-              {t('home.heroTail')}
+              {t('home.heroLead')} {t('home.heroMark')} {t('home.heroTail')}
             </h1>
             <p className={styles.heroBody}>{t('home.heroBody')}</p>
             <div className={styles.heroCtas}>
@@ -280,16 +271,15 @@ export function Home() {
       )}
 
       {/* ================= Initiatives ================= */}
-      <section className={`${styles.section} ${styles.sectionFirst} ${styles.wash}`} id="campaigns" aria-labelledby="campaigns-heading">
+      <section className={`${styles.section} ${styles.surface}`} id="campaigns" aria-labelledby="campaigns-heading">
         <div className="ds-wrap">
           <SectionHead
-            index={nextIndex()}
             id="campaigns-heading"
             title={t('home.campaignsSectionTitle')}
-            subtitle={t('campaigns.subtitle')}
             action={campaigns.length > 0 && (
-              <Link to="/campaigns" className="ds-btn ds-btn-plain">
+              <Link to="/campaigns" className={styles.headLink}>
                 {t('home.viewAll')} <span className="ds-num">({campaigns.length})</span>
+                <ArrowIcon />
               </Link>
             )}
           />
@@ -333,27 +323,19 @@ export function Home() {
         </div>
       </section>
 
-      {/* ================= Support programs: an index on ink ================= */}
+      {/* ================= Support programs: the logo's staircase, one step per program ================= */}
       {programs.length > 0 && (
-        <section className={`ds-dark ${styles.section} ${styles.programs}`} aria-labelledby="programs-heading">
+        <section className={styles.section} aria-labelledby="programs-heading">
           <div className="ds-wrap">
-            <SectionHead
-              index={nextIndex()}
-              id="programs-heading"
-              title={t('home.programsTitle')}
-              subtitle={t('home.programsSubtitle')}
-            />
-            <ol className={styles.programList}>
+            <SectionHead id="programs-heading" title={t('home.programsTitle')} subtitle={t('home.programsSubtitle')} />
+            <ol className={styles.stairs}>
               {programs.map((p, i) => (
-                <li key={p.id}>
-                  <Link to={`/donate?program_id=${p.id}`} className={styles.program}>
-                    <span className={`ds-num ${styles.programNo}`} aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-                    <span className={styles.programText}>
-                      <span className={styles.programTitle}>{getTitle(p)}</span>
-                      {getDesc(p) && <span className={styles.programDesc}>{getDesc(p)}</span>}
-                    </span>
-                    <span className={styles.programGo}>
-                      <span className={styles.programGoLabel}>{t('home.programDonate')}</span>
+                <li key={p.id} style={{ '--n': i } as CSSProperties}>
+                  <Link to={`/donate?program_id=${p.id}`} className={styles.stair}>
+                    <span className={styles.stairTitle}>{getTitle(p)}</span>
+                    {getDesc(p) && <span className={styles.stairDesc}>{getDesc(p)}</span>}
+                    <span className={styles.stairGo}>
+                      {t('home.programDonate')}
                       <ArrowIcon />
                     </span>
                   </Link>
@@ -364,49 +346,48 @@ export function Home() {
         </section>
       )}
 
-      {/* ================= Trust: the fund's legal standing, from the About page ================= */}
-      <section className={`${styles.section} ${styles.trust}`} aria-labelledby="trust-heading">
-        <div className={`ds-wrap ${styles.trustInner}`}>
-          <div className={styles.trustText}>
-            <span className="ds-eyebrow">{t('about.legalStatusTitle')}</span>
-            <h2 id="trust-heading" className="ds-title-1">{t('home.trustTitle')}</h2>
-            <Link to="/about" className="ds-btn ds-btn-plain">{t('home.trustMore')}</Link>
+      {/* ================= Students: apply along the logo's pen line + why it is safe to give ================= */}
+      <section className={`${styles.section} ${styles.surface}`} aria-labelledby="apply-heading">
+        <div className="ds-wrap">
+          <div className={styles.apply}>
+            <div className={styles.applyText}>
+              <span className="ds-eyebrow">{t('home.regCardTag')}</span>
+              <h2 id="apply-heading" className={styles.applyTitle}>{cardHeadline}</h2>
+              <p className={styles.applySub}>{cardSubtitle}</p>
+              <Link to="/student-registration" className={`ds-btn ds-btn-filled ds-btn-lg ${statusClass}`}>
+                {statusLabel}
+                <ArrowIcon />
+              </Link>
+            </div>
+            <ol className={styles.timeline}>
+              {[1, 2, 3].map((n) => (
+                <li key={n}>
+                  <span className={styles.dot} aria-hidden="true" />
+                  <h3>{t(`home.applyStep${n}`)}</h3>
+                  <p>{t(`home.applyStep${n}Body`)}</p>
+                </li>
+              ))}
+            </ol>
           </div>
-          <ul className={styles.trustList}>
-            {(['legalStatus1', 'legalStatus3', 'legalStatus5'] as const).map((key) => (
-              <li key={key}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z" />
-                  <path d="M9 12l2 2 4-4" />
-                </svg>
-                <span>{t(`about.${key}`)}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
 
-      {/* ================= Students: apply, in three steps ================= */}
-      <section className={`${styles.section} ${styles.wash} ${styles.apply}`} aria-labelledby="apply-heading">
-        <div className={`ds-wrap ${styles.applyInner}`}>
-          <div className={styles.applyText}>
-            <span className="ds-eyebrow">{t('home.regCardTag')}</span>
-            <h2 id="apply-heading" className={styles.applyTitle}>{cardHeadline}</h2>
-            <p className={styles.applySub}>{cardSubtitle}</p>
-            <Link to="/student-registration" className={`ds-btn ds-btn-filled ds-btn-lg ${styles.applyBtn} ${statusClass}`}>
-              {statusLabel}
+          <div className={styles.trust}>
+            <h2 className={styles.trustTitle}>{t('home.trustTitle')}</h2>
+            <ul className={styles.trustList}>
+              {(['legalStatus1', 'legalStatus3', 'legalStatus5'] as const).map((key) => (
+                <li key={key}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z" />
+                    <path d="M9 12l2 2 4-4" />
+                  </svg>
+                  <span>{t(`about.${key}`)}</span>
+                </li>
+              ))}
+            </ul>
+            <Link to="/about" className={styles.headLink}>
+              {t('home.trustMore')}
               <ArrowIcon />
             </Link>
           </div>
-          <ol className={styles.applySteps}>
-            {[1, 2, 3].map((n) => (
-              <li key={n} style={{ '--n': n - 1 } as CSSProperties}>
-                <span className={`ds-num ${styles.applyNo}`} aria-hidden="true">{n}</span>
-                <h3>{t(`home.applyStep${n}`)}</h3>
-                <p>{t(`home.applyStep${n}Body`)}</p>
-              </li>
-            ))}
-          </ol>
         </div>
       </section>
 
@@ -415,11 +396,9 @@ export function Home() {
         <section className={styles.section} id="news" aria-labelledby="news-heading">
           <div className="ds-wrap">
             <SectionHead
-              index={nextIndex()}
               id="news-heading"
               title={t('nav.news')}
-              subtitle={t('news.subtitle')}
-              action={<Link to="/news" className="ds-btn ds-btn-plain">{t('home.viewAll')}</Link>}
+              action={<Link to="/news" className={styles.headLink}>{t('home.viewAll')}<ArrowIcon /></Link>}
             />
             <div className={styles.newsGrid}>
               {newsList.slice(0, 3).map((item) => {
@@ -444,14 +423,12 @@ export function Home() {
 
       {/* ================= Partners (only when there are some) ================= */}
       {partnersList.length > 0 && (
-        <section className={`${styles.section} ${styles.partners}`} id="partners" aria-labelledby="partners-heading">
+        <section className={`${styles.section} ${styles.surface}`} id="partners" aria-labelledby="partners-heading">
           <div className="ds-wrap">
             <SectionHead
-              index={nextIndex()}
               id="partners-heading"
               title={t('nav.partners')}
-              subtitle={t('partners.subtitle')}
-              action={<Link to="/partners" className="ds-btn ds-btn-plain">{t('home.viewAll')}</Link>}
+              action={<Link to="/partners" className={styles.headLink}>{t('home.viewAll')}<ArrowIcon /></Link>}
             />
             <ul className={styles.partnerRow}>
               {partnersList.map((p) => {

@@ -48,27 +48,27 @@ html[data-theme='dark'],
   --sys-red: #FF6B76;
   --sys-red-ink: #FF8A93;
 
-  --label: #F4F0E8;
-  --label-2: #BDB7C9;
-  --label-3: #9690A3;
-  --label-4: #6E687A;
+  --label: #EDF3F5;
+  --label-2: #B3C0C7;
+  --label-3: #8E9BA3;
+  --label-4: #66737B;
 
-  --bg: #120F18;
-  --bg-2: #19151F;
-  --bg-3: #221D2B;
-  --bg-elevated: #2B2535;
+  --bg: #0C1418;
+  --bg-2: #121C21;
+  --bg-3: #17232A;
+  --bg-elevated: #1E2C34;
 
-  --fill-1: rgba(244, 240, 232, 0.2);
-  --fill-2: rgba(244, 240, 232, 0.14);
-  --fill-3: rgba(244, 240, 232, 0.09);
-  --fill-4: rgba(244, 240, 232, 0.05);
-  --separator: rgba(244, 240, 232, 0.16);
-  --separator-opaque: #332D3D;
-  --rule: #F4F0E8;
+  --fill-1: rgba(237, 243, 245, 0.2);
+  --fill-2: rgba(237, 243, 245, 0.14);
+  --fill-3: rgba(237, 243, 245, 0.09);
+  --fill-4: rgba(237, 243, 245, 0.05);
+  --separator: rgba(237, 243, 245, 0.13);
+  --separator-opaque: #2A3A42;
+  --rule: #EDF3F5;
 
-  --material-bar: rgba(18, 15, 24, 0.84);
-  --material-thick: rgba(18, 15, 24, 0.94);
-  --material-thin: rgba(18, 15, 24, 0.7);
+  --material-bar: rgba(12, 20, 24, 0.86);
+  --material-thick: rgba(12, 20, 24, 0.95);
+  --material-thin: rgba(12, 20, 24, 0.7);
 
   --shadow-1: 0 0 0 1px rgba(255, 255, 255, 0.04);
   --shadow-2: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 12px 28px -14px rgba(0, 0, 0, 0.7);
@@ -142,35 +142,13 @@ html.theme-anim * {
 
 /* ---------- typography helpers ---------- */
 
-/* eyebrow: a tiny three-step staircase, then the label */
+/* eyebrow: a short teal label above a title */
 .ds-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
+  display: inline-block;
   font-family: var(--font-display);
-  font-size: var(--type-footnote);
+  font-size: var(--type-subhead);
   font-weight: 500;
   color: var(--teal-ink);
-}
-
-.ds-eyebrow::before {
-  content: '';
-  flex-shrink: 0;
-  width: 15px;
-  height: 12px;
-  background: currentColor;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 15 12'%3E%3Cpath d='M0 12V8h5V4h5V0h5v12z'/%3E%3C/svg%3E") center / contain no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 15 12'%3E%3Cpath d='M0 12V8h5V4h5V0h5v12z'/%3E%3C/svg%3E") center / contain no-repeat;
-}
-
-html[dir='rtl'] .ds-eyebrow::before {
-  transform: scaleX(-1);
-}
-
-:where(html[lang='en']) .ds-eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: var(--type-caption);
 }
 
 .ds-large-title {
@@ -196,12 +174,9 @@ html[dir='rtl'] .ds-eyebrow::before {
   color: var(--label-2);
 }
 
-/* highlighter stroke behind a word, like a student marking a textbook */
+/* retired highlighter: kept as a no-op so old markup stays safe */
 .ds-mark {
-  padding-inline: 0.08em;
-  background: linear-gradient(transparent 56%, var(--marker) 56%, var(--marker) 90%, transparent 90%);
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
+  color: inherit;
 }
 
 /* tabular figures for money and counts */
@@ -353,11 +328,11 @@ html[dir='ltr'] svg.ds-arrow {
 /* light — for dark surfaces */
 .ds-btn-light,
 .ds-btn-light:hover {
-  color: #17131F;
+  color: #0F1A20;
 }
 
 .ds-btn-light {
-  background: #F7F4ED;
+  background: #F2F6F7;
 }
 
 .ds-btn-light:hover {
@@ -526,8 +501,14 @@ a.ds-card:hover,
   font-size: var(--type-caption);
   font-weight: 500;
   line-height: 1.3;
-  color: var(--label);
-  background: var(--marker);
+  color: var(--magenta-ink);
+  background: var(--magenta-soft);
+}
+
+html[data-theme='dark'] .ds-badge,
+html[data-theme='dark'] .ds-feat-badge {
+  color: #FFFFFF;
+  background: var(--magenta-ink);
 }
 
 .ds-feat-badge.ds-sm {

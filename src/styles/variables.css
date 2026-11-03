@@ -1,9 +1,8 @@
 /* =====================================================================
-   Design tokens — "The Staircase".
-   Everything is drawn from the fund's logo: the teal / magenta diagonal
-   split and the stepped edge (education climbed one step at a time).
-   Warm exam-paper background, deep plum ink, one highlighter yellow used
-   sparingly. Dark-mode values live in design.css under html[data-theme='dark'].
+   Design tokens — drawn from the fund's logo.
+   Teal and magenta come straight from the mark; the neutrals are cool and
+   carry a trace of the logo teal. White page, light cool surfaces, colour
+   used with intent. Dark-mode values live in design.css under html[data-theme='dark'].
    ===================================================================== */
 :root {
   /* ---------- Brand (sampled from the logo, deepened for text contrast) ---------- */
@@ -13,8 +12,8 @@
   --magenta: #A3418F;           /* logo magenta — fills, illustration */
   --magenta-ink: #87306F;       /* magenta behind white text (7.4:1) */
   --magenta-soft: #F4E3EF;
-  --marker: #F5C84C;            /* highlighter — behind ink text only */
-  --ink-deep: #17131F;          /* the dark band / footer surface */
+  --marker: #F5C84C;            /* reserved; not used for decoration */
+  --ink-deep: #0F1A20;          /* the footer surface: logo teal taken to near-black */
 
   /* the app tint — primary actions are magenta, links are teal */
   --tint: var(--magenta-ink);
@@ -52,36 +51,36 @@
   --aurora-3: transparent;
 
   /* ---------- Labels ---------- */
-  --label: #17131F;
-  --label-2: #4F4A5E;
-  --label-3: #6B667A;
-  --label-4: #9C97A8;
+  --label: #0F1A20;
+  --label-2: #45525B;
+  --label-3: #5F6B74;
+  --label-4: #97A2AA;
 
   /* ---------- Backgrounds ---------- */
-  --bg: #F7F4ED;                /* exam paper */
-  --bg-2: #EFEAE0;              /* grouped / secondary */
+  --bg: #FFFFFF;
+  --bg-2: #F2F6F7;              /* cool surface, a hint of logo teal */
   --bg-3: #FFFFFF;              /* cards */
   --bg-elevated: #FFFFFF;
 
   /* ---------- Fills & separators ---------- */
-  --fill-1: rgba(23, 19, 31, 0.14);
-  --fill-2: rgba(23, 19, 31, 0.1);
-  --fill-3: rgba(23, 19, 31, 0.07);
-  --fill-4: rgba(23, 19, 31, 0.045);
-  --separator: rgba(23, 19, 31, 0.12);
-  --separator-opaque: #D9D3C7;
-  --rule: #17131F;              /* strong editorial rule */
+  --fill-1: rgba(15, 26, 32, 0.14);
+  --fill-2: rgba(15, 26, 32, 0.1);
+  --fill-3: rgba(15, 26, 32, 0.065);
+  --fill-4: rgba(15, 26, 32, 0.04);
+  --separator: rgba(15, 26, 32, 0.1);
+  --separator-opaque: #DCE4E7;
+  --rule: #0F1A20;
 
   /* ---------- Materials ---------- */
-  --material-bar: rgba(247, 244, 237, 0.86);
-  --material-thick: rgba(247, 244, 237, 0.94);
-  --material-thin: rgba(247, 244, 237, 0.7);
+  --material-bar: rgba(255, 255, 255, 0.88);
+  --material-thick: rgba(255, 255, 255, 0.95);
+  --material-thin: rgba(255, 255, 255, 0.72);
   --material-blur: saturate(140%) blur(14px);
 
   /* ---------- Elevation: crisp, not glowy ---------- */
-  --shadow-1: 0 1px 0 rgba(23, 19, 31, 0.06);
-  --shadow-2: 0 1px 0 rgba(23, 19, 31, 0.06), 0 10px 24px -14px rgba(23, 19, 31, 0.28);
-  --shadow-3: 0 2px 0 rgba(23, 19, 31, 0.06), 0 24px 48px -20px rgba(23, 19, 31, 0.38);
+  --shadow-1: 0 1px 2px rgba(15, 26, 32, 0.06);
+  --shadow-2: 0 1px 2px rgba(15, 26, 32, 0.06), 0 12px 28px -16px rgba(15, 26, 32, 0.24);
+  --shadow-3: 0 2px 4px rgba(15, 26, 32, 0.06), 0 28px 56px -24px rgba(15, 26, 32, 0.34);
 
   /* ---------- Typography ----------
      Readex Pro: one display family with matching Arabic and Latin.

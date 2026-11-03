@@ -26,7 +26,7 @@ export function AuthShell({ title, subtitle, top, children }: AuthShellProps) {
               <i /><i /><i /><i />
             </span>
             <p className={styles.brandLine}>
-              {t('home.heroLead')} <span className="ds-mark">{t('home.heroMark')}</span> {t('home.heroTail')}
+              {t('home.heroLead')} {t('home.heroMark')} {t('home.heroTail')}
             </p>
           </aside>
           <div className={styles.auth}>

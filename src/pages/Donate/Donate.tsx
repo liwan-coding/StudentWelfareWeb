@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, type CSSProperties } from 'react'
-import { useSearchParams, useNavigate } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PageLayout } from '../../components/layout/PageLayout'
 import { useAuth } from '../../context/AuthContext'
@@ -10,7 +10,6 @@ import { paymentService } from '../../services/paymentService'
 import { ApiError, clearToken, getApiErrorMessage } from '../../services/apiClient'
 import type { CampaignOrProgram } from '../../types/api'
 import { getCampaignProgressPercent } from '../../components/CampaignAmountGoal'
-import { PageHero } from '../../components/design/PageHero'
 import styles from './Donate.module.css'
 
 /** Same number format as CampaignAmountGoal */
@@ -239,7 +238,13 @@ export function Donate() {
     return (
       <PageLayout noPadding design>
         <div className={styles.page}>
-          <PageHero title={t('donate.title')} subtitle={t('donate.subtitle')} />
+          <div className={`ds-wrap ${styles.top}`}>
+            <Link to="/campaigns" className={styles.back}>
+              <svg className="ds-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+              {t('donate.backToCampaigns')}
+            </Link>
+            <h1 className={styles.srOnly}>{t('donate.title')}</h1>
+          </div>
           <div className={styles.main}>
             <div className="ds-wrap">
               <p className={styles.placeholder} role="status">
@@ -272,7 +277,13 @@ export function Donate() {
   return (
     <PageLayout noPadding design>
       <div className={styles.page}>
-        <PageHero title={t('donate.title')} subtitle={t('donate.subtitle')} />
+        <div className={`ds-wrap ${styles.top}`}>
+            <Link to="/campaigns" className={styles.back}>
+              <svg className="ds-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+              {t('donate.backToCampaigns')}
+            </Link>
+            <h1 className={styles.srOnly}>{t('donate.title')}</h1>
+          </div>
 
         <div className={styles.main}>
           <div className={`ds-wrap ${styles.layout} ${showDetails ? '' : styles.layoutSingle}`}>

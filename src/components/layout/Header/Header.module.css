@@ -73,17 +73,24 @@
   background: var(--fill-4);
 }
 
-/* highlighter stroke under the current page */
-.navLink.active {
-  font-weight: 500;
-  background: linear-gradient(transparent 58%, var(--marker) 58%, var(--marker) 88%, transparent 88%) no-repeat;
-  background-size: calc(100% - 16px) 100%;
-  background-position: center;
+/* the current page: teal label with a solid underline, as on a tab */
+.navLink.active,
+.navLink.active:hover {
+  color: var(--teal-ink);
 }
 
-:global(html[data-theme='dark']) .navLink.active {
-  color: var(--label);
-  background-image: linear-gradient(transparent 58%, rgba(233, 185, 58, 0.55) 58%, rgba(233, 185, 58, 0.55) 88%, transparent 88%);
+.navLink.active {
+  font-weight: 500;
+}
+
+.navLink.active::after {
+  content: '';
+  position: absolute;
+  inset-inline: 10px;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
 }
 
 .acts {

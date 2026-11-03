@@ -1,48 +1,94 @@
-/* Inner-page header: paper, start-aligned title and subtitle, an ink rule below. */
+/* Inner-page header: a compact teal band whose bottom edge steps down
+   toward the end side, like the logo's staircase. Title and one line. */
+:global(:root) {
+  --ph-step: clamp(14px, 1.8vw, 24px);
+}
+
 .ph {
-  padding-block: calc(var(--header-height) + clamp(40px, 5vw, 80px)) clamp(32px, 4vw, 56px);
-  background: var(--bg);
-  /* the ink rule the page content starts from */
-  border-bottom: 2px solid var(--rule);
+  --s: var(--ph-step);
+  position: relative;
+  z-index: 1;
+  padding-block: calc(var(--header-height) + clamp(24px, 3.5vw, 48px)) calc(clamp(28px, 3.5vw, 44px) + 3 * var(--s));
+  color: #FFFFFF;
+  background: #0B5E7A;
+  /* three steps cut from the bottom end corner */
+  clip-path: polygon(
+    0 0, 100% 0,
+    100% calc(100% - 3 * var(--s)),
+    calc(100% - 18%) calc(100% - 3 * var(--s)),
+    calc(100% - 18%) calc(100% - 2 * var(--s)),
+    calc(100% - 36%) calc(100% - 2 * var(--s)),
+    calc(100% - 36%) calc(100% - var(--s)),
+    calc(100% - 54%) calc(100% - var(--s)),
+    calc(100% - 54%) 100%,
+    0 100%
+  );
+}
+
+:global(html[dir='rtl']) .ph {
+  clip-path: polygon(
+    0 0, 100% 0, 100% 100%,
+    54% 100%,
+    54% calc(100% - var(--s)),
+    36% calc(100% - var(--s)),
+    36% calc(100% - 2 * var(--s)),
+    18% calc(100% - 2 * var(--s)),
+    18% calc(100% - 3 * var(--s)),
+    0 calc(100% - 3 * var(--s))
+  );
+}
+
+:global(html[data-theme='dark']) .ph {
+  background: #0A4C63;
 }
 
 .inner {
   display: flex;
   align-items: flex-end;
-  justify-content: space-between;
-  gap: 32px;
 }
 
 .text {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 14px;
+  gap: 10px;
   min-width: 0;
-  padding-bottom: clamp(24px, 3vw, 40px);
 }
 
-.title {
-  max-width: 20ch;
-  font-size: clamp(2.5rem, 1.5rem + 3.6vw, 4.75rem);
+.text :global(.ds-eyebrow) {
+  color: #CDEBF5;
+}
+
+.ph .title {
+  max-width: 22ch;
+  font-size: clamp(2rem, 1.4rem + 2.2vw, 3.25rem);
+  line-height: 1.15;
   font-weight: 600;
-  animation: phIn 0.7s var(--ease-spring) both;
+  color: #FFFFFF;
+  animation: phIn 0.6s var(--ease-spring) both;
 }
 
-.sub {
+.ph .sub {
   max-width: 40rem;
-  animation: phIn 0.7s var(--ease-spring) 0.08s both;
+  font-size: var(--type-callout);
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.86);
+  animation: phIn 0.6s var(--ease-spring) 0.06s both;
 }
 
 @keyframes phIn {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(10px);
   }
 }
 
-@media (max-width: 640px) {
-  .text {
-    padding-bottom: 20px;
-  }
+/* when a section follows, it slides up under the steps so the cut shows its
+   own background rather than a strip of page white */
+.ph:has(+ *) {
+  margin-bottom: calc(-3 * var(--ph-step));
+}
+
+.ph.ph + * {
+  padding-top: calc(3 * var(--ph-step) + clamp(28px, 3.5vw, 48px));
 }

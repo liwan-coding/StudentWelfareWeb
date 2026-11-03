@@ -542,9 +542,6 @@
   color: #FFFFFF;
 }
 
-.brandLine :global(.ds-mark) {
-  color: #17131F;
-}
 
 @media (max-width: 899px) {
   .split {
