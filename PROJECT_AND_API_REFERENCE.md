@@ -331,3 +331,17 @@ Models: `lib/models/campaign.dart`, `donation.dart`, `fund_partner.dart`, `fund_
 6. **Images:** If API returns relative paths (e.g. `/storage/...`), resolve with `${API_URL}${path}` or backend’s `APP_URL`.
 
 This document and the listed endpoints are sufficient to implement a separate web front-end that reuses the same backend and APIs.
+
+---
+
+## Public slugs and shareable donate URLs
+
+Every campaign and program has a `slug`: a random, unique, immutable 5-letter identifier (e.g. `xkqmd`), returned by the catalog endpoints. It is never derived from the title, so renaming an item never breaks a shared link.
+
+- **Lookup by id or slug:** `GET /api/v1/campaigns/{id|slug}` and `GET /api/v1/programs/{id|slug}`. Numeric values are treated as ids, so existing clients (including the Flutter app) keep working. Payment and donation requests still use the numeric `campaign_id` / `program_id`.
+- **Web donate URLs:** `/c/{slug}` for campaigns and `/p/{slug}` for programs (short, top-level paths). The old `/donate?campaign_id=1` and `/donate?program_id=3` redirect to them.
+- **Optional query params on the donate URL:** `amount` (prefills the amount), `lang` (`ar` or `en`), `ref` (source tag, ignored by the app and stripped from the copy/share links).
+- **Link previews:** social crawlers do not run JavaScript, so the backend serves Open Graph pages at `GET /share/campaign/{slug}` and `GET /share/program/{slug}` (`?lang=en` for English). Humans opening them are redirected to the web app (`FRONTEND_ORIGIN`).
+- **Production routing:** configure the web server/CDN to proxy crawler user-agents (WhatsApp, facebookexternalhit, Twitterbot, Telegram, etc.) requesting `/c/{slug}` and `/p/{slug}` to `/share/campaign/{slug}` and `/share/program/{slug}` on the backend. Everyone else gets the SPA.
+- **Sitemap:** `GET /sitemap.xml` lists the active donate URLs. Point the web app's `public/robots.txt` `Sitemap:` line at the production API origin.
+- `/donate/return` and `/payments/success` (payment return pages) are unchanged.

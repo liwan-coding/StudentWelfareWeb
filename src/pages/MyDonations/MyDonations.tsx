@@ -24,14 +24,29 @@ function formatDate(iso?: string, locale: string = 'ar'): string {
   try {
     const d = new Date(iso)
     if (Number.isNaN(d.getTime())) return iso
-    return d.toLocaleDateString(locale.startsWith('ar') ? 'ar-OM' : 'en-GB', {
+    return d.toLocaleString(locale.startsWith('ar') ? 'ar-OM' : 'en-GB', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     })
   } catch {
     return iso
   }
+}
+
+type DonationState = 'paid' | 'pending' | 'failed' | 'cancelled'
+type StateFilter = 'all' | DonationState
+
+const STATE_FILTERS: StateFilter[] = ['all', 'paid', 'pending', 'failed', 'cancelled']
+
+function getState(d: RecentDonation): DonationState {
+  const raw = String(d.status ?? d.payment_status ?? d.donation_status ?? '').toLowerCase()
+  if (raw === 'paid' || raw === 'success' || raw === 'completed') return 'paid'
+  if (raw === 'cancelled' || raw === 'canceled') return 'cancelled'
+  if (raw === 'failed' || raw === 'expired') return 'failed'
+  return 'pending'
 }
 
 function formatAmount(amount?: number): string {
@@ -80,6 +95,7 @@ export function MyDonations() {
   const [loading, setLoading] = useState(true)
   const [failed, setFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
+  const [filter, setFilter] = useState<StateFilter>('all')
 
   useEffect(() => {
     let cancelled = false
@@ -109,18 +125,23 @@ export function MyDonations() {
     setAttempt((n) => n + 1)
   }
 
-  const total = list.reduce((sum, d) => sum + (Number((d as RecentDonation).amount) || 0), 0)
+  const paidList = list.filter((d) => getState(d) === 'paid')
+  // only completed payments count towards what the donor has given
+  const total = paidList.reduce((sum, d) => sum + (Number(d.amount) || 0), 0)
   const locale = i18n.language || 'ar'
   const lang = locale.startsWith('ar') ? 'ar' : 'en'
+  const counts: Record<StateFilter, number> = { all: list.length, paid: 0, pending: 0, failed: 0, cancelled: 0 }
+  list.forEach((d) => { counts[getState(d)] += 1 })
   const rows = list.map((d, i) => {
     const donation = d as RecentDonation
     return {
       key: donation.id ?? i,
+      state: getState(donation),
       title: getTargetTitle(donation, lang, campaigns, programs) || '—',
       date: formatDate(donation.created_at, locale),
       amount: formatAmount(donation.amount),
     }
-  })
+  }).filter((row) => filter === 'all' || row.state === filter)
 
 
   // ===== presentation only below: data, totals and rows above are unchanged =====
@@ -187,13 +208,29 @@ export function MyDonations() {
               </div>
               <div className={styles.stat}>
                 <div className={styles.lbl}>{t('myDonations.donationCount')}</div>
-                <div className={styles.val}><CountUp value={list.length} /></div>
+                <div className={styles.val}><CountUp value={paidList.length} /></div>
               </div>
             </section>
 
             <section aria-labelledby="donations-list-title">
               <h2 id="donations-list-title" className={styles.listTitle}>{t('myDonations.donationsListTitle')}</h2>
-              <div className={styles.table}>
+              <div className={styles.filters} role="group" aria-label={t('myDonations.filterLabel')}>
+                {STATE_FILTERS.map((f) => (
+                  <button
+                    key={f}
+                    type="button"
+                    className={styles.filterBtn}
+                    aria-pressed={filter === f}
+                    onClick={() => setFilter(f)}
+                  >
+                    {t(`myDonations.status.${f}`)} <span className={styles.filterCount}>{counts[f]}</span>
+                  </button>
+                ))}
+              </div>
+              {rows.length === 0 && (
+                <p className={styles.noMatch}>{t('myDonations.noMatch')}</p>
+              )}
+              <div className={styles.table} hidden={rows.length === 0}>
                 <div className={styles.thead} aria-hidden="true">
                   <span>{t('myDonations.campaign')}</span>
                   <span>{t('myDonations.donationDate')}</span>
@@ -210,6 +247,9 @@ export function MyDonations() {
                       <span className={styles.dd}>
                         <span className={styles.srOnly}>{t('myDonations.donationDate')}: </span>
                         {row.date}
+                        <span className={`${styles.state} ${styles[`state_${row.state}`]}`}>
+                          {t(`myDonations.status.${row.state}`)}
+                        </span>
                       </span>
                       <span className={styles.da}>
                         <span className={styles.srOnly}>{t('myDonations.amount')}: </span>

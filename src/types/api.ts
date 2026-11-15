@@ -1,6 +1,8 @@
 /** Campaign / Program (same shape from API) */
 export interface CampaignOrProgram {
   id: number
+  /** Public, random 5-letter identifier used in shareable URLs (/c/:slug, /p/:slug) */
+  slug?: string
   title?: string
   title_ar?: string
   title_en?: string

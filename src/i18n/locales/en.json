@@ -131,7 +131,16 @@
     "ctaDonate": "Donate now",
     "donationDate": "Date",
     "amount": "Amount",
-    "campaign": "Campaign"
+    "campaign": "Campaign",
+    "filterLabel": "Filter by status",
+    "noMatch": "No donations with this status.",
+    "status": {
+      "all": "All",
+      "paid": "Paid",
+      "pending": "Pending",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    }
   },
   "news": {
     "subtitle": "Latest news and updates from the Student Welfare Fund",

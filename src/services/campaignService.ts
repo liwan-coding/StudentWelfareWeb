@@ -13,7 +13,7 @@ export const campaignService = {
     return unwrapList<CampaignOrProgram>(data)
   },
 
-  async getProgram(id: number): Promise<CampaignOrProgram | null> {
+  async getProgram(id: number | string): Promise<CampaignOrProgram | null> {
     try {
       const data = await api.get<unknown>(`/programs/${id}`)
       return (data as { data?: CampaignOrProgram }).data ?? (data as CampaignOrProgram)
@@ -74,7 +74,7 @@ export const campaignService = {
     return unwrapList<CampaignOrProgram>(data)
   },
 
-  async getCampaign(id: number): Promise<CampaignOrProgram | null> {
+  async getCampaign(id: number | string): Promise<CampaignOrProgram | null> {
     try {
       const data = await api.get<unknown>(`/campaigns/${id}`)
       return (data as { data?: CampaignOrProgram }).data ?? (data as CampaignOrProgram)

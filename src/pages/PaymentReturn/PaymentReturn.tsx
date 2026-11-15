@@ -53,7 +53,11 @@ export function PaymentReturn() {
     const confirmPayload = { session_id: sessionId ?? undefined, donation_id: donationId }
     paymentService
       .confirm(confirmPayload)
-      .then(() => setConfirmStatus('success'))
+      .then((res) => {
+        // the URL is untrusted: only the server-verified donation status counts
+        const paid = (res as { data?: { status?: string } })?.data?.status === 'paid'
+        setConfirmStatus(paid ? 'success' : 'error')
+      })
       .catch((err) => {
         setConfirmStatus('error')
         setErrorMessage(getApiErrorMessage(err, t))

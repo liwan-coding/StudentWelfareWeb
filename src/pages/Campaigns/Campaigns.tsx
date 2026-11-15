@@ -9,6 +9,7 @@ import { PageHero } from '../../components/design/PageHero'
 import { CampaignCard } from '../../components/design/CampaignCard'
 import { Train } from '../../components/design/Train'
 import { LoadError } from '../../components/design/LoadError'
+import { donateUrl } from '../../utils/donateUrl'
 import styles from './Campaigns.module.css'
 
 /** Same number format as CampaignAmountGoal */
@@ -109,7 +110,7 @@ export function Campaigns() {
                       raisedText={`${formatAmount(raised)} ${currency}`}
                       goalText={`${formatAmount(goal)} ${currency}`}
                       donateLabel={t('campaigns.donate')}
-                      donateTo={`/donate?campaign_id=${item.id}`}
+                      donateTo={donateUrl('campaign', item)}
                       percentSign={percentSign}
                     />
                   )

@@ -179,3 +179,15 @@ button {
     transform: scale(0.97);
   }
 }
+
+/* Arabic: negative tracking breaks letter joining and tight line-heights make
+   tall glyphs (ي ع ج) collide with the line below. Applies to every page. */
+html[lang='ar'] *,
+html[lang='ar'] *::before,
+html[lang='ar'] *::after {
+  letter-spacing: 0 !important;
+}
+
+html[lang='ar'] :is(h1, h2, h3, h4) {
+  line-height: 1.4 !important;
+}

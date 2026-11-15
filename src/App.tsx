@@ -45,6 +45,8 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/campaigns" element={<Campaigns />} />
               <Route path="/donate" element={<Donate />} />
+              <Route path="/c/:slug" element={<Donate kind="campaign" />} />
+              <Route path="/p/:slug" element={<Donate kind="program" />} />
               <Route path="/donate/return" element={<PaymentReturn />} />
               <Route path="/payments/success" element={<PaymentReturn />} />
               <Route path="/login" element={<Login />} />

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Replace with the production API origin when it is known:
+# Sitemap: https://api.example.com/sitemap.xml

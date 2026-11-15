@@ -3,12 +3,12 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../../context/AuthContext'
 import { setDocumentDirection, type Locale } from '../../../i18n/config'
+import { isDonateCheckoutPath } from '../../../utils/donateUrl'
 import styles from './BottomNav.module.css'
 
 const THEME_KEY = 'swf_theme'
 
 /** routes that bring their own bottom bar (the donate checkout) */
-const HIDDEN_ON = ['/donate']
 
 type Tab = { to: string; label: string; icon: ReactNode; match: (path: string) => boolean }
 
@@ -53,7 +53,7 @@ export function BottomNav() {
     }
   }, [sheetOpen])
 
-  if (HIDDEN_ON.some((p) => pathname === p)) return null
+  if (isDonateCheckoutPath(pathname)) return null
 
   const tabs: Tab[] = [
     { to: '/', label: t('nav.home'), icon: <HomeIcon />, match: (p) => p === '/' },

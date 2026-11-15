@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, type CSSProperties } from 'react'
-import { Link, useSearchParams, useNavigate } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PageLayout } from '../../components/layout/PageLayout'
 import { useAuth } from '../../context/AuthContext'
@@ -10,6 +10,8 @@ import { paymentService } from '../../services/paymentService'
 import { ApiError, clearToken, getApiErrorMessage } from '../../services/apiClient'
 import type { CampaignOrProgram } from '../../types/api'
 import { getCampaignProgressPercent } from '../../components/CampaignAmountGoal'
+import { donateUrl } from '../../utils/donateUrl'
+import { useDocumentMeta } from '../../utils/useDocumentMeta'
 import styles from './Donate.module.css'
 
 /** Same number format as CampaignAmountGoal */
@@ -22,28 +24,57 @@ function formatAmount(amount?: number): string {
 
 const FALLBACK_QUICK_AMOUNTS = [10, 25, 50, 100, 200, 500]
 
+/** Query params that only prefill this visitor's form; they are not part of the shared link */
+const PRIVATE_SHARE_PARAMS = ['amount', 'ref']
+
 function getShareUrl(): string {
   if (typeof window === 'undefined') return ''
-  return `${window.location.origin}${window.location.pathname}${window.location.search}`
+  const params = new URLSearchParams(window.location.search)
+  PRIVATE_SHARE_PARAMS.forEach((k) => params.delete(k))
+  const qs = params.toString()
+  return `${window.location.origin}${window.location.pathname}${qs ? `?${qs}` : ''}`
 }
 
-export function Donate() {
+/** `?amount=50` prefill: only a sane positive number is accepted */
+function parseAmountParam(raw: string | null): string {
+  const n = raw ? Number(raw) : NaN
+  return Number.isFinite(n) && n >= 0.001 && n <= 1_000_000 ? String(n) : ''
+}
+
+/**
+ * Donate checkout for one campaign or program.
+ * Canonical URLs: /c/:slug (campaign) and /p/:slug (program) (optional ?amount=&lang=&ref=).
+ * Legacy /donate?campaign_id=1 and /donate?program_id=3 are redirected to the slug URL.
+ */
+export function Donate({ kind }: { kind?: 'campaign' | 'program' }) {
   const { t, i18n } = useTranslation('common')
   const { isAuthenticated, user, refreshProfile } = useAuth()
   const [searchParams] = useSearchParams()
+  const { slug: slugParam } = useParams<{ slug: string }>()
   const navigate = useNavigate()
   const campaignIdParam = searchParams.get('campaign_id')
   const programIdParam = searchParams.get('program_id')
+  const hasTarget = !!slugParam || !!campaignIdParam || !!programIdParam
   const [copySuccess, setCopySuccess] = useState(false)
   const [shareMenuOpen, setShareMenuOpen] = useState(false)
   const shareMenuRef = useRef<HTMLDivElement>(null)
 
   // التبرع يكون فقط من خلال اختيار حملة أو برنامج — إعادة توجيه الصفحة العامة إلى الحملات
   useEffect(() => {
-    if (!campaignIdParam && !programIdParam) {
+    if (!hasTarget) {
       navigate('/campaigns', { replace: true })
     }
-  }, [campaignIdParam, programIdParam, navigate])
+  }, [hasTarget, navigate])
+
+  // ?lang=ar|en on a shared link switches the interface language (anything else is ignored)
+  const langParam = searchParams.get('lang')
+  useEffect(() => {
+    if ((langParam === 'ar' || langParam === 'en') && i18n.language !== langParam) {
+      void i18n.changeLanguage(langParam)
+    }
+    // only react to the link itself, not to later language toggles by the visitor
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [langParam])
 
   const [campaigns, setCampaigns] = useState<CampaignOrProgram[]>([])
   const [programs, setPrograms] = useState<CampaignOrProgram[]>([])
@@ -53,14 +84,22 @@ export function Donate() {
   const [error, setError] = useState<string | null>(null)
   const [retryDonationId, setRetryDonationId] = useState<number | null>(null)
 
-  const [selectedType, setSelectedType] = useState<'campaign' | 'program'>('campaign')
-  const [selectedId, setSelectedId] = useState<string>(campaignIdParam ?? programIdParam ?? '')
-  const [amount, setAmount] = useState<string>(programIdParam || campaignIdParam ? '' : '')
+  // selectedId is what the URL carries: a slug, or a numeric id on the legacy query-string form
+  const [selectedType, setSelectedType] = useState<'campaign' | 'program'>(
+    kind ?? (programIdParam && !campaignIdParam ? 'program' : 'campaign'),
+  )
+  const [selectedId, setSelectedId] = useState<string>(slugParam ?? campaignIdParam ?? programIdParam ?? '')
+  const [amount, setAmount] = useState<string>(() => parseAmountParam(searchParams.get('amount')))
   const [donorPhone, setDonorPhone] = useState('')
   const [campaignDetails, setCampaignDetails] = useState<CampaignOrProgram | null>(null)
   const [detailsLoading, setDetailsLoading] = useState(false)
 
   useEffect(() => {
+    if (slugParam && kind) {
+      setSelectedType(kind)
+      setSelectedId(slugParam)
+      return
+    }
     if (campaignIdParam) {
       setSelectedType('campaign')
       setSelectedId(campaignIdParam)
@@ -69,7 +108,7 @@ export function Donate() {
       setSelectedType('program')
       setSelectedId(programIdParam)
     }
-  }, [campaignIdParam, programIdParam])
+  }, [slugParam, kind, campaignIdParam, programIdParam])
 
   useEffect(() => {
     let cancelled = false
@@ -110,18 +149,28 @@ export function Donate() {
       setCampaignDetails(null)
       return
     }
-    const id = parseInt(selectedId, 10)
-    if (!Number.isFinite(id)) {
-      setCampaignDetails(null)
-      return
-    }
     let cancelled = false
     setDetailsLoading(true)
-    const fetchDetails = selectedType === 'campaign' ? campaignService.getCampaign(id) : campaignService.getProgram(id)
+    // the API accepts either the numeric id (legacy links) or the public slug
+    const fetchDetails = selectedType === 'campaign' ? campaignService.getCampaign(selectedId) : campaignService.getProgram(selectedId)
     fetchDetails
       .then((item) => {
-        if (!cancelled && item) setCampaignDetails(item)
-        if (!cancelled && !item) setCampaignDetails(null)
+        if (cancelled) return
+        if (!item) {
+          // unknown or inactive campaign/program: nothing to donate to
+          setCampaignDetails(null)
+          navigate('/campaigns', { replace: true })
+          return
+        }
+        setCampaignDetails(item)
+        // legacy /donate?campaign_id=1 → canonical slug URL (keeps amount/lang/ref, drops the old id params)
+        if (!slugParam && item.slug) {
+          const rest = new URLSearchParams(window.location.search)
+          rest.delete('campaign_id')
+          rest.delete('program_id')
+          const qs = rest.toString()
+          navigate(`${donateUrl(selectedType, item)}${qs ? `?${qs}` : ''}`, { replace: true })
+        }
       })
       .catch(() => {
         if (!cancelled) setCampaignDetails(null)
@@ -130,7 +179,7 @@ export function Donate() {
         if (!cancelled) setDetailsLoading(false)
       })
     return () => { cancelled = true }
-  }, [selectedId, selectedType])
+  }, [selectedId, selectedType, slugParam, navigate])
 
   const options = selectedType === 'campaign' ? campaigns : programs
   const lang = i18n.language === 'ar' ? 'ar' : 'en'
@@ -147,6 +196,11 @@ export function Donate() {
     (item[impactKey as keyof CampaignOrProgram] as string) || item.impact_description || ''
   const shareUrl = getShareUrl()
   const shareTitle = campaignDetails ? getTitle(campaignDetails) : t('donate.title')
+  useDocumentMeta({
+    title: campaignDetails ? `${getTitle(campaignDetails)} | ${t('donate.title')}` : undefined,
+    description: campaignDetails ? getDescription(campaignDetails).slice(0, 200) || undefined : undefined,
+    canonical: campaignDetails?.slug ? `${window.location.origin}${donateUrl(selectedType, campaignDetails)}` : undefined,
+  })
 
   async function handleCopyLink() {
     try {
@@ -182,7 +236,12 @@ export function Donate() {
       setError(t('donate.phoneRequired'))
       return
     }
-    const id = selectedId ? parseInt(selectedId, 10) : undefined
+    // the payment API takes the numeric id, which comes from the loaded campaign/program (the URL may carry a slug)
+    const id = campaignDetails?.id
+    if (!id) {
+      setError(t('donate.error'))
+      return
+    }
     setSubmitting(true)
     try {
       const returnOrigin = typeof window !== 'undefined' ? window.location.origin : ''
@@ -230,7 +289,7 @@ export function Donate() {
     }
   }
 
-  if (!campaignIdParam && !programIdParam) {
+  if (!hasTarget) {
     return null
   }
 
