@@ -8,6 +8,7 @@ import { Button } from '../../components/ui/Button'
 import { useAuth } from '../../context/AuthContext'
 import { studentRegistrationService } from '../../services/studentRegistrationService'
 import { getApiErrorMessage } from '../../services/apiClient'
+import { API_BASE_URL } from '../../config/api'
 import type { CampaignOrProgram } from '../../types/api'
 import type { StudentRegistrationResponse } from '../../services/studentRegistrationService'
 import styles from './StudentRegistration.module.css'
@@ -53,6 +54,20 @@ function getProgramTitle(item: CampaignOrProgram, lang: 'ar' | 'en') {
   return (item[key as keyof CampaignOrProgram] as string) || item.title || `#${item.id}`
 }
 
+function documentUrl(path: string): string {
+  if (/^https?:\/\//i.test(path)) return path
+  const base = API_BASE_URL.replace(/\/$/, '')
+  const clean = path.replace(/^\/+/, '')
+  if (clean.toLowerCase().startsWith('storage/')) return `${base}/${clean}`
+  return `${base}/storage/${clean}`
+}
+
+function isYes(value: unknown): boolean | null {
+  if (value === true || value === 1 || value === '1' || value === 'true') return true
+  if (value === false || value === 0 || value === '0' || value === 'false') return false
+  return null
+}
+
 function isAllowedFile(file: File): boolean {
   const ext = file.name.split('.').pop()?.toLowerCase()
   const type = file.type?.toLowerCase()
@@ -75,6 +90,7 @@ export function StudentRegistration() {
   const [loadingPrograms, setLoadingPrograms] = useState(true)
   const [existingRegistration, setExistingRegistration] = useState<StudentRegistrationResponse | null | undefined>(undefined)
   const [submitted, setSubmitted] = useState(false)
+  const [justSubmitted, setJustSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -215,7 +231,9 @@ export function StudentRegistration() {
     }
     setSubmitting(true)
     try {
-      await studentRegistrationService.createRegistration(buildFormData())
+      const created = await studentRegistrationService.createRegistration(buildFormData())
+      setExistingRegistration(created)
+      setJustSubmitted(true)
       setSubmitted(true)
     } catch (err) {
       setError(getApiErrorMessage(err, t))
@@ -247,10 +265,23 @@ export function StudentRegistration() {
     const reg = existingRegistration
     const personal = (reg.personal ?? {}) as Record<string, unknown>
     const academic = (reg.academic ?? {}) as Record<string, unknown>
-    const guardian = (reg.guardian ?? {}) as Record<string, unknown>
+    const guardian = (reg.guardian ?? (reg.guardian_json as Record<string, unknown> | undefined) ?? {}) as Record<string, unknown>
+    const documents = (reg.documents ?? (reg.documents_json as Record<string, unknown> | undefined) ?? {}) as Record<string, unknown>
     const status = typeof reg.status === 'string' ? reg.status : ''
-    const program = programs.find((p) => p.id === reg.program_id)
-    const programTitle = program ? getProgramTitle(program, lang) : reg.program_id ? String(reg.program_id) : '—'
+    const embeddedProgram = reg.program
+    const programId = reg.program_id ?? embeddedProgram?.id
+    const listedProgram = programs.find((p) => String(p.id) === String(programId ?? ''))
+    const embeddedTitle = embeddedProgram
+      ? (lang === 'ar'
+          ? embeddedProgram.title_ar || embeddedProgram.title_en || embeddedProgram.title
+          : embeddedProgram.title_en || embeddedProgram.title_ar || embeddedProgram.title)
+      : ''
+    const programTitle = embeddedTitle || (listedProgram ? getProgramTitle(listedProgram, lang) : '') || '—'
+    const attachedDocuments = DOCUMENT_KEYS.flatMap((key) => {
+      const path = documents[key]
+      if (typeof path !== 'string' || !path.trim()) return []
+      return [{ key, name: path.split('/').pop() || path, href: documentUrl(path) }]
+    })
 
     const statusKey = status ? `studentRegistration.status_${status}` : ''
     const statusLabel = statusKey && t(statusKey) !== statusKey ? t(statusKey) : status || t('studentRegistration.status_pending')
@@ -261,15 +292,15 @@ export function StudentRegistration() {
         <Container size="narrow">
           <div dir={isRtl ? 'rtl' : 'ltr'}>
             <header className={styles.hero} aria-label={t('studentRegistration.alreadyRegisteredTitle')}>
-              <h1 className={styles.heroTitle}>{t('studentRegistration.alreadyRegisteredTitle')}</h1>
-              <p className={styles.heroSubtitle}>{t('studentRegistration.alreadyRegisteredMessage')}</p>
+              <h1 className={styles.heroTitle}>{justSubmitted ? t('studentRegistration.successTitle') : t('studentRegistration.alreadyRegisteredTitle')}</h1>
+              <p className={styles.heroSubtitle}>{justSubmitted ? t('studentRegistration.successMessage') : t('studentRegistration.alreadyRegisteredMessage')}</p>
             </header>
 
             <div className={styles.readOnlyRoot}>
               <Section title={t('studentRegistration.registrationStatus')}>
                 <div className={styles.rows}>
                   <div className={styles.readOnlyItem}>
-                    <span className={styles.readOnlyLabel}>{t('studentRegistration.selectProgram')}</span>
+                    <span className={styles.readOnlyLabel}>{t('studentRegistration.programName')}</span>
                     <span className={styles.readOnlyValue}>{programTitle}</span>
                   </div>
                   <div className={styles.readOnlyItem}>
@@ -309,9 +340,16 @@ export function StudentRegistration() {
                 <div className={styles.rows}>
                   {(['name', 'job', 'monthly_income', 'family_size', 'is_father_alive', 'is_mother_alive', 'parents_marital_status'] as const).map((key) => {
                     let val: string
-                    if (key === 'is_father_alive' || key === 'is_mother_alive') val = guardian[key] === '1' || guardian[key] === 1 ? t('studentRegistration.yes') : t('studentRegistration.no')
-                    else if (key === 'parents_marital_status') val = guardian[key] === 'separated' ? t('studentRegistration.parentsSeparated') : t('studentRegistration.parentsStable')
-                    else val = String(guardian[key] ?? '—')
+                    if (key === 'is_father_alive' || key === 'is_mother_alive') {
+                      const answer = isYes(guardian[key])
+                      val = answer === null ? '—' : answer ? t('studentRegistration.yes') : t('studentRegistration.no')
+                    } else if (key === 'parents_marital_status') {
+                      val = guardian[key] == null || guardian[key] === ''
+                        ? '—'
+                        : guardian[key] === 'separated'
+                          ? t('studentRegistration.parentsSeparated')
+                          : t('studentRegistration.parentsStable')
+                    } else val = guardian[key] == null || guardian[key] === '' ? '—' : String(guardian[key])
                     return (
                       <div key={key} className={styles.readOnlyItem}>
                         <span className={styles.readOnlyLabel}>{t(`studentRegistration.${key === 'name' ? 'guardianName' : key === 'job' ? 'guardianJob' : key === 'monthly_income' ? 'monthlyIncome' : key === 'family_size' ? 'familySize' : key === 'is_father_alive' ? 'isFatherAlive' : key === 'is_mother_alive' ? 'isMotherAlive' : 'parentsMaritalStatus'}`)}</span>
@@ -320,6 +358,26 @@ export function StudentRegistration() {
                     )
                   })}
                 </div>
+              </Section>
+
+              <Section step={4} title={t('studentRegistration.documents')}>
+                {attachedDocuments.length === 0 ? (
+                  <div className={styles.readOnlyItem}>
+                    <span className={styles.readOnlyValue}>{t('studentRegistration.noDocuments')}</span>
+                  </div>
+                ) : (
+                  <div className={styles.rows}>
+                    {attachedDocuments.map((doc) => (
+                      <div key={doc.key} className={styles.readOnlyItem}>
+                        <span className={styles.readOnlyLabel}>{t(`studentRegistration.${DOCUMENT_LABEL_KEYS[doc.key]}`)}</span>
+                        <a className={styles.docLink} href={doc.href} target="_blank" rel="noopener noreferrer">
+                          {t('studentRegistration.viewDocument')}
+                          <span className={styles.docFile} dir="ltr">{doc.name}</span>
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </Section>
 
               <div className={styles.formActions}>

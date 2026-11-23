@@ -14,6 +14,13 @@ export interface StudentRegistrationResponse {
   personal?: Record<string, unknown>
   academic?: Record<string, unknown>
   guardian?: Record<string, unknown>
+  documents?: Record<string, string> | null
+  program?: {
+    id?: number
+    title_ar?: string
+    title_en?: string
+    title?: string
+  } | null
   [key: string]: unknown
 }
 
@@ -31,15 +38,24 @@ export const studentRegistrationService = {
 
   /** Create new registration (multipart/form-data). */
   async createRegistration(formData: FormData): Promise<StudentRegistrationResponse> {
-    return api.postForm<StudentRegistrationResponse>('/students/registration', formData)
+    const data = await api.postForm<unknown>('/students/registration', formData)
+    const raw = data as { data?: StudentRegistrationResponse }
+    return (raw.data ?? data) as StudentRegistrationResponse
   },
 
   /** Current user's registration (404 if none). */
   async getMyRegistration(): Promise<StudentRegistrationResponse | null> {
     try {
       const data = await api.get<unknown>('/students/registration/my-registration')
-      const raw = data as { data?: StudentRegistrationResponse }
-      return (raw.data ?? data) as StudentRegistrationResponse
+      const raw = data as { data?: StudentRegistrationResponse | null }
+      const summary = raw.data ?? (data as StudentRegistrationResponse)
+      if (!summary || typeof summary !== 'object') return null
+      const needsFullRecord = summary.guardian == null || summary.documents == null || summary.program == null
+      if (needsFullRecord && summary.id != null) {
+        const full = await this.getRegistration(summary.id)
+        if (full) return { ...summary, ...full }
+      }
+      return summary
     } catch {
       return null
     }
