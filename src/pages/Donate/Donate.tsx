@@ -22,7 +22,7 @@ function formatAmount(amount?: number): string {
   })
 }
 
-const FALLBACK_QUICK_AMOUNTS = [10, 25, 50, 100, 200, 500]
+const FALLBACK_QUICK_AMOUNTS = [1, 2, 5, 50, 100, 200, 500, 1000]
 
 /** Query params that only prefill this visitor's form; they are not part of the shared link */
 const PRIVATE_SHARE_PARAMS = ['amount', 'ref']

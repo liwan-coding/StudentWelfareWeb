@@ -48,18 +48,50 @@
   min-width: 0;
   padding: clamp(20px, 2.4vw, 32px);
   border-radius: var(--radius-2xl);
-  animation: tileIn 0.7s var(--ease-spring) backwards;
 }
 
-.tile:nth-child(2) { animation-delay: 0.06s; }
-.tile:nth-child(3) { animation-delay: 0.12s; }
-.tile:nth-child(4) { animation-delay: 0.18s; }
-.tile:nth-child(5) { animation-delay: 0.24s; }
+/* ---- Entrance (on load), after hatif.io: an expo-out curve; the headline lifts out
+   of a blur while the copy and the side tiles rise in, all together so the hero is
+   ready at once. The head tile itself is there from the first frame, and the staircase
+   is drawn in by particles (HeroSteps). `backwards` (not `both`) so the hover
+   transforms on the link tiles still work once the entrance is over. */
+.hero {
+  --ease-intro: cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-@keyframes tileIn {
+.heroTitle {
+  animation: introBlur 1.1s var(--ease-intro) 0.05s backwards;
+}
+
+@keyframes introBlur {
   from {
     opacity: 0;
-    transform: translateY(14px) scale(0.985);
+    transform: translate3d(0, 0.5em, 0);
+    filter: blur(14px);
+  }
+}
+
+.kicker,
+.heroBody,
+.heroCtas {
+  animation: introRise 1s var(--ease-intro) 0.05s backwards;
+}
+
+@keyframes introRise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+.tile:not(.tHead) {
+  animation: introTile 1.2s var(--ease-intro) 0.05s backwards;
+}
+
+@keyframes introTile {
+  from {
+    opacity: 0;
+    transform: translateY(40svh);
   }
 }
 
@@ -181,19 +213,34 @@ a.tile:focus-visible {
 .headSteps i {
   flex: 1;
   background: #2A9BC0;
-  transform-origin: bottom;
-  animation: stepUp 0.7s var(--ease-spring) backwards;
 }
 
-.headSteps i:nth-child(1) { height: 25%; animation-delay: 0.3s; }
-.headSteps i:nth-child(2) { height: 50%; animation-delay: 0.38s; }
-.headSteps i:nth-child(3) { height: 75%; animation-delay: 0.46s; }
-.headSteps i:nth-child(4) { height: 100%; animation-delay: 0.54s; }
+.headSteps i:nth-child(1) { height: 25%; }
+.headSteps i:nth-child(2) { height: 50%; }
+.headSteps i:nth-child(3) { height: 75%; }
+.headSteps i:nth-child(4) { height: 100%; }
 
-@keyframes stepUp {
-  from {
-    transform: scaleY(0);
-  }
+/* the particle layer under the head tile's content (HeroSteps), and the hand-off to the solid steps */
+.stepsCanvas {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transition: opacity 0.6s var(--ease-out);
+}
+
+.stepsCanvasDone {
+  opacity: 0;
+}
+
+.headSteps {
+  transition: opacity 0.5s var(--ease-out);
+}
+
+.headSteps.stepsHidden {
+  opacity: 0;
 }
 
 /* ---- featured campaign tile ---- */

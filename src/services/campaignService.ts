@@ -91,10 +91,15 @@ export const campaignService = {
   async getQuickAmounts(): Promise<number[]> {
     try {
       const data = await api.get<unknown>('/donations/quick-amounts')
-      const arr = Array.isArray(data) ? data : (data as { data?: number[] }).data
-      return Array.isArray(arr) ? arr : [10, 25, 50, 100, 200, 500]
+      const arr = Array.isArray(data) ? data : (data as { data?: unknown[] }).data
+      if (!Array.isArray(arr)) return [1, 2, 5, 50, 100, 200, 500, 1000]
+      // API returns either plain numbers or { amount, label } objects
+      const amounts = arr
+        .map((v) => Number(typeof v === 'object' && v !== null ? (v as { amount?: unknown }).amount : v))
+        .filter((n) => Number.isFinite(n) && n > 0)
+      return amounts.length ? amounts : [1, 2, 5, 50, 100, 200, 500, 1000]
     } catch {
-      return [10, 25, 50, 100, 200, 500]
+      return [1, 2, 5, 50, 100, 200, 500, 1000]
     }
   },
 }

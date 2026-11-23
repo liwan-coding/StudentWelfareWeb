@@ -367,6 +367,14 @@
   color: var(--tint);
 }
 
+.otpPhone {
+  display: inline-block;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--label);
+  unicode-bidi: isolate;
+}
+
 .otp {
   display: flex;
   justify-content: center;
@@ -436,6 +444,15 @@
 
 .back {
   color: var(--label-2);
+}
+
+/* "forgot password?" under the password field */
+.forgot {
+  align-self: flex-end;
+  display: inline-flex;
+  align-items: center;
+  margin-block: -10px -4px;
+  text-decoration: none;
 }
 
 .devRow {

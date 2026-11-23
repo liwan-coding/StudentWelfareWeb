@@ -15,6 +15,7 @@ import { Campaigns } from './pages/Campaigns'
 import { Donate } from './pages/Donate'
 import { Login } from './pages/Login'
 import { Register } from './pages/Register'
+import { ForgotPassword } from './pages/ForgotPassword'
 import { News } from './pages/News'
 import { Partners } from './pages/Partners'
 import { About } from './pages/About'
@@ -49,8 +50,13 @@ function App() {
               <Route path="/p/:slug" element={<Donate kind="program" />} />
               <Route path="/donate/return" element={<PaymentReturn />} />
               <Route path="/payments/success" element={<PaymentReturn />} />
+              {/* older backend flows redirect to these paths */}
+              <Route path="/payment/success" element={<PaymentReturn />} />
+              <Route path="/payment/cancel" element={<PaymentReturn cancelled />} />
+              <Route path="/payments/cancel" element={<PaymentReturn cancelled />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/student-registration" element={<StudentRegistration />} />
               <Route path="/news" element={<News />} />
               <Route path="/partners" element={<Partners />} />

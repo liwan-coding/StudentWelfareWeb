@@ -61,7 +61,7 @@ export function BottomNav() {
     { to: '/student-registration', label: t('nav.apply'), icon: <CapIcon />, match: (p) => p.startsWith('/student-registration') },
     isAuthenticated
       ? { to: '/my-donations', label: t('nav.account'), icon: <UserIcon />, match: (p) => p.startsWith('/my-donations') }
-      : { to: '/login', label: t('nav.signInShort'), icon: <UserIcon />, match: (p) => p.startsWith('/login') || p.startsWith('/register') },
+      : { to: '/login', label: t('nav.signInShort'), icon: <UserIcon />, match: (p) => p.startsWith('/login') || p.startsWith('/register') || p.startsWith('/forgot-password') },
   ]
 
   const moreLinks = [

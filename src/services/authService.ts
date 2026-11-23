@@ -1,4 +1,4 @@
-import { authApi, api, getToken, setToken, clearToken } from './apiClient'
+import { authApi, api, getToken, setToken, clearToken, ApiError } from './apiClient'
 import type { UserProfile } from '../types/api'
 
 function extractToken(data: unknown): string | null {
@@ -10,9 +10,40 @@ function extractToken(data: unknown): string | null {
   return null
 }
 
+/** { verifyId, phone } from an OTP-sending response (data.* or top level). */
+function extractVerify(data: unknown, endpoint: string): { verifyId: string; phone?: string } {
+  const d = (data && typeof data === 'object' ? data : {}) as Record<string, unknown>
+  const inner = (d.data && typeof d.data === 'object' ? d.data : d) as Record<string, unknown>
+  const verifyId = (inner.verifyId ?? d.verifyId) as string | undefined
+  if (!verifyId || typeof verifyId !== 'string') throw new Error(`Invalid ${endpoint} response: missing verifyId`)
+  const phone = (inner.phone ?? d.phone) as string | undefined
+  return { verifyId, phone }
+}
+
+/** Login rejected because the phone is not verified; the backend already sent an OTP. */
+export class VerificationRequiredError extends Error {
+  verifyId: string
+  phone?: string
+  constructor(verifyId: string, phone?: string) {
+    super('Phone verification required')
+    this.name = 'VerificationRequiredError'
+    this.verifyId = verifyId
+    this.phone = phone
+  }
+}
+
 export const authService = {
   async login(phone: string, password: string): Promise<{ token: string }> {
-    const data = await authApi.post<unknown>('/auth/login', { phone, password })
+    let data: unknown
+    try {
+      data = await authApi.post<unknown>('/auth/login', { phone, password })
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 403 && (err.data as { requires_verification?: boolean } | null)?.requires_verification) {
+        const { verifyId, phone: masked } = extractVerify(err.data, 'login')
+        throw new VerificationRequiredError(verifyId, masked)
+      }
+      throw err
+    }
     const token = extractToken(data)
     if (!token) throw new Error('Invalid login response')
     setToken(token)
@@ -42,19 +73,15 @@ export const authService = {
     email?: string
   }): Promise<{ verifyId: string; phone?: string }> {
     const data = await authApi.post<unknown>('/auth/register/phone', body)
-    const d = (data && typeof data === 'object' ? data : {}) as Record<string, unknown>
-    const inner = (d.data && typeof d.data === 'object' ? d.data : d) as Record<string, unknown>
-    const verifyId = (inner.verifyId ?? d.verifyId) as string | undefined
-    if (!verifyId || typeof verifyId !== 'string') throw new Error('Invalid register/phone response: missing verifyId')
-    const phone = (inner.phone ?? d.phone) as string | undefined
-    return { verifyId, phone }
+    return extractVerify(data, 'register/phone')
   },
 
   /** Step 2: Submit OTP → get token and store it. */
   async verifyOtp(verifyId: string, verifyCode: string): Promise<{ token: string }> {
     const data = await authApi.post<unknown>('/auth/verify/phone/otp', { verifyId, verifyCode })
     const token = extractToken(data)
-    if (!token) throw new Error('Invalid verify OTP response')
+    // backend answers wrong/expired codes with 201/203 + errors; surface its message as a 4xx
+    if (!token) throw new ApiError(422, data)
     setToken(token)
     return { token }
   },
@@ -62,12 +89,27 @@ export const authService = {
   /** Resend OTP for same phone; returns new verifyId. */
   async resendOtp(phone: string): Promise<{ verifyId: string; phone?: string }> {
     const data = await authApi.post<unknown>('/auth/resend-otp', { phone })
-    const d = (data && typeof data === 'object' ? data : {}) as Record<string, unknown>
-    const inner = (d.data && typeof d.data === 'object' ? d.data : d) as Record<string, unknown>
-    const verifyId = (inner.verifyId ?? d.verifyId) as string | undefined
-    if (!verifyId || typeof verifyId !== 'string') throw new Error('Invalid resend-otp response: missing verifyId')
-    const maskedPhone = (inner.phone ?? d.phone) as string | undefined
-    return { verifyId, phone: maskedPhone }
+    return extractVerify(data, 'resend-otp')
+  },
+
+  /** Forgot password step 1: backend sends a reset OTP (same response for unknown numbers). */
+  async forgotPassword(phone: string): Promise<{ verifyId: string; phone?: string }> {
+    const data = await authApi.post<unknown>('/auth/forgot-password', { phone })
+    return extractVerify(data, 'forgot-password')
+  },
+
+  /** Forgot password step 2: OTP + new password → token and store it. */
+  async resetPassword(body: {
+    verifyId: string
+    verifyCode: string
+    password: string
+    password_confirmation: string
+  }): Promise<{ token: string }> {
+    const data = await authApi.post<unknown>('/auth/reset-password', body)
+    const token = extractToken(data)
+    if (!token) throw new Error('Invalid reset-password response')
+    setToken(token)
+    return { token }
   },
 
   /** Dev only: get OTP for testing (backend may disable in production). */

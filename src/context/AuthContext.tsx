@@ -17,12 +17,21 @@ type RegisterBody = {
   email?: string
 }
 
+type ResetPasswordBody = {
+  verifyId: string
+  verifyCode: string
+  password: string
+  password_confirmation: string
+}
+
 interface AuthContextValue extends AuthState {
   login: (phone: string, password: string) => Promise<void>
   register: (body: RegisterBody) => Promise<void>
   registerWithPhone: (body: RegisterBody) => Promise<{ verifyId: string; phone?: string }>
   verifyOtp: (verifyId: string, verifyCode: string) => Promise<void>
   resendOtp: (phone: string) => Promise<{ verifyId: string; phone?: string }>
+  forgotPassword: (phone: string) => Promise<{ verifyId: string; phone?: string }>
+  resetPassword: (body: ResetPasswordBody) => Promise<void>
   logout: () => Promise<void>
   refreshProfile: () => Promise<void>
   isAuthenticated: boolean
@@ -111,6 +120,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  const forgotPassword = useCallback(async (phone: string) => {
+    setState((s) => ({ ...s, loading: true }))
+    try {
+      return await authService.forgotPassword(phone)
+    } finally {
+      setState((s) => ({ ...s, loading: false }))
+    }
+  }, [])
+
+  const resetPassword = useCallback(
+    async (body: ResetPasswordBody) => {
+      setState((s) => ({ ...s, loading: true }))
+      try {
+        await authService.resetPassword(body)
+        await refreshProfile()
+      } finally {
+        setState((s) => ({ ...s, loading: false }))
+      }
+    },
+    [refreshProfile]
+  )
+
   const logout = useCallback(async () => {
     setState((s) => ({ ...s, loading: true }))
     try {
@@ -128,6 +159,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     registerWithPhone,
     verifyOtp,
     resendOtp,
+    forgotPassword,
+    resetPassword,
     logout,
     refreshProfile,
     isAuthenticated: !!state.user || authService.isAuthenticated(),

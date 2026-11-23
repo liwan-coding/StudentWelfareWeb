@@ -26,7 +26,7 @@ const IconError = () => (
   </svg>
 )
 
-export function PaymentReturn() {
+export function PaymentReturn({ cancelled: cancelledRoute = false }: { cancelled?: boolean }) {
   const { t } = useTranslation('common')
   const [searchParams] = useSearchParams()
   const [confirmStatus, setConfirmStatus] = useState<'loading' | 'success' | 'error'>('loading')
@@ -36,8 +36,13 @@ export function PaymentReturn() {
   const donationIdParam = searchParams.get('donation_id')
   const donationId = donationIdParam ? (donationIdParam as string) : undefined
   const result = searchParams.get('result') ?? searchParams.get('status')
+  // 'failed' is the server-checked outcome when the customer leaves the gateway page without paying
   const cancelled =
-    result === 'cancelled' || result === 'cancel' || searchParams.get('cancel') !== null
+    cancelledRoute ||
+    result === 'cancelled' ||
+    result === 'cancel' ||
+    result === 'failed' ||
+    searchParams.get('cancel') !== null
   const isSuccess = result === 'success'
   // confirm with the server when there is a session, or a success result with a donation id
   const needsConfirm = !cancelled && !!((isSuccess || sessionId) && (sessionId || donationId))
@@ -97,6 +102,7 @@ export function PaymentReturn() {
                 <IconCancelled />
               </div>
               <h1 className={styles.title}>{t('donate.paymentCancelled')}</h1>
+              <p className={styles.subtext}>{t('donate.paymentCancelledDetail')}</p>
               <div className={styles.actions}>
                 <Link to="/campaigns" className="ds-btn ds-btn-filled ds-btn-lg">{t('donate.title')}</Link>
               </div>
@@ -110,7 +116,7 @@ export function PaymentReturn() {
               <h1 className={styles.title}>{t('donate.paymentFailed')}</h1>
               <p className={styles.subtext}>{errorMessage || t('donate.paymentFailedDetail')}</p>
               <div className={styles.actions}>
-                <Link to="/campaigns" className="ds-btn ds-btn-gray ds-btn-lg">{t('common.retry')}</Link>
+                <Link to="/campaigns" className="ds-btn ds-btn-filled ds-btn-lg">{t('common.retry')}</Link>
               </div>
             </>
           )}

@@ -14,6 +14,7 @@ import type { CampaignOrProgram, Banner, StudentRegistrationCard, FundNews, Fund
 import { getCampaignProgressPercent } from '../../components/CampaignAmountGoal'
 import { CampaignCard } from '../../components/design/CampaignCard'
 import { donateUrl } from '../../utils/donateUrl'
+import { HeroSteps } from './HeroSteps'
 import styles from './Home.module.css'
 
 function ArrowIcon() {
@@ -77,6 +78,9 @@ export function Home() {
   const [newsList, setNewsList] = useState<FundNews[]>([])
   const [partnersList, setPartnersList] = useState<FundPartner[]>([])
   const [loadingCampaigns, setLoadingCampaigns] = useState(true)
+  // seconds the hero's placeholder tile had been rising when the campaigns arrived, so the
+  // real featured tile picks the entrance up from there instead of starting it over
+  const [featureIntroElapsed, setFeatureIntroElapsed] = useState(0)
   const [loadingPrograms, setLoadingPrograms] = useState(true)
 
   const lang = i18n.language === 'ar' ? 'ar' : 'en'
@@ -92,9 +96,14 @@ export function Home() {
 
   useEffect(() => {
     let cancelled = false
+    const startedAt = performance.now()
     campaignService
       .getAllCampaigns()
-      .then((list) => { if (!cancelled) setCampaigns(list) })
+      .then((list) => {
+        if (cancelled) return
+        setFeatureIntroElapsed((performance.now() - startedAt) / 1000)
+        setCampaigns(list)
+      })
       .catch((err) => {
         if (!cancelled) console.error('[Home] campaigns failed:', err)
       })
@@ -234,11 +243,20 @@ export function Home() {
                 {t('home.ctaApply')}
               </Link>
             </div>
-            <span className={styles.headSteps} aria-hidden="true"><i /><i /><i /><i /></span>
+            <HeroSteps
+              stepsClassName={styles.headSteps}
+              hiddenClassName={styles.stepsHidden}
+              canvasClassName={styles.stepsCanvas}
+              canvasDoneClassName={styles.stepsCanvasDone}
+            />
           </div>
 
           {heroCampaign ? (
-            <Link to={donateUrl('campaign', heroCampaign)} className={`${styles.tile} ${styles.tFeature}`}>
+            <Link
+              to={donateUrl('campaign', heroCampaign)}
+              className={`${styles.tile} ${styles.tFeature}`}
+              style={{ animationDelay: `${0.05 - featureIntroElapsed}s` }}
+            >
               {heroImage && <img src={heroImage} alt="" decoding="async" />}
               <span className={styles.scrim} aria-hidden="true" />
               {tagFor(heroCampaign) && <span className={`ds-badge ${styles.fTag}`}>{tagFor(heroCampaign)}</span>}
