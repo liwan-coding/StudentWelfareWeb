@@ -315,7 +315,7 @@ export function Home() {
             <ul className={styles.pGrid}>
               {programs.map((p, i) => (
                 <li key={p.id}>
-                  <Link to={donateUrl('program', p)} className={styles.pItem}>
+                  <Link to={`/student-registration?program_id=${p.id}`} className={styles.pItem}>
                     <span className={`ds-num ${styles.pNo}`} aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
                     <span className={styles.pName}>{getTitle(p)}</span>
                     <span className={styles.pGo} aria-hidden="true"><ArrowIcon /></span>
@@ -405,11 +405,11 @@ export function Home() {
             <ol className={styles.stairs}>
               {programs.map((p, i) => (
                 <li key={p.id} style={{ '--n': i } as CSSProperties}>
-                  <Link to={donateUrl('program', p)} className={styles.stair}>
+                  <Link to={`/student-registration?program_id=${p.id}`} className={styles.stair}>
                     <span className={styles.stairTitle}>{getTitle(p)}</span>
                     {getDesc(p) && <span className={styles.stairDesc}>{getDesc(p)}</span>}
                     <span className={styles.stairGo}>
-                      {t('home.programDonate')}
+                      {t('home.programRegister')}
                       <ArrowIcon />
                     </span>
                   </Link>

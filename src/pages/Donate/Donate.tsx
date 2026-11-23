@@ -42,9 +42,10 @@ function parseAmountParam(raw: string | null): string {
 }
 
 /**
- * Donate checkout for one campaign or program.
- * Canonical URLs: /c/:slug (campaign) and /p/:slug (program) (optional ?amount=&lang=&ref=).
- * Legacy /donate?campaign_id=1 and /donate?program_id=3 are redirected to the slug URL.
+ * Donate checkout for one campaign.
+ * Canonical URL: /c/:slug (optional ?amount=&lang=&ref=).
+ * Legacy /donate?campaign_id=1 is redirected to the slug URL.
+ * Support programs are registration targets, so /p/:slug and ?program_id= go to student registration.
  */
 export function Donate({ kind }: { kind?: 'campaign' | 'program' }) {
   const { t, i18n } = useTranslation('common')
@@ -55,16 +56,39 @@ export function Donate({ kind }: { kind?: 'campaign' | 'program' }) {
   const campaignIdParam = searchParams.get('campaign_id')
   const programIdParam = searchParams.get('program_id')
   const hasTarget = !!slugParam || !!campaignIdParam || !!programIdParam
+  const redirectingToRegistration = kind === 'program' || (!!programIdParam && kind !== 'campaign')
   const [copySuccess, setCopySuccess] = useState(false)
   const [shareMenuOpen, setShareMenuOpen] = useState(false)
   const shareMenuRef = useRef<HTMLDivElement>(null)
 
-  // التبرع يكون فقط من خلال اختيار حملة أو برنامج — إعادة توجيه الصفحة العامة إلى الحملات
+  // التبرع يكون فقط من خلال اختيار حملة — الصفحة العامة تذهب إلى المبادرات
   useEffect(() => {
-    if (!hasTarget) {
-      navigate('/campaigns', { replace: true })
+    if (redirectingToRegistration || hasTarget) return
+    navigate('/campaigns', { replace: true })
+  }, [hasTarget, navigate, redirectingToRegistration])
+
+  // برامج الدعم للتسجيل وليست للتبرع
+  useEffect(() => {
+    if (!redirectingToRegistration) return
+    if (kind !== 'program') {
+      navigate(`/student-registration?program_id=${encodeURIComponent(programIdParam ?? '')}`, { replace: true })
+      return
     }
-  }, [hasTarget, navigate])
+    if (!slugParam) {
+      navigate('/student-registration', { replace: true })
+      return
+    }
+    let cancelled = false
+    campaignService.getProgram(slugParam)
+      .then((item) => {
+        if (cancelled) return
+        navigate(item?.id ? `/student-registration?program_id=${item.id}` : '/student-registration', { replace: true })
+      })
+      .catch(() => {
+        if (!cancelled) navigate('/student-registration', { replace: true })
+      })
+    return () => { cancelled = true }
+  }, [redirectingToRegistration, kind, slugParam, programIdParam, navigate])
 
   // ?lang=ar|en on a shared link switches the interface language (anything else is ignored)
   const langParam = searchParams.get('lang')
@@ -95,6 +119,7 @@ export function Donate({ kind }: { kind?: 'campaign' | 'program' }) {
   const [detailsLoading, setDetailsLoading] = useState(false)
 
   useEffect(() => {
+    if (redirectingToRegistration) return
     if (slugParam && kind) {
       setSelectedType(kind)
       setSelectedId(slugParam)
@@ -108,7 +133,7 @@ export function Donate({ kind }: { kind?: 'campaign' | 'program' }) {
       setSelectedType('program')
       setSelectedId(programIdParam)
     }
-  }, [slugParam, kind, campaignIdParam, programIdParam])
+  }, [slugParam, kind, campaignIdParam, programIdParam, redirectingToRegistration])
 
   useEffect(() => {
     let cancelled = false
@@ -145,6 +170,7 @@ export function Donate({ kind }: { kind?: 'campaign' | 'program' }) {
   }, [shareMenuOpen])
 
   useEffect(() => {
+    if (redirectingToRegistration) return
     if (!selectedId) {
       setCampaignDetails(null)
       return
@@ -179,7 +205,7 @@ export function Donate({ kind }: { kind?: 'campaign' | 'program' }) {
         if (!cancelled) setDetailsLoading(false)
       })
     return () => { cancelled = true }
-  }, [selectedId, selectedType, slugParam, navigate])
+  }, [selectedId, selectedType, slugParam, navigate, redirectingToRegistration])
 
   const options = selectedType === 'campaign' ? campaigns : programs
   const lang = i18n.language === 'ar' ? 'ar' : 'en'
@@ -287,6 +313,23 @@ export function Donate({ kind }: { kind?: 'campaign' | 'program' }) {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  if (redirectingToRegistration) {
+    return (
+      <PageLayout noPadding design>
+        <div className={styles.page}>
+          <div className={styles.main}>
+            <div className="ds-wrap">
+              <p className={styles.placeholder} role="status">
+                <span className={styles.spinner} aria-hidden="true" />
+                <span>{t('common.loading')}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </PageLayout>
+    )
   }
 
   if (!hasTarget) {

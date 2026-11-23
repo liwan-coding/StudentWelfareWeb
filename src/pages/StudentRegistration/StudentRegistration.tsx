@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { setDocumentDirection } from '../../i18n/config'
 import { PageLayout } from '../../components/layout/PageLayout'
@@ -65,8 +65,9 @@ export function StudentRegistration() {
   const { t, i18n } = useTranslation('common')
   const { isAuthenticated, checked } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchParams] = useSearchParams()
-  const returnUrl = searchParams.get('returnUrl') || '/student-registration'
+  const requestedProgramId = searchParams.get('program_id') ?? ''
   const lang = i18n.language === 'ar' ? 'ar' : 'en'
   const isRtl = (i18n.language || '').startsWith('ar')
 
@@ -77,7 +78,7 @@ export function StudentRegistration() {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  const [programId, setProgramId] = useState('')
+  const [programId, setProgramId] = useState(requestedProgramId)
   const [personal, setPersonal] = useState({
     full_name: '',
     civil_id: '',
@@ -133,11 +134,19 @@ export function StudentRegistration() {
   }, [checked, isAuthenticated])
 
   useEffect(() => {
+    if (!requestedProgramId || programs.length === 0) return
+    if (programs.some((p) => String(p.id) === requestedProgramId)) {
+      setProgramId(requestedProgramId)
+    }
+  }, [requestedProgramId, programs])
+
+  useEffect(() => {
     if (!checked) return
     if (!isAuthenticated) {
-      navigate(`/login?returnUrl=${encodeURIComponent(returnUrl)}`, { replace: true })
+      const here = `${location.pathname}${location.search}`
+      navigate(`/login?returnUrl=${encodeURIComponent(here)}`, { replace: true })
     }
-  }, [checked, isAuthenticated, navigate, returnUrl])
+  }, [checked, isAuthenticated, navigate, location.pathname, location.search])
 
   function buildFormData(): FormData {
     const fd = new FormData()
